@@ -15,10 +15,10 @@ val Typography = Typography(
         fontSize = 16.sp
     ),
 
-    h4 = TextStyle(
+    h3 = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp ,
+        fontSize = 14.sp ,
         color = Color.Blue
     )
 

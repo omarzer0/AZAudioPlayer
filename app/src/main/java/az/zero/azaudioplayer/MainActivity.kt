@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                             textContent = { text ->
                                 Text(
                                     text = text,
-                                    fontSize = MaterialTheme.typography.h4.fontSize,
+                                    fontSize = MaterialTheme.typography.h3.fontSize,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
