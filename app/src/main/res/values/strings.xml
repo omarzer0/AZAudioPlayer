@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">AZAudioPlayer</string>
+    <string name="search">Search</string>
+    <string name="more">More</string>
+
+    <string name="audio">Audio</string>
+    <string name="artist">Artist</string>
+    <string name="albums">Albums</string>
+    <string name="playlists">Playlists</string>
+
+</resources>
