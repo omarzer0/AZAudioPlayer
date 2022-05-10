@@ -11,10 +11,12 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.ui.common_composables.ChangeStatusBarColor
 import az.zero.azaudioplayer.ui.common_composables.TextTab
+import az.zero.azaudioplayer.ui.screens.AudioScreen
 import az.zero.azaudioplayer.ui.theme.AZAudioPlayerTheme
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -25,6 +27,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AZAudioPlayerTheme {
+//                DestinationsNavHost(navGraph = NavGraphs.root)
+
                 val tabNames = getTabsName()
 
                 ChangeStatusBarColor(statusColor = MaterialTheme.colors.primary)
@@ -46,13 +50,19 @@ class MainActivity : ComponentActivity() {
                             textContent = { text ->
                                 Text(
                                     text = text,
+                                    fontWeight = FontWeight.Bold,
                                     fontSize = MaterialTheme.typography.h3.fontSize,
-                                    maxLines = 1,
+                                    maxLines = 2,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
                         ) {
-
+                            when (it) {
+                                0 -> AudioScreen()
+//                                1 -> AudioScreen()
+//                                2 -> AudioScreen()
+//                                3 -> AudioScreen()
+                            }
                         }
                     }
                 }

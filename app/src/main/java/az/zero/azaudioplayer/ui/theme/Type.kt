@@ -18,7 +18,7 @@ val Typography = Typography(
     h3 = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp ,
+        fontSize = 16.sp ,
         color = Color.Blue
     )
 
