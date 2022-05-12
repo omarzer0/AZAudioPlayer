@@ -22,36 +22,36 @@ class AudioNotificationManager(
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
-//    private val notificationManager: PlayerNotificationManager
+    private val notificationManager: PlayerNotificationManager
 
     @Inject
     lateinit var glideManager: RequestManager
 
     init {
         val mediaController = MediaControllerCompat(context, sessionToken)
-//        notificationManager = PlayerNotificationManager.createWithNotificationChannel(
-//            context,
-//            NOTIFICATION_CHANNEL_ID,
-//            R.string.notification_channel_name,
-//            R.string.notification_channel_description,
-//            NOTIFICATION_ID,
-//            DescriptionAdapter(mediaController),
-//            notificationListener
-//        ).apply {
-//            setMediaSessionToken(sessionToken)
-//            setSmallIcon(R.drawable.ic_music)
-//
-//            setRewindIncrementMs(0)
-//            setFastForwardIncrementMs(0)
-//        }
+        notificationManager = PlayerNotificationManager.createWithNotificationChannel(
+            context,
+            NOTIFICATION_CHANNEL_ID,
+            R.string.notification_channel_name,
+            R.string.notification_channel_description,
+            NOTIFICATION_ID,
+            DescriptionAdapter(mediaController),
+            notificationListener
+        ).apply {
+            setMediaSessionToken(sessionToken)
+            setSmallIcon(R.drawable.ic_music)
+
+            setRewindIncrementMs(0)
+            setFastForwardIncrementMs(0)
+        }
     }
 
     fun showNotification(player: Player) {
-//        notificationManager.setPlayer(player)
+        notificationManager.setPlayer(player)
     }
 
     fun hideNotification() {
-//        notificationManager.setPlayer(null)
+        notificationManager.setPlayer(null)
     }
 
     private inner class DescriptionAdapter(private val mediaController: MediaControllerCompat) :
@@ -73,19 +73,20 @@ class AudioNotificationManager(
             player: Player,
             callback: PlayerNotificationManager.BitmapCallback
         ): Bitmap? {
-            val iconUri = mediaController.metadata.description.iconUri
-            return if (currentIconUri != iconUri || currentBitmap == null) {
-                currentIconUri = iconUri
-                serviceScope.launch {
-                    currentBitmap = iconUri?.let {
-                        resolveUriAsBitmap(it)
-                    }
-                    currentBitmap?.let { callback.onBitmap(it) }
-                }
-                null
-            } else {
-                currentBitmap
-            }
+//            val iconUri = mediaController.metadata.description.iconUri
+//            return if (currentIconUri != iconUri || currentBitmap == null) {
+//                currentIconUri = iconUri
+//                serviceScope.launch {
+//                    currentBitmap = iconUri?.let {
+//                        resolveUriAsBitmap(it)
+//                    }
+//                    currentBitmap?.let { callback.onBitmap(it) }
+//                }
+//                null
+//            } else {
+//                currentBitmap
+//            }
+            return null
         }
 
         private suspend fun resolveUriAsBitmap(uri: Uri): Bitmap? {

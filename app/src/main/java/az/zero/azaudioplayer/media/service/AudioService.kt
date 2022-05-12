@@ -1,5 +1,6 @@
 package az.zero.azaudioplayer.media.service
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -8,6 +9,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
+import az.zero.azaudioplayer.db.entities.toMediaMetadataCompat
 import az.zero.azaudioplayer.media.audio_data_source.AudioDataSource
 import az.zero.azaudioplayer.media.extensions.flag
 import az.zero.azaudioplayer.media.extensions.toMediaSource
@@ -59,6 +61,10 @@ class AudioService : MediaBrowserServiceCompat() {
 //    private var currentPlayingAudio: MediaMetadataCompat? = null
 
     private val browseTree: BrowseTree by lazy {
+        // The browse tree listens and add audio from audio source but doesn't directly
+        // hand it to the player, Instead it build up the tree of mediaMetaDataCompat
+        // and when the service calls browseTree[parentId] it gets the data of the new
+        // list. BUT THE UI MUST ONLY SHOW THE SAME LIST AS IN THE PLAYER (DB LIST)
         BrowseTree(applicationContext, audioDataSource)
     }
 
@@ -70,23 +76,26 @@ class AudioService : MediaBrowserServiceCompat() {
             audioDataSource.fetchMediaData()
         }
 
-        audioDataSource.audiosLiveData.observeForever {
+        audioDataSource.audiosLiveData.observeForever { dbAudioList ->
             Log.e("MainViewModel", "onCreate: ")
-            preparePlaylist(null, it, exoPlayer.playWhenReady)
+            val mediaMetaDataList = dbAudioList.map {
+                it.toMediaMetadataCompat()
+            }
+            preparePlaylist(null, mediaMetaDataList, exoPlayer.playWhenReady)
         }
 
-//        val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
-//            PendingIntent.getActivity(
-//                this,
-//                0,
-//                it,
-//                PendingIntent.FLAG_UPDATE_CURRENT
-//            )
-//        }
+        val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
+            PendingIntent.getActivity(
+                this,
+                0,
+                it,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        }
 
         mediaSessionCompat = MediaSessionCompat(this, "MusicService")
             .apply {
-//                setSessionActivity(activityIntent)
+                setSessionActivity(activityIntent)
                 isActive = true
             }
 
@@ -101,7 +110,7 @@ class AudioService : MediaBrowserServiceCompat() {
         }
 
         mediaSessionConnector = MediaSessionConnector(mediaSessionCompat)
-        mediaSessionConnector.setPlaybackPreparer(playbackPreparer)
+//        mediaSessionConnector.setPlaybackPreparer(playbackPreparer)
         mediaSessionConnector.setQueueNavigator(AudioQueueNavigator())
         mediaSessionConnector.setPlayer(exoPlayer)
 
@@ -114,7 +123,10 @@ class AudioService : MediaBrowserServiceCompat() {
     inner class AudioQueueNavigator : TimelineQueueNavigator(mediaSessionCompat) {
         override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
             // called when service needs a new description form a media item
-            return audioDataSource.audios[windowIndex].description
+            Log.e("playPauseOrToggle", "playPauseOrToggle: $windowIndex")
+
+            return audioDataSource.audiosLiveData.value!![windowIndex]
+                .toMediaMetadataCompat().description
         }
     }
 
@@ -177,6 +189,7 @@ class AudioService : MediaBrowserServiceCompat() {
         val mediaSource = metadataList.toMediaSource(dataSourceFactory)
         exoPlayer.prepare(mediaSource)
         exoPlayer.seekTo(initialWindowIndex, playbackStartPositionMs)
+        Log.e("playPauseOrToggle", "playPauseOrToggle:$playWhenReady")
     }
 
     companion object {

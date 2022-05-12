@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import az.zero.azaudioplayer.db.entities.toMediaMetadataCompat
 import az.zero.azaudioplayer.media.audio_data_source.AudioDataSource
 import az.zero.azaudioplayer.media.extensions.album
 import az.zero.azaudioplayer.media.extensions.id
@@ -39,9 +40,10 @@ class PlaybackPreparer(
 
     override fun onPrepareFromMediaId(mediaId: String, playWhenReady: Boolean, extras: Bundle?) {
         audioDataSource.whenReady {
-            val itemToPlay: MediaMetadataCompat? = audioDataSource.audios.find { item ->
-                item.id == mediaId
-            }
+            val itemToPlay: MediaMetadataCompat? =
+                audioDataSource.audiosLiveData.value?.find { item ->
+                    item.toMediaMetadataCompat().id == mediaId
+                }?.toMediaMetadataCompat()
             if (itemToPlay != null) {
                 playerPrepared(
                     itemToPlay,
@@ -52,8 +54,15 @@ class PlaybackPreparer(
         }
     }
 
-    private fun buildPlaylist(item: MediaMetadataCompat): List<MediaMetadataCompat> =
-        audioDataSource.audios.filter { it.album == item.album }.sortedBy { it.trackNumber }
+    private fun buildPlaylist(item: MediaMetadataCompat): List<MediaMetadataCompat>
+        = audioDataSource.audiosLiveData.value!!.map {
+            it.toMediaMetadataCompat()
+        }?.filter {
+            it.album == item.album
+        }?.sortedBy { it.trackNumber }
+
+
+
 
     override fun onPrepareFromSearch(query: String, playWhenReady: Boolean, extras: Bundle?) = Unit
 

@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.x
+
         setContent {
             AZAudioPlayerTheme {
 //                DestinationsNavHost(navGraph = NavGraphs.root)

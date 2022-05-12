@@ -9,12 +9,16 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azaudioplayer.R
+import az.zero.azaudioplayer.db.entities.DBAudio
+import az.zero.azaudioplayer.ui.MainViewModel
 import az.zero.azaudioplayer.ui.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import com.ramcosta.composedestinations.annotation.Destination
@@ -23,21 +27,34 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 @RootNavGraph(start = true)
 @Destination
 @Composable
-fun AudioScreen() {
+fun AudioScreen(
+    viewModel: MainViewModel = hiltViewModel()
+) {
     var selected by remember { mutableStateOf(0) }
 
+    val audioList by viewModel.allAudio.observeAsState()
+
     LazyColumn {
-        val listSize = 20
+        if (audioList.isNullOrEmpty()) return@LazyColumn
+        val listSize = audioList?.size!!
         items(listSize) { index ->
-            AudioItem(isSelected = selected == index) {
+            AudioItem(
+                audioList!![index],
+                isSelected = selected == index
+            ) {
                 selected = index
+                viewModel.play(audioList!![index].data)
             }
         }
     }
 }
 
 @Composable
-fun AudioItem(isSelected: Boolean, onClick: () -> Unit) {
+fun AudioItem(
+    audio: DBAudio,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
     val textColor = if (isSelected) SelectedColor
     else MaterialTheme.colors.onPrimary
 
@@ -52,9 +69,14 @@ fun AudioItem(isSelected: Boolean, onClick: () -> Unit) {
             modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text(text = "Name", color = textColor, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = audio.title,
+                color = textColor,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Description", color = textColor, fontSize = 14.sp)
+            Text(text = audio.displayName, color = textColor, fontSize = 14.sp)
         }
         IconButton(onClick = {}) {
             Icon(

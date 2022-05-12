@@ -10,6 +10,10 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import az.zero.azaudioplayer.db.entities.DBAudio
+import az.zero.azaudioplayer.media.extensions.isPlayEnabled
+import az.zero.azaudioplayer.media.extensions.isPlaying
+import az.zero.azaudioplayer.media.extensions.isPrepared
 import az.zero.azaudioplayer.media.service.AudioService
 
 class AudioServiceConnection(
@@ -21,6 +25,12 @@ class AudioServiceConnection(
 
     private val _audioConnectionData = MutableLiveData<AudioConnectionData>()
     val audioConnectionData: LiveData<AudioConnectionData> = _audioConnectionData
+
+    private val _playbackState = MutableLiveData<PlaybackStateCompat?>()
+    val playbackState: LiveData<PlaybackStateCompat?> = _playbackState
+
+    private val _curPlayingSong = MutableLiveData<MediaMetadataCompat?>()
+    val curPlayingSong: LiveData<MediaMetadataCompat?> = _curPlayingSong
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
 
@@ -41,6 +51,29 @@ class AudioServiceConnection(
 
     fun unsubscribe(parentId: String) {
         mediaBrowser.unsubscribe(parentId)
+    }
+
+    fun playPauseOrToggle(mediaItem: String, toggle: Boolean = false) {
+        val isPrepared = playbackState.value?.isPrepared ?: false
+        val currentSongId =
+            curPlayingSong.value?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+
+        Log.e("playPauseOrToggle", "playPauseOrToggle: $mediaItem")
+        if (isPrepared && mediaItem == currentSongId) {
+            // If we call this fun with the same current playing song
+            // We can pause it if playbackState.isPlaying
+            // We can play it again from start if playbackState.isPlayEnabled
+            playbackState.value?.let { playbackState ->
+                when {
+                    playbackState.isPlaying -> if (toggle) transportControls.pause()
+                    playbackState.isPlayEnabled -> transportControls.play()
+                    else -> Unit
+                }
+            }
+        } else {
+            // New song so play it
+            transportControls.playFromMediaId(mediaItem, null)
+        }
     }
 
 

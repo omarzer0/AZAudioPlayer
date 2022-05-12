@@ -21,6 +21,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
 import az.zero.azaudioplayer.R
+import az.zero.azaudioplayer.db.entities.toMediaMetadataCompat
 import az.zero.azaudioplayer.media.audio_data_source.AudioDataSource
 import az.zero.azaudioplayer.media.extensions.*
 
@@ -114,7 +115,7 @@ class BrowseTree(context: Context, audioDataSource: AudioDataSource) {
         audioDataSource.audiosLiveData.observeForever {
             Log.e("testForMLD", "$it")
 
-            it.forEach { mediaItem ->
+            it.forEach { dbAudio ->
                 //            val albumMediaId = ""
 //            val albumChildren = mediaIdToChildren[albumMediaId] ?: buildAlbumRoot(mediaItem)
 //            albumChildren += mediaItem
@@ -126,6 +127,7 @@ class BrowseTree(context: Context, audioDataSource: AudioDataSource) {
 //                recommendedChildren += mediaItem
 //                mediaIdToChildren[RECOMMENDED_ROOT] = recommendedChildren
 //            }
+                val mediaItem = dbAudio.toMediaMetadataCompat()
                 val albumChildren = mediaIdToChildren[ALBUMS_ROOT] ?: buildAlbumRoot(mediaItem)
                 albumChildren += mediaItem
                 albumChildren += mediaItem
