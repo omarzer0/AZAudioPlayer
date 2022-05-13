@@ -94,6 +94,7 @@ class AudioDbHelper @Inject constructor(
                 val albumArtUri = ContentUris.withAppendedId(sArtworkUri, id)
                 val cover = albumArtUri.toString()
 
+                val duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
                 val dbAudio = DBAudio(
                     data, title, artist, lastDateModified, displayName, album, year, cover
                 )

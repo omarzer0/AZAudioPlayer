@@ -3,7 +3,7 @@ package az.zero.azaudioplayer.media.player.callbacks
 import android.app.Notification
 import android.content.Intent
 import androidx.core.content.ContextCompat
-import az.zero.azaudioplayer.media.notifications.AudioNotificationManager.Companion.NOTIFICATION_ID
+import az.zero.azaudioplayer.media.player.AudioNotificationManager.Companion.NOTIFICATION_ID
 import az.zero.azaudioplayer.media.service.AudioService
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 

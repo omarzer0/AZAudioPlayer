@@ -16,48 +16,22 @@
 
 package az.zero.azaudioplayer.media.audio_data_source
 
-import android.support.v4.media.MediaMetadataCompat
+import androidx.lifecycle.distinctUntilChanged
 import az.zero.azaudioplayer.db.AudioDao
 import az.zero.azaudioplayer.media.audio_data_source.State.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AudioDataSource @Inject constructor(
     private val audioDao: AudioDao
 ) {
+    val audiosLiveData = audioDao.getAllDbAudio().distinctUntilChanged()
 
-    val audios = mutableListOf<MediaMetadataCompat>()
-
-    //    val audiosLiveData = MutableLiveData<MutableList<MediaMetadataCompat>>()
-    val audiosLiveData = audioDao.getAllDbAudio()
-
-    var i = true
-
-    // TODO Here define the list of playlist that vm and browse tree observe
-    suspend fun fetchMediaData() {
-        withContext(Dispatchers.IO) {
-//            val localList = mutableListOf<MediaMetadataCompat>()
-//            repeat(10) {
-//                val audio = Audio(
-//                    "$it",
-//                    "Title:$it",
-//                    "Subtitle:$it",
-//                    "/storage/emulated/0/snaptube/download/SnapTube Audio/Facebook 493303585076267(audio).aac",
-//                    "/storage/emulated/0/snaptube/download/SnapTube Audio/Facebook 493303585076267(audio).aac"
-//                )
-//                localList.add(audio.toMediaMetadataCompat())
-//            }
-//            audiosLiveData.postValue(localList)
-//            audios.addAll(localList)
+    init {
+        audiosLiveData.observeForever {
+            if (it.isNotEmpty()) state = STATE_INITIALIZED
         }
-        state = STATE_INITIALIZED
-//        if (i) {
-//            i = false
-//            delay(5000)
-//            fetchMediaData()
-//        }
     }
+    // TODO Here define the list of playlist that vm and browse tree observe
 
     private var state: State = STATE_CREATED
         set(value) {

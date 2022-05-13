@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.media.notifications
+package az.zero.azaudioplayer.media.player
 
 import android.app.PendingIntent
 import android.content.Context
@@ -6,45 +6,38 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
+import androidx.core.app.NotificationCompat
 import az.zero.azaudioplayer.R
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import kotlinx.coroutines.*
-import javax.inject.Inject
 
 class AudioNotificationManager(
     private val context: Context,
-    sessionToken: MediaSessionCompat.Token,
-    notificationListener: PlayerNotificationManager.NotificationListener,
-    private val newSongCallback: () -> Unit
+    private val sessionToken: MediaSessionCompat.Token,
+    private val notificationListener: PlayerNotificationManager.NotificationListener,
 ) {
+    private val mediaController = MediaControllerCompat(context, sessionToken)
 
-    private val serviceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
-    private val notificationManager: PlayerNotificationManager
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.Main + job)
 
-    @Inject
-    lateinit var glideManager: RequestManager
-
-    init {
-        val mediaController = MediaControllerCompat(context, sessionToken)
-        notificationManager = PlayerNotificationManager.createWithNotificationChannel(
-            context,
-            NOTIFICATION_CHANNEL_ID,
-            R.string.notification_channel_name,
-            R.string.notification_channel_description,
-            NOTIFICATION_ID,
-            DescriptionAdapter(mediaController),
-            notificationListener
-        ).apply {
+    private val notificationManager: PlayerNotificationManager = PlayerNotificationManager.Builder(
+        context,
+        NOTIFICATION_ID,
+        NOTIFICATION_CHANNEL_ID
+    )
+        .setMediaDescriptionAdapter(DescriptionAdapter(mediaController))
+        .setNotificationListener(notificationListener)
+        .build().apply {
             setMediaSessionToken(sessionToken)
             setSmallIcon(R.drawable.ic_music)
-
-            setRewindIncrementMs(0)
-            setFastForwardIncrementMs(0)
+            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         }
-    }
+
 
     fun showNotification(player: Player) {
         notificationManager.setPlayer(player)
@@ -73,32 +66,39 @@ class AudioNotificationManager(
             player: Player,
             callback: PlayerNotificationManager.BitmapCallback
         ): Bitmap? {
-//            val iconUri = mediaController.metadata.description.iconUri
-//            return if (currentIconUri != iconUri || currentBitmap == null) {
-//                currentIconUri = iconUri
-//                serviceScope.launch {
-//                    currentBitmap = iconUri?.let {
-//                        resolveUriAsBitmap(it)
-//                    }
-//                    currentBitmap?.let { callback.onBitmap(it) }
-//                }
-//                null
-//            } else {
-//                currentBitmap
-//            }
-            return null
+            val iconUri = mediaController.metadata.description.iconUri
+            return if (currentIconUri != iconUri || currentBitmap == null) {
+                currentIconUri = iconUri
+                scope.launch {
+                    currentBitmap = iconUri?.let {
+                        resolveUriAsBitmap(it)
+                    }
+                    currentBitmap?.let { callback.onBitmap(it) }
+                }
+                null
+            } else {
+                currentBitmap
+            }
         }
 
         private suspend fun resolveUriAsBitmap(uri: Uri): Bitmap? {
             return withContext(Dispatchers.IO) {
                 // Block on downloading artwork.
-                glideManager
-                    .asBitmap().load(uri)
-                    .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE)
-                    .get()
+                try {
+                    Glide.with(context).applyDefaultRequestOptions(glideOptions)
+                        .asBitmap().load(uri)
+                        .submit()
+                        .get()
+                }catch (e:Exception){
+                    null
+                }
             }
         }
     }
+
+    private val glideOptions = RequestOptions()
+        .fallback(R.drawable.ic_image)
+        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
 
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "AZ play"

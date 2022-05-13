@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package az.zero.azaudioplayer.media.extensions
+package az.zero.azaudioplayer.media.player.extensions
 
 import android.os.SystemClock
 import android.support.v4.media.session.PlaybackStateCompat

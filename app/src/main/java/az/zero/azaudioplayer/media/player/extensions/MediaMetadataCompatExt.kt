@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package az.zero.azaudioplayer.media.extensions
+package az.zero.azaudioplayer.media.player.extensions
 
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.core.net.toUri
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
 
 /**
  * Useful extensions for [MediaMetadataCompat].
@@ -120,9 +116,9 @@ inline val MediaMetadataCompat.downloadStatus
  * Custom property for storing whether a [MediaMetadataCompat] item represents an
  * item that is [MediaItem.FLAG_BROWSABLE] or [MediaItem.FLAG_PLAYABLE].
  */
-@MediaItem.Flags
-inline val MediaMetadataCompat.flag
-    get() = this.getLong(METADATA_KEY_UAMP_FLAGS).toInt()
+//@MediaItem.Flags
+//inline val MediaMetadataCompat.flag
+//    get() = this.getLong(METADATA_KEY_UAMP_FLAGS).toInt()
 
 /**
  * Useful extensions for [MediaMetadataCompat.Builder].
@@ -242,45 +238,3 @@ inline var MediaMetadataCompat.Builder.downloadStatus: Long
     set(value) {
         putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
     }
-
-/**
- * Custom property for storing whether a [MediaMetadataCompat] item represents an
- * item that is [MediaItem.FLAG_BROWSABLE] or [MediaItem.FLAG_PLAYABLE].
- */
-@MediaItem.Flags
-inline var MediaMetadataCompat.Builder.flag: Int
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
-    set(value) {
-        putLong(METADATA_KEY_UAMP_FLAGS, value.toLong())
-    }
-
-/**
- * Extension method for building an [ExtractorMediaSource] from a [MediaMetadataCompat] object.
- *
- * For convenience, place the [MediaDescriptionCompat] into the tag so it can be retrieved later.
- */
-fun MediaMetadataCompat.toMediaSource(dataSourceFactory: DataSource.Factory) =
-    ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaUri)
-
-/**
- * Extension method for building a [ConcatenatingMediaSource] given a [List]
- * of [MediaMetadataCompat] objects.
- */
-fun List<MediaMetadataCompat>.toMediaSource(
-    dataSourceFactory: DataSource.Factory
-): ConcatenatingMediaSource {
-
-    val concatenatingMediaSource = ConcatenatingMediaSource()
-    forEach {
-        concatenatingMediaSource.addMediaSource(it.toMediaSource(dataSourceFactory))
-    }
-    return concatenatingMediaSource
-}
-
-/**
- * Custom property that holds whether an item is [MediaItem.FLAG_BROWSABLE] or
- * [MediaItem.FLAG_PLAYABLE].
- */
-const val METADATA_KEY_UAMP_FLAGS = "com.example.android.uamp.media.METADATA_KEY_UAMP_FLAGS"
-

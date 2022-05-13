@@ -2,15 +2,11 @@ package az.zero.azaudioplayer.di
 
 import android.content.Context
 import androidx.room.Room
-import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.db.AppDatabase
 import az.zero.azaudioplayer.db.AppDatabase.Companion.DATABASE_NAME
 import az.zero.azaudioplayer.db.AudioDao
-import az.zero.azaudioplayer.media.connection.AudioServiceConnection
+import az.zero.azaudioplayer.media.player.AudioServiceConnection
 
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,17 +26,6 @@ object AppModule {
     fun provideMusicServiceConnection(
         @ApplicationContext context: Context
     ) = AudioServiceConnection(context)
-
-    @Singleton
-    @Provides
-    fun provideGlideInstance(
-        @ApplicationContext context: Context
-    ) = Glide.with(context).setDefaultRequestOptions(
-        RequestOptions()
-            .placeholder(R.drawable.ic_image)
-            .error(R.drawable.ic_image)
-            .diskCacheStrategy(DiskCacheStrategy.DATA)
-    )
 
     @Singleton
     @Provides
