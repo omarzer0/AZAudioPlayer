@@ -1,7 +1,6 @@
 package az.zero.azaudioplayer.ui.common_composables
 
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.IndicatorHeight

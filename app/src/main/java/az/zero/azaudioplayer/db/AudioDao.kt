@@ -9,8 +9,11 @@ import az.zero.azaudioplayer.db.entities.DBAudio
 @Dao
 interface AudioDao {
 
-    @Query("SELECT * FROM DBAudio")
+    @Query("SELECT * FROM DBAudio ORDER BY lastDateModified DESC")
     fun getAllDbAudio(): LiveData<List<DBAudio>>
+
+    @Query("SELECT * FROM DBAudio ORDER BY lastDateModified DESC")
+    suspend fun getAllDbAudioSingleList(): List<DBAudio>
 
     @Transaction
     @Query("SELECT * FROM DBAlbum")

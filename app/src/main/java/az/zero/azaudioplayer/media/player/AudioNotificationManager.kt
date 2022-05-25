@@ -7,6 +7,7 @@ import android.net.Uri
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import az.zero.azaudioplayer.AZApplication.Companion.NOTIFICATION_CHANNEL_ID
 import az.zero.azaudioplayer.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -101,9 +102,7 @@ class AudioNotificationManager(
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
 
     companion object {
-        const val NOTIFICATION_CHANNEL_ID = "AZ play"
         const val NOTIFICATION_ID = 1015
-        const val NOTIFICATION_LARGE_ICON_SIZE = 144
     }
 }
 

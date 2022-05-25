@@ -1,9 +1,11 @@
 package az.zero.azaudioplayer.ui
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -12,8 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.common_composables.ChangeStatusBarColor
 import az.zero.azaudioplayer.ui.common_composables.TextTab
@@ -40,12 +44,12 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     modifier = Modifier,
-                    backgroundColor = MaterialTheme.colors.background,
+                    backgroundColor = MaterialTheme.colors.primary,
                     topBar = {
                         AppBar()
                     },
                 ) {
-                    Box {
+                    Column {
                         TextTab(
                             listOfTabNames = tabNames,
                             tabHostBackgroundColor = MaterialTheme.colors.primary,
@@ -56,9 +60,10 @@ class MainActivity : ComponentActivity() {
                                 Text(
                                     text = text,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = MaterialTheme.typography.h3.fontSize,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
+                                    fontSize = 12.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Start
                                 )
                             }
                         ) {
@@ -70,10 +75,35 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+
                 }
 
             }
         }
+    }
+
+    private val activityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val failedToGrant = permissions.entries.any { !it.value }
+            if (failedToGrant) {
+                finish()
+                return@registerForActivityResult
+            }
+        }
+
+    override fun onStart() {
+        super.onStart()
+
+        activityResultLauncher.launch(
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activityResultLauncher.unregister()
     }
 }
 

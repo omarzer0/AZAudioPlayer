@@ -6,8 +6,8 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import az.zero.azaudioplayer.R
+import az.zero.azaudioplayer.db.AudioDao
 import az.zero.azaudioplayer.db.entities.DBAlbum
 import az.zero.azaudioplayer.db.entities.DBAudio
 import az.zero.azaudioplayer.di.ApplicationScope
@@ -21,47 +21,59 @@ class AudioDbHelper @Inject constructor(
     @ApplicationScope private val applicationScope: CoroutineScope,
 ) {
 
-    fun compare(
-        oldList: List<DBAudio>, // from db
-        newList: List<DBAudio>, // from local files
-        listToDeleteFromDb: suspend (List<DBAudio>) -> Unit,
-        listToAddToDb: suspend (List<DBAudio>) -> Unit,
-        listOfAlbums: suspend (List<DBAlbum>) -> Unit
-    ) {
-        val listToDelete: MutableList<DBAudio> = mutableListOf()
-        oldList.forEach { oldAudio ->
-            val exist = newList.any { newAudioList -> newAudioList.data == oldAudio.data }
-            if (!exist) listToDelete.add(oldAudio)
-        }.also { applicationScope.launch { listToDeleteFromDb(listToDelete) } }
-
-        val listToAdd: MutableList<DBAudio> = mutableListOf()
-        newList.forEach { newAudio ->
-            val exist = oldList.any { oldAudioList -> oldAudioList.data == newAudio.data }
-            if (!exist) listToAdd.add(newAudio)
-        }.also { applicationScope.launch { listToAddToDb(listToAdd) } }
-
-        val albums: MutableList<DBAlbum> = mutableListOf()
-        newList.forEach { dbAudio ->
-            val albumExist = albums.any { dbAlbum ->
-                dbAlbum.name == dbAudio.album
-            }
-
-            if (!albumExist) albums.add(DBAlbum(dbAudio.album))
-        }.also { applicationScope.launch { listOfAlbums(albums) } }
+    fun compareWithLocalList(dao: AudioDao) {
+        applicationScope.launch {
+            val databaseList = dao.getAllDbAudioSingleList()
+            val localList = getMusic()
+            computeItemsToAdd(databaseList, localList, dao)
+            computeItemsToDelete(databaseList, localList, dao)
+            computeAlbumItems(localList, dao)
+        }
     }
 
-    fun compareWithLocalList(
+    private fun computeItemsToAdd(
         databaseList: List<DBAudio>,
-        listToDeleteFromDb: suspend (List<DBAudio>) -> Unit,
-        listToAddToDb: suspend (List<DBAudio>) -> Unit,
-        listOfAlbums: suspend (List<DBAlbum>) -> Unit
+        localList: List<DBAudio>,
+        dao: AudioDao
     ) {
-        Log.e("getAllDbAudio", "compareWithLocalList")
+        applicationScope.launch {
+            val listToAdd: MutableList<DBAudio> = mutableListOf()
+            localList.forEach { newAudio ->
+                val exist = databaseList.any { oldAudioList -> oldAudioList.data == newAudio.data }
+                if (!exist) listToAdd.add(newAudio)
+            }.also { listToAdd.forEach { audio -> dao.insert(audio) } }
+        }
+    }
 
-        val newList = getMusic()
-        Log.e("getAllDbAudio", "compareWithLocalList $newList")
+    private fun computeItemsToDelete(
+        databaseList: List<DBAudio>,
+        localList: List<DBAudio>,
+        dao: AudioDao
+    ) {
+        applicationScope.launch {
+            val listToDelete: MutableList<DBAudio> = mutableListOf()
+            databaseList.forEach { oldAudio ->
+                val exist = localList.any { newAudioList -> newAudioList.data == oldAudio.data }
+                if (!exist) listToDelete.add(oldAudio)
+            }.also { listToDelete.forEach { audio -> dao.delete(audio) } }
+        }
+    }
 
-        compare(databaseList, newList, listToDeleteFromDb, listToAddToDb,listOfAlbums)
+    private fun computeAlbumItems(
+        localList: List<DBAudio>,
+        dao: AudioDao
+    ) {
+        applicationScope.launch {
+            val albums: MutableList<DBAlbum> = mutableListOf()
+            localList.forEach { dbAudio ->
+                val albumExist = albums.any { dbAlbum -> dbAlbum.name == dbAudio.album }
+                if (!albumExist) albums.add(DBAlbum(dbAudio.album))
+            }.also {
+                dao.deleteAllAlbums()
+                albums.forEach { album -> dao.insert(album) }
+            }
+        }
+
     }
 
     @SuppressLint("Range")
@@ -75,34 +87,50 @@ class AudioDbHelper @Inject constructor(
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 val data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
-                    ?: continue
-                val title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
-                    ?: context.getString(R.string.unknown)
-                val artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
-                    ?: context.getString(R.string.unknown)
+
+                val title =
+                    getOrUnknown(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)))
+
+                val artist =
+                    getOrUnknown(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)))
+
                 val lastDateModified =
                     cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED))
+
                 val displayName =
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME))
-                        ?: context.getString(R.string.unknown)
-                val album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
-                    ?: context.getString(R.string.unknown)
-                val year = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.YEAR))
-                    ?: context.getString(R.string.unknown)
+                    getOrUnknown(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)))
+
+                val album =
+                    getOrUnknown(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)))
+
+                val year =
+                    getOrUnknown(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.YEAR)))
+
                 val id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID))
+
                 val sArtworkUri = Uri.parse("content://media/external/audio/albumart")
+
                 val albumArtUri = ContentUris.withAppendedId(sArtworkUri, id)
+
                 val cover = albumArtUri.toString()
 
-                val duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
+                val duration =
+                    cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
+
                 val dbAudio = DBAudio(
                     data, title, artist, lastDateModified, displayName, album, year, cover
                 )
+
                 localList.add(dbAudio)
             }
         }
         cursor?.close()
         return localList
+    }
+
+    private fun getOrUnknown(text: String?): String {
+        return if (text == null || text == "<unknown>") context.getString(R.string.unknown)
+        else text
     }
 }
 

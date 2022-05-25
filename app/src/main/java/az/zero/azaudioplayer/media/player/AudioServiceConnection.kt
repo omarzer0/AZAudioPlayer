@@ -10,6 +10,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import az.zero.azaudioplayer.media.player.extensions.id
 import az.zero.azaudioplayer.media.player.extensions.isPlayEnabled
 import az.zero.azaudioplayer.media.player.extensions.isPlaying
 import az.zero.azaudioplayer.media.player.extensions.isPrepared
@@ -29,8 +30,8 @@ class AudioServiceConnection @Inject constructor(
 //    private val _playbackState = MutableLiveData<PlaybackStateCompat?>()
 //    val playbackState: LiveData<PlaybackStateCompat?> = _playbackState
 
-    private val _curPlayingSong = MutableLiveData<MediaMetadataCompat?>()
-    val curPlayingSong: LiveData<MediaMetadataCompat?> = _curPlayingSong
+//    private val _curPlayingSong = MutableLiveData<MediaMetadataCompat?>()
+//    val curPlayingSong: LiveData<MediaMetadataCompat?> = _curPlayingSong
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
 
@@ -48,9 +49,9 @@ class AudioServiceConnection @Inject constructor(
     fun playPauseOrToggle(mediaItem: String, toggle: Boolean = false) {
         val playState = audioConnectionData.value?.playbackState
         val isPrepared = audioConnectionData.value?.playbackState?.isPrepared ?: false
-        val currentSongId =
-            curPlayingSong.value?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+        val currentSongId = audioConnectionData.value?.nowPlaying?.description?.mediaId
 
+        // TODO fix not pausing
         Log.e("playPauseOrToggle", "playPauseOrToggle:$isPrepared $currentSongId $mediaItem")
         if (isPrepared && mediaItem == currentSongId) {
             // If we call this fun with the same current playing song
@@ -96,17 +97,23 @@ class AudioServiceConnection @Inject constructor(
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             // Player state ex: (play/pause) changed
             Log.e("playPauseOrToggle", "playPauseOrToggle:dasdsa${state}")
-            updateState(audioConnectionData.value?.copy(playbackState = state))
+            updateState(
+                audioConnectionData.value?.copy(
+                    playbackState = state ?: EMPTY_PLAYBACK_STATE
+                )
+            )
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             // Current playing song changed
-            _curPlayingSong.postValue(metadata)
-            updateState(audioConnectionData.value?.copy(nowPlaying = metadata))
+            updateState(
+                audioConnectionData.value?.copy(
+                    nowPlaying = if (metadata?.id == null) NOTHING_PLAYING else metadata
+                )
+            )
         }
 
         // onSessionEvent to handle errors
-
         override fun onSessionDestroyed() {
             mediaBrowserConnectionCallback.onConnectionSuspended()
         }

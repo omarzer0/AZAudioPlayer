@@ -5,6 +5,7 @@ import androidx.room.Room
 import az.zero.azaudioplayer.db.AppDatabase
 import az.zero.azaudioplayer.db.AppDatabase.Companion.DATABASE_NAME
 import az.zero.azaudioplayer.db.AudioDao
+import az.zero.azaudioplayer.db.DatabaseCallback
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
 
 import dagger.Module
@@ -31,7 +32,7 @@ object AppModule {
     @Provides
     fun provideDatabase(
         @ApplicationContext context: Context,
-        callback: AppDatabase.DatabaseCallback
+        callback: DatabaseCallback
     ): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
             .fallbackToDestructiveMigration()
@@ -48,11 +49,6 @@ object AppModule {
     fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 }
 
-/** Defined a scope for coroutine as if later a different scope is used this
- *  will tell dagger that this is as long as the application lives and other
- *  scopes can be defend
- *  @author Omar Adel
- **/
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
 annotation class ApplicationScope
