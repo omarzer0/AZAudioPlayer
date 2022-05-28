@@ -43,7 +43,7 @@ private object AZAudioPlayerTheme : RippleTheme {
     // or when you set light parameter to false
     @Composable
     override fun defaultColor(): Color = if (isSystemInDarkTheme()) {
-        Color.LightGray
+        Color.White
     } else {
         Color.DarkGray
     }

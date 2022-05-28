@@ -1,6 +1,7 @@
-package az.zero.azaudioplayer.ui
+package az.zero.azaudioplayer.ui.screens.home
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import az.zero.azaudioplayer.db.AudioDao
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,7 +9,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val audioServiceConnection: AudioServiceConnection,
     private val audioDao: AudioDao
 ) : ViewModel() {
@@ -17,6 +18,8 @@ class MainViewModel @Inject constructor(
         audioServiceConnection.playPauseOrToggle(audioDataId)
     }
 
-    val allAudio = audioDao.getAllDbAudio()
+    val allAudio by lazy { audioDao.getAllDbAudio().distinctUntilChanged() }
+
+    val allAlbums by lazy { audioDao.getAlbumWithAudio().distinctUntilChanged() }
 
 }

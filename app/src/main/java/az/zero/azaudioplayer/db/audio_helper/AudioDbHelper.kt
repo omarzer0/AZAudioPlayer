@@ -7,9 +7,9 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import az.zero.azaudioplayer.R
+import az.zero.azaudioplayer.data.models.Audio
+import az.zero.azaudioplayer.data.models.DBAlbum
 import az.zero.azaudioplayer.db.AudioDao
-import az.zero.azaudioplayer.db.entities.DBAlbum
-import az.zero.azaudioplayer.db.entities.DBAudio
 import az.zero.azaudioplayer.di.ApplicationScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -32,12 +32,12 @@ class AudioDbHelper @Inject constructor(
     }
 
     private fun computeItemsToAdd(
-        databaseList: List<DBAudio>,
-        localList: List<DBAudio>,
+        databaseList: List<Audio>,
+        localList: List<Audio>,
         dao: AudioDao
     ) {
         applicationScope.launch {
-            val listToAdd: MutableList<DBAudio> = mutableListOf()
+            val listToAdd: MutableList<Audio> = mutableListOf()
             localList.forEach { newAudio ->
                 val exist = databaseList.any { oldAudioList -> oldAudioList.data == newAudio.data }
                 if (!exist) listToAdd.add(newAudio)
@@ -46,12 +46,12 @@ class AudioDbHelper @Inject constructor(
     }
 
     private fun computeItemsToDelete(
-        databaseList: List<DBAudio>,
-        localList: List<DBAudio>,
+        databaseList: List<Audio>,
+        localList: List<Audio>,
         dao: AudioDao
     ) {
         applicationScope.launch {
-            val listToDelete: MutableList<DBAudio> = mutableListOf()
+            val listToDelete: MutableList<Audio> = mutableListOf()
             databaseList.forEach { oldAudio ->
                 val exist = localList.any { newAudioList -> newAudioList.data == oldAudio.data }
                 if (!exist) listToDelete.add(oldAudio)
@@ -60,7 +60,7 @@ class AudioDbHelper @Inject constructor(
     }
 
     private fun computeAlbumItems(
-        localList: List<DBAudio>,
+        localList: List<Audio>,
         dao: AudioDao
     ) {
         applicationScope.launch {
@@ -77,8 +77,8 @@ class AudioDbHelper @Inject constructor(
     }
 
     @SuppressLint("Range")
-    fun getMusic(): List<DBAudio> {
-        val localList = mutableListOf<DBAudio>()
+    fun getMusic(): List<Audio> {
+        val localList = mutableListOf<Audio>()
         val contentResolver: ContentResolver = context.contentResolver
         val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0"
@@ -117,7 +117,7 @@ class AudioDbHelper @Inject constructor(
                 val duration =
                     cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
 
-                val dbAudio = DBAudio(
+                val dbAudio = Audio(
                     data, title, artist, lastDateModified, displayName, album, year, cover
                 )
 

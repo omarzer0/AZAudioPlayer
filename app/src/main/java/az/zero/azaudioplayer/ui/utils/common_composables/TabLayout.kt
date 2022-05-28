@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.common_composables
+package az.zero.azaudioplayer.ui.utils.common_composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

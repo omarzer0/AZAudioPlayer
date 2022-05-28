@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_nav_graph.xml"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.home.HomeFragment"
+        android:label="HomeFragment">
+        <action
+            android:id="@+id/action_homeFragment_to_albumDetailsFragment"
+            app:destination="@id/albumDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/albumDetailsFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.album_details_fragment.AlbumDetailsFragment"
+        android:label="AlbumDetailsFragment" >
+        <argument
+            android:name="audioList"
+            app:argType="az.zero.azaudioplayer.data.models.Audio[]" />
+    </fragment>
+</navigation>

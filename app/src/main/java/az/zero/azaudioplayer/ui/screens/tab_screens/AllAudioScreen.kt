@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.screens
+package az.zero.azaudioplayer.ui.screens.tab_screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -13,8 +13,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,31 +27,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.distinctUntilChanged
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.db.entities.DBAudio
-import az.zero.azaudioplayer.ui.MainViewModel
-import az.zero.azaudioplayer.ui.common_composables.clickableSafeClick
+import az.zero.azaudioplayer.data.models.Audio
+import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.ui_extensions.getColor
+import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 
-@RootNavGraph(start = true)
-@Destination
+
 @Composable
-fun AudioScreen(
-    viewModel: MainViewModel = hiltViewModel()
-) {
-    var selected by remember { mutableStateOf(0) }
+fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: Int = -1) {
+    var selectedId = selected
 
-    val audioList by remember { viewModel.allAudio.distinctUntilChanged() }.observeAsState()
+    if (audioList.isNullOrEmpty()) return
 
-    LazyColumn {
+    val listSize = audioList.size
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             Spacer(
                 modifier = Modifier
@@ -61,15 +53,13 @@ fun AudioScreen(
             )
         }
 
-        if (audioList.isNullOrEmpty()) return@LazyColumn
-        val listSize = audioList?.size!!
         items(listSize) { index ->
             AudioItem(
-                audioList!![index],
-                isSelected = selected == index
+                audioList[index],
+                isSelected = selectedId == index
             ) {
-                selected = index
-                viewModel.play(audioList!![index].data)
+                selectedId = index
+                viewModel.play(audioList[index].data)
             }
         }
     }
@@ -77,7 +67,7 @@ fun AudioScreen(
 
 @Composable
 fun AudioItem(
-    audio: DBAudio,
+    audio: Audio,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -112,8 +102,11 @@ fun AudioItem(
                 .clip(CircleShape)
                 .border(
                     border = BorderStroke(
-                        width = 1.dp, brush = Brush.radialGradient(
-                            colors = listOf(getColor("#FF6200EE"), getColor("#EE0014"))
+                        width = 0.5.dp, brush = Brush.linearGradient(
+                            colors = listOf(
+                                Color.Red,
+                                Color.Blue
+                            )
                         )
                     ),
                     CircleShape
@@ -137,7 +130,14 @@ fun AudioItem(
                 textAlign = TextAlign.Start,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = audio.artist, color = textColor, fontSize = 14.sp)
+            Text(
+                text = "${audio.artist} - ${audio.album}",
+                color = textColor,
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Start,
+            )
         }
         Spacer(modifier = Modifier.width(16.dp))
 

@@ -12,10 +12,10 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
-import az.zero.azaudioplayer.db.entities.DBAudio
-import az.zero.azaudioplayer.db.entities.toExoMediaItem
-import az.zero.azaudioplayer.db.entities.toMediaItem
-import az.zero.azaudioplayer.db.entities.toMediaMetadataCompat
+import az.zero.azaudioplayer.data.models.Audio
+import az.zero.azaudioplayer.data.models.toExoMediaItem
+import az.zero.azaudioplayer.data.models.toMediaItem
+import az.zero.azaudioplayer.data.models.toMediaMetadataCompat
 import az.zero.azaudioplayer.media.audio_data_source.AudioDataSource
 import az.zero.azaudioplayer.media.player.AudioNotificationManager
 import az.zero.azaudioplayer.media.player.callbacks.PlayerEventListener
@@ -55,7 +55,7 @@ class AudioService : MediaBrowserServiceCompat() {
 
     var isForegroundService = false
 
-    private var currentPlaylistItems: List<DBAudio> = emptyList()
+    private var currentPlaylistItems: List<Audio> = emptyList()
 
 
     override fun onCreate() {
