@@ -14,4 +14,9 @@
     <string name="connection_suspended">Connection suspended. Please try again.</string>
     <string name="failed_to_connect">Failed to connect.</string>
     <string name="unknown">unknown</string>
+
+    <string name="of_albums">Albums</string>
+    <string name="of_artists">Artists</string>
+    <string name="of_audios">Audios</string>
+
 </resources>

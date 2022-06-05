@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.db.audio_helper
+package az.zero.azaudioplayer.data.db.helpers
 
 import android.annotation.SuppressLint
 import android.content.ContentResolver
@@ -7,10 +7,12 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.data.models.Audio
-import az.zero.azaudioplayer.data.models.DBAlbum
-import az.zero.azaudioplayer.db.AudioDao
+import az.zero.azaudioplayer.data.db.AudioDao
 import az.zero.azaudioplayer.di.ApplicationScope
+import az.zero.azaudioplayer.domain.models.Audio
+import az.zero.azaudioplayer.domain.models.DBAlbum
+import az.zero.azaudioplayer.domain.models.DBArtist
+import az.zero.azaudioplayer.domain.models.Playlist
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -28,6 +30,7 @@ class AudioDbHelper @Inject constructor(
             computeItemsToAdd(databaseList, localList, dao)
             computeItemsToDelete(databaseList, localList, dao)
             computeAlbumItems(localList, dao)
+            computeArtistItems(localList, dao)
         }
     }
 
@@ -73,8 +76,32 @@ class AudioDbHelper @Inject constructor(
                 albums.forEach { album -> dao.insert(album) }
             }
         }
-
     }
+
+    private fun computeArtistItems(
+        localList: List<Audio>,
+        dao: AudioDao
+    ) {
+        applicationScope.launch {
+            val artists: MutableList<DBArtist> = mutableListOf()
+
+            localList.forEach { dbAudio ->
+                val artistExist = artists.any { dbArtist -> dbArtist.name == dbAudio.artist }
+                if (!artistExist) artists.add(DBArtist(dbAudio.artist))
+            }.also {
+                dao.deleteAllArtists()
+                artists.forEach { artist -> dao.insert(artist) }
+            }
+        }
+    }
+
+    fun createFavouritePlaylist(dao: AudioDao) {
+        applicationScope.launch {
+            val playlist = Playlist("-1", emptyList())
+            dao.addPlayList(playlist)
+        }
+    }
+
 
     @SuppressLint("Range")
     fun getMusic(): List<Audio> {

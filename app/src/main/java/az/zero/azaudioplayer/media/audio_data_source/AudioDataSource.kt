@@ -1,7 +1,7 @@
 package az.zero.azaudioplayer.media.audio_data_source
 
 import androidx.lifecycle.distinctUntilChanged
-import az.zero.azaudioplayer.db.AudioDao
+import az.zero.azaudioplayer.data.db.AudioDao
 import az.zero.azaudioplayer.media.audio_data_source.State.*
 import javax.inject.Inject
 

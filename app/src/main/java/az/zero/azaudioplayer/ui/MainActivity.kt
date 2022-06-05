@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
                 finish()
                 return@registerForActivityResult
             }
+
         }
 
     override fun onStart() {

@@ -22,35 +22,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.data.models.Audio
+import az.zero.azaudioplayer.domain.models.Audio
+import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
+import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
 
-
 @Composable
 fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: Int = -1) {
     var selectedId = selected
 
     if (audioList.isNullOrEmpty()) return
-
     val listSize = audioList.size
+
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-            )
+            val headerText = "$listSize ${stringResource(id = R.string.of_audios)}"
+            ItemsHeader(text = headerText)
         }
 
         items(listSize) { index ->
@@ -123,8 +119,7 @@ fun AudioItem(
             Text(
                 text = audio.title,
                 color = textColor,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.h2,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
@@ -132,8 +127,8 @@ fun AudioItem(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "${audio.artist} - ${audio.album}",
-                color = textColor,
-                fontSize = 14.sp,
+                color = SecondaryTextColor,
+                style = MaterialTheme.typography.body2,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
@@ -146,7 +141,7 @@ fun AudioItem(
             Icon(
                 Icons.Filled.MoreVert,
                 stringResource(id = R.string.more),
-                tint = textColor
+                tint = SecondaryTextColor
             )
         }
     }

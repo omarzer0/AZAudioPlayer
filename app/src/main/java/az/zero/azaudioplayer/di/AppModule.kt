@@ -2,10 +2,11 @@ package az.zero.azaudioplayer.di
 
 import android.content.Context
 import androidx.room.Room
-import az.zero.azaudioplayer.db.AppDatabase
-import az.zero.azaudioplayer.db.AppDatabase.Companion.DATABASE_NAME
-import az.zero.azaudioplayer.db.AudioDao
-import az.zero.azaudioplayer.db.DatabaseCallback
+import az.zero.azaudioplayer.data.db.AppDatabase
+import az.zero.azaudioplayer.data.db.AppDatabase.Companion.DATABASE_NAME
+import az.zero.azaudioplayer.data.db.AudioDao
+import az.zero.azaudioplayer.data.db.DatabaseCallback
+import az.zero.azaudioplayer.data.db.helpers.AudioTypeConverters
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
 
 import dagger.Module
@@ -35,6 +36,7 @@ object AppModule {
         callback: DatabaseCallback
     ): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
+            .addTypeConverter(AudioTypeConverters())
             .fallbackToDestructiveMigration()
             .addCallback(callback)
             .build()

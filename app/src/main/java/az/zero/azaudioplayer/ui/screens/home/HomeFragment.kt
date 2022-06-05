@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,6 +26,9 @@ import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
+import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
+import az.zero.azaudioplayer.ui.screens.tab_screens.PlaylistScreen
+import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.common_composables.TextTab
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -82,9 +84,11 @@ fun HomeFragmentContent(
                 when (it) {
                     0 -> {
                         val audioList by remember { viewModel.allAudio }.observeAsState()
-                        AllAudioScreen(viewModel,audioList,0)
+                        AllAudioScreen(viewModel, audioList, 0)
                     }
+                    1 -> ArtistScreen(viewModel, navController)
                     2 -> AlbumScreen(viewModel, navController)
+                    3 -> PlaylistScreen(viewModel, navController)
                 }
             }
         }

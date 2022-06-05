@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.data.models
+package az.zero.azaudioplayer.domain.models
 
 import android.os.Parcelable
 import android.support.v4.media.MediaBrowserCompat
@@ -23,6 +23,7 @@ data class Audio(
     val album: String,
     val year: String,
     val cover: String,
+//    val isFavourite: Boolean = false,
     val id: Long? = null,
 ) : Parcelable
 

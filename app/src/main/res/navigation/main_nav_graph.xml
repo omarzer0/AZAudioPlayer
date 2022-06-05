@@ -18,6 +18,6 @@
         android:label="AlbumDetailsFragment" >
         <argument
             android:name="audioList"
-            app:argType="az.zero.azaudioplayer.data.models.Audio[]" />
+            app:argType="az.zero.azaudioplayer.domain.models.Audio[]" />
     </fragment>
 </navigation>

@@ -14,7 +14,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,16 +24,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.data.models.Album
+import az.zero.azaudioplayer.domain.models.Album
+import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
+import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
 import coil.compose.rememberAsyncImagePainter
@@ -47,17 +46,21 @@ fun AlbumScreen(
     viewModel: HomeViewModel,
     navController: NavController
 ) {
-    val albumList by remember { viewModel.allAlbums }.observeAsState()
+    val albumList = remember { viewModel.allAlbums }.observeAsState().value
     if (albumList.isNullOrEmpty()) return
-    val listSize = albumList?.size!!
+    val listSize = albumList.size
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            val headerText = "$listSize ${stringResource(id = R.string.of_albums)}"
+            ItemsHeader(text = headerText)
+        }
 
         items(listSize) { index ->
-            AlbumItem(album = albumList!![index]) {
+            AlbumItem(album = albumList[index]) {
                 navController.navigate(
                     HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                        albumList!![index].audioList.toTypedArray()
+                        albumList[index].audioList.toTypedArray()
                     )
                 )
             }
@@ -128,14 +131,17 @@ fun AlbumItem(album: Album, onClick: () -> Unit) {
             Text(
                 text = albumName,
                 color = textColor,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.h2,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = artistName, color = textColor, fontSize = 14.sp)
+            Text(
+                text = artistName,
+                color = SecondaryTextColor,
+                style = MaterialTheme.typography.body1
+            )
         }
         Spacer(modifier = Modifier.width(16.dp))
 
@@ -146,7 +152,7 @@ fun AlbumItem(album: Album, onClick: () -> Unit) {
             Icon(
                 Icons.Filled.KeyboardArrowRight,
                 stringResource(id = R.string.more),
-                tint = textColor
+                tint = SecondaryTextColor
             )
         }
     }

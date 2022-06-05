@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.data.models
+package az.zero.azaudioplayer.domain.models
 
 import androidx.room.Embedded
 import androidx.room.Entity
