@@ -14,7 +14,7 @@
     </fragment>
     <fragment
         android:id="@+id/albumDetailsFragment"
-        android:name="az.zero.azaudioplayer.ui.screens.album_details_fragment.AlbumDetailsFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.details.AlbumDetailsFragment"
         android:label="AlbumDetailsFragment" >
         <argument
             android:name="audioList"

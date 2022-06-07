@@ -16,6 +16,7 @@ import az.zero.azaudioplayer.domain.models.Playlist
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 class AudioDbHelper @Inject constructor(
@@ -114,6 +115,7 @@ class AudioDbHelper @Inject constructor(
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 val data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
+//                if (!File(data).exists()) continue
 
                 val title =
                     getOrUnknown(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)))

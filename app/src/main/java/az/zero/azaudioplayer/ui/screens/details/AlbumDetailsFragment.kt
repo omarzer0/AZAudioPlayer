@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.screens.album_details_fragment
+package az.zero.azaudioplayer.ui.screens.details
 
 import android.os.Bundle
 import android.view.LayoutInflater

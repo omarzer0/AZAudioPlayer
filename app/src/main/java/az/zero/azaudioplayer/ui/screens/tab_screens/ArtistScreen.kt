@@ -2,6 +2,7 @@ package az.zero.azaudioplayer.ui.screens.tab_screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -35,19 +36,18 @@ fun ArtistScreen(
 ) {
     val artistList = remember { viewModel.allArtists }.observeAsState().value
     if (artistList.isNullOrEmpty()) return
-    val listSize = artistList.size
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            val headerText = "$listSize ${stringResource(id = R.string.of_artists)}"
+            val headerText = "${artistList.size} ${stringResource(id = R.string.of_artists)}"
             ItemsHeader(text = headerText)
         }
 
-        items(listSize) { index ->
-            ArtistItem(artistList[index]) {
+        items(artistList, key = { it.artist.name }) { artist ->
+            ArtistItem(artist) {
                 navController.navigate(
                     HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                        artistList[index].audioList.toTypedArray()
+                        artist.audioList.toTypedArray()
                     )
                 )
             }
