@@ -27,6 +27,11 @@ android {
 
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        beta {
             signingConfig signingConfigs.debug
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -130,6 +135,9 @@ dependencies {
 
     // Live data ex for compose
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+
+    // More Icons
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
 
 
     //    // Compose navigation

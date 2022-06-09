@@ -26,8 +26,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideMusicServiceConnection(
-        @ApplicationContext context: Context
-    ) = AudioServiceConnection(context)
+        @ApplicationContext context: Context,
+        dao: AudioDao,
+        @ApplicationScope scope: CoroutineScope
+    ) = AudioServiceConnection(context, dao, scope)
 
     @Singleton
     @Provides

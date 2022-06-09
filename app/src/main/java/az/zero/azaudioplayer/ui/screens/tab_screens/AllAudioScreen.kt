@@ -19,6 +19,7 @@ import az.zero.azaudioplayer.domain.models.Audio
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
+import az.zero.azaudioplayer.ui.screens.home.AudioActions
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
@@ -42,7 +43,7 @@ fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: 
                 isSelected = selectedId == index
             ) {
                 selectedId = index
-                viewModel.play(audio.data)
+                viewModel.audioAction(AudioActions.Toggle(audio.data))
             }
         }
     }

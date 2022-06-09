@@ -45,5 +45,8 @@ interface AudioDao {
     @Query("Delete From DBArtist")
     suspend fun deleteAllArtists()
 
+    @Query("SELECT * FROM Audio WHERE data =:audioData")
+    suspend fun getAudioById(audioData: String): Audio?
+
 
 }

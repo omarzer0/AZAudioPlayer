@@ -20,4 +20,8 @@
             android:name="audioList"
             app:argType="az.zero.azaudioplayer.domain.models.Audio[]" />
     </fragment>
+    <dialog
+        android:id="@+id/playerBottomSheetFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.player.PlayerBottomSheetFragment"
+        android:label="PlayerBottomSheetFragment" /><action android:id="@+id/action_global_playerBottomSheetFragment" app:destination="@id/playerBottomSheetFragment"/>
 </navigation>
