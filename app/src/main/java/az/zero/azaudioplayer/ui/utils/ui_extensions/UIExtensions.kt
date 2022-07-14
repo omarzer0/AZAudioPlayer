@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.ui_extensions
+package az.zero.azaudioplayer.ui.utils.ui_extensions
 
 import android.util.LayoutDirection
 import androidx.compose.runtime.Stable
@@ -23,7 +23,7 @@ fun Color.isColorDark(): Boolean {
     return darkness >= 0.5
 }
 
-fun getColor(colorString: String): Color {
+fun getColorFromHex(colorString: String): Color {
     val colorToConvert = if (!colorString.startsWith('#')) "#$colorString"
     else colorString
     return Color(android.graphics.Color.parseColor(colorToConvert))

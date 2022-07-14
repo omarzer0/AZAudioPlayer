@@ -8,4 +8,22 @@
     <string name="albums">Albums</string>
     <string name="playlists">Playlists</string>
 
+    <string name="notification_channel_name">AZ player channel</string>
+    <string name="notification_channel_description">Notification for the currently playing audio</string>
+    <string name="network_error">Please check your Internet connection</string>
+    <string name="connection_suspended">Connection suspended. Please try again.</string>
+    <string name="failed_to_connect">Failed to connect.</string>
+    <string name="unknown">unknown</string>
+
+    <string name="of_albums">Albums</string>
+    <string name="of_artists">Artists</string>
+    <string name="of_audios">Audios</string>
+
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="favourites">Favourites</string>
+
 </resources>
