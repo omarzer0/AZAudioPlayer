@@ -47,8 +47,8 @@ class AudioService : MediaBrowserServiceCompat() {
     private lateinit var audioNotificationManager: AudioNotificationManager
     private lateinit var playerEventListener: PlayerEventListener
 
-    private val serviceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
+//    private val serviceJob = Job()
+//    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
 
     private lateinit var mediaSessionCompat: MediaSessionCompat
     private lateinit var mediaSessionConnector: MediaSessionConnector
@@ -107,23 +107,6 @@ class AudioService : MediaBrowserServiceCompat() {
         override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
             // called when service needs a new description form a media item
             return audioDataSource.audiosLiveData.value!![windowIndex].toMediaMetadataCompat().description
-        }
-    }
-
-
-    private fun play() {
-        exoPlayer.prepare()
-        exoPlayer.play()
-    }
-
-    private fun pause() {
-        exoPlayer.pause()
-    }
-
-    private fun handlePlay() {
-        exoPlayer.let {
-            if (it.isPlaying) pause()
-            else play()
         }
     }
 

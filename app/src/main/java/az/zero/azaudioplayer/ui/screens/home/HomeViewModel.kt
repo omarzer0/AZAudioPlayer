@@ -23,7 +23,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    val currentPlayingAudio = audioServiceConnection.audioConnectionData.distinctUntilChanged()
+    val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
+    val playbackState = audioServiceConnection.playbackState
 
     val allAudio by lazy { audioDao.getAllDbAudio().distinctUntilChanged() }
 

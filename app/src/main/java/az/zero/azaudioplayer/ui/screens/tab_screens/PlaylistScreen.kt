@@ -17,7 +17,7 @@ fun PlaylistScreen(
     navController: NavController
 ) {
 
-    val allPlaylist = remember { viewModel.allPlaylists }.observeAsState().value
+    val allPlaylist = viewModel.allPlaylists.observeAsState().value
     if (allPlaylist.isNullOrEmpty()) return
     val listSize = allPlaylist.size
 

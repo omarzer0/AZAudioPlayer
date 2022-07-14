@@ -24,6 +24,12 @@ interface AudioDao {
     @Query("SELECT * FROM Playlist")
     fun getAllPlayLists(): LiveData<List<Playlist>>
 
+    @Query("SELECT * FROM Playlist WHERE isFavouritePlaylist = 0")
+    suspend fun getAllPlayListsWithoutFavouritePlaylist(): List<Playlist>
+
+    @Query("SELECT * FROM Audio WHERE isFavourite = 1")
+    suspend fun getFavouritePlaylist(): List<Audio>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(audio: Audio): Long
 
@@ -45,8 +51,13 @@ interface AudioDao {
     @Query("Delete From DBArtist")
     suspend fun deleteAllArtists()
 
+    @Query("DELETE FROM Playlist WHERE isFavouritePlaylist = 0")
+    suspend fun deleteAllPlaylistsWithoutFavourite()
+
+    @Query("DELETE FROM Playlist WHERE isFavouritePlaylist = 1")
+    suspend fun deleteFavouritePlaylist()
+
     @Query("SELECT * FROM Audio WHERE data =:audioData")
     suspend fun getAudioById(audioData: String): Audio?
-
 
 }

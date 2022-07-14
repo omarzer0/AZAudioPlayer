@@ -16,7 +16,6 @@ import az.zero.azaudioplayer.domain.models.Playlist
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 class AudioDbHelper @Inject constructor(
@@ -32,6 +31,7 @@ class AudioDbHelper @Inject constructor(
             computeItemsToDelete(databaseList, localList, dao)
             computeAlbumItems(localList, dao)
             computeArtistItems(localList, dao)
+            computeFavouritePlaylist(dao, localList)
         }
     }
 
@@ -45,7 +45,24 @@ class AudioDbHelper @Inject constructor(
             localList.forEach { newAudio ->
                 val exist = databaseList.any { oldAudioList -> oldAudioList.data == newAudio.data }
                 if (!exist) listToAdd.add(newAudio)
-            }.also { listToAdd.forEach { audio -> dao.insert(audio) } }
+            }.also {
+                listToAdd.forEach { audio -> dao.insert(audio) }
+            }
+        }
+    }
+
+    private fun computeFavouritePlaylist(dao: AudioDao, audioList: List<Audio>) {
+        audioList.filter { it.isFavourite }.also {
+            applicationScope.launch {
+                dao.deleteFavouritePlaylist()
+                dao.addPlayList(
+                    Playlist(
+                        name = context.getString(R.string.favourites),
+                        audioList = it,
+                        isFavouritePlaylist = true
+                    )
+                )
+            }
         }
     }
 
@@ -59,7 +76,23 @@ class AudioDbHelper @Inject constructor(
             databaseList.forEach { oldAudio ->
                 val exist = localList.any { newAudioList -> newAudioList.data == oldAudio.data }
                 if (!exist) listToDelete.add(oldAudio)
-            }.also { listToDelete.forEach { audio -> dao.delete(audio) } }
+            }.also {
+                listToDelete.forEach { audio -> dao.delete(audio) }
+                removeDeletedAudioFromPlaylists(dao, listToDelete)
+            }
+        }
+    }
+
+    private fun removeDeletedAudioFromPlaylists(dao: AudioDao, listToDelete: List<Audio>) {
+        val playlistsToAdd: MutableList<Playlist> = mutableListOf()
+        applicationScope.launch {
+            val playlists = dao.getAllPlayListsWithoutFavouritePlaylist()
+            playlists.forEach {
+                val newAudioList = it.audioList.filter { audio -> !listToDelete.contains(audio) }
+                playlistsToAdd.add(Playlist(it.name, newAudioList, it.isFavouritePlaylist))
+            }
+            dao.deleteAllPlaylistsWithoutFavourite()
+            playlistsToAdd.forEach { dao.addPlayList(it) }
         }
     }
 
@@ -93,13 +126,6 @@ class AudioDbHelper @Inject constructor(
                 dao.deleteAllArtists()
                 artists.forEach { artist -> dao.insert(artist) }
             }
-        }
-    }
-
-    fun createFavouritePlaylist(dao: AudioDao) {
-        applicationScope.launch {
-            val playlist = Playlist("-1", emptyList())
-            dao.addPlayList(playlist)
         }
     }
 
@@ -147,7 +173,7 @@ class AudioDbHelper @Inject constructor(
                     cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
 
                 val dbAudio = Audio(
-                    data, title, artist, lastDateModified, displayName, album, year, cover
+                    data, title, artist, lastDateModified, displayName, album, year, cover, duration
                 )
 
                 localList.add(dbAudio)

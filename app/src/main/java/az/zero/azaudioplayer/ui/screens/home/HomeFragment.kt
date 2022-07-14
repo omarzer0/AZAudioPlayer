@@ -122,9 +122,10 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState().value
-        val audio = currentPlayingAudio?.nowPlayingAudio ?: EMPTY_AUDIO
-        val isPlaying = currentPlayingAudio?.playbackState?.isPlaying ?: false
+        val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
+        val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
+        val playingState = viewModel.playbackState.observeAsState()
+        val isPlaying = playingState.value?.isPlaying ?: false
 
         Spacer(
             modifier = Modifier

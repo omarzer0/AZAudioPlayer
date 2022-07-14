@@ -2,6 +2,7 @@ package az.zero.azaudioplayer.media.player
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.SystemClock
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -27,18 +28,17 @@ class AudioServiceConnection @Inject constructor(
     val dao: AudioDao,
     @ApplicationScope val scope: CoroutineScope
 ) {
-//    val rootMediaId: String get() = mediaBrowser.root
+    private val _nowPlayingAudio = MutableLiveData(EMPTY_AUDIO)
+    val nowPlayingAudio: LiveData<Audio?> = _nowPlayingAudio
 
-//    val dataChanged: MutableLiveData<Boolean> = MutableLiveData(false)
+    private val _isConnected = MutableLiveData(false)
+    val isConnected: LiveData<Boolean> = _isConnected
 
-//    private val _playbackState = MutableLiveData<PlaybackStateCompat?>()
-//    val playbackState: LiveData<PlaybackStateCompat?> = _playbackState
+    private val _playbackState = MutableLiveData(EMPTY_PLAYBACK_STATE)
+    val playbackState: LiveData<PlaybackStateCompat?> = _playbackState
 
-//    private val _curPlayingAudio = MutableLiveData<MediaMetadataCompat?>()
-//    val curPlayingAudio: LiveData<MediaMetadataCompat?> = _curPlayingAudio
-
-    private val _audioConnectionData = MutableLiveData<AudioConnectionData>()
-    val audioConnectionData: LiveData<AudioConnectionData> = _audioConnectionData
+//    private val _audioConnectionData = MutableLiveData<AudioConnectionData>()
+//    val audioConnectionData: LiveData<AudioConnectionData> = _audioConnectionData
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback()
 
@@ -55,9 +55,9 @@ class AudioServiceConnection @Inject constructor(
 
     fun playPauseOrToggle(mediaItem: String) {
         if (mediaItem.isEmpty()) return
-        val playState = _audioConnectionData.value?.playbackState
-        val isPrepared = _audioConnectionData.value?.playbackState?.isPrepared ?: false
-        val currentSongId = _audioConnectionData.value?.nowPlayingAudio?.data
+        val playState = _playbackState.value
+        val isPrepared = _playbackState.value?.isPrepared ?: false
+        val currentSongId = _nowPlayingAudio.value?.data
 
         if (isPrepared && mediaItem == currentSongId) {
             // If we call this fun with the same current playing song
@@ -77,6 +77,31 @@ class AudioServiceConnection @Inject constructor(
         }
     }
 
+    fun playOrPause() {
+        val isPlaying = _playbackState.value?.state == PlaybackStateCompat.STATE_PLAYING
+        if (isPlaying) transportControls.pause()
+        else transportControls.play()
+    }
+
+    fun seekTo(position: Long) {
+        transportControls.seekTo(position)
+    }
+
+    fun skipToNext() {
+        transportControls.skipToNext()
+    }
+
+    fun skipToPrevious() {
+        transportControls.skipToPrevious()
+    }
+
+    fun pause() {
+        transportControls.pause()
+    }
+
+    fun play() {
+        transportControls.play()
+    }
 
     inner class MediaBrowserConnectionCallback :
         MediaBrowserCompat.ConnectionCallback() {
@@ -86,16 +111,16 @@ class AudioServiceConnection @Inject constructor(
                 MediaControllerCompat(context, mediaBrowser.sessionToken).apply {
                     registerCallback(MediaControllerCallback())
                 }
-            updateState(_audioConnectionData.value?.copy(isConnected = true))
+            _isConnected.postValue(true)
 
         }
 
         override fun onConnectionSuspended() {
-            updateState(_audioConnectionData.value?.copy(isConnected = false))
+            _isConnected.postValue(false)
         }
 
         override fun onConnectionFailed() {
-            updateState(_audioConnectionData.value?.copy(isConnected = false))
+            _isConnected.postValue(false)
         }
     }
 
@@ -103,24 +128,15 @@ class AudioServiceConnection @Inject constructor(
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             // Player state ex: (play/pause) changed
-            Log.e("playPauseOrToggle", "playPauseOrToggle:dasdsa${state}")
-            updateState(
-                _audioConnectionData.value?.copy(
-                    playbackState = state ?: EMPTY_PLAYBACK_STATE
-                )
-            )
+            Log.e("playPauseOrToggle", "playPauseOrToggle:dasdsa${state?.position}")
+            _playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             // Current playing song changed
-
-            val data = metadata?.id
-            if (data == null || data == _audioConnectionData.value?.nowPlayingAudio?.data) return
-            Log.e("currentlyPlaying32", "$data")
-
             scope.launch {
-                val audio = dao.getAudioById(data) ?: return@launch
-                updateState(_audioConnectionData.value?.copy(nowPlayingAudio = audio))
+                val audio = metadata?.id?.let { dao.getAudioById(it) } ?: EMPTY_AUDIO
+                _nowPlayingAudio.postValue(audio)
             }
         }
 
@@ -131,30 +147,17 @@ class AudioServiceConnection @Inject constructor(
 
         override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {
             super.onQueueChanged(queue)
-            Log.e("MainViewModel", "onQueueChanged: $queue")
-//            dataChanged.postValue(true)
+
         }
     }
 
-    private fun updateState(audioConnectionData: AudioConnectionData?) {
-        audioConnectionData?.let {
-            Log.e("currentlyPlaying3", "$it")
-            _audioConnectionData.postValue(it)
-        }
-    }
+    fun getPlayBackState(): PlaybackStateCompat = _playbackState.value ?: EMPTY_PLAYBACK_STATE
+
 
     init {
         scope.launch {
             // TODO replace with last played song
-            val id =
-                "/storage/emulated/0/YoWhatsApp/Media/YoWhatsApp Audio/AUD-20211118-WA0000.opus"
-            val audio = dao.getAudioById(id)
-
-            updateState(
-                AudioConnectionData(
-                    nowPlayingAudio = audio ?: EMPTY_AUDIO
-                )
-            )
+            _nowPlayingAudio.postValue(EMPTY_AUDIO)
         }
     }
 }
@@ -170,11 +173,20 @@ val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
     .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
     .build()
 
-val EMPTY_AUDIO = Audio("", "", "", 0, "", "", "", "")
+val EMPTY_AUDIO = Audio("", "", "", 0, "", "", "", "", 0)
 
-data class AudioConnectionData(
-    val isConnected: Boolean = false,
-    val networkFailure: Boolean = false,
-    val playbackState: PlaybackStateCompat? = EMPTY_PLAYBACK_STATE,
-    val nowPlayingAudio: Audio = EMPTY_AUDIO,
-)
+inline val PlaybackStateCompat.currentPlayBackPosition: Long
+    get() = if (state == PlaybackStateCompat.STATE_PLAYING) {
+        val timeDelta = SystemClock.elapsedRealtime() - lastPositionUpdateTime
+        (position + (timeDelta * playbackSpeed)).toLong()
+    } else {
+        position
+    }
+
+
+//data class AudioConnectionData(
+//    val isConnected: Boolean = false,
+//    val networkFailure: Boolean = false,
+//    val playbackState: PlaybackStateCompat? = EMPTY_PLAYBACK_STATE,
+//    val nowPlayingAudio: Audio = EMPTY_AUDIO,
+//)

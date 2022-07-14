@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
@@ -68,7 +68,8 @@ fun CustomImage(
     image: String,
     modifier: Modifier = Modifier,
     cornerShape: Shape = RoundedCornerShape(12.dp),
-    imageBackgroundColor: Color = Color.White
+    imageBackgroundColor: Color = Color.White,
+    contentScale: ContentScale = ContentScale.FillBounds
 ) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
@@ -82,25 +83,28 @@ fun CustomImage(
     Image(
         painter = painter,
         contentDescription = null,
-        contentScale = ContentScale.FillBounds,
+        contentScale = contentScale,
         modifier = modifier
             .size(width = 48.dp, height = 48.dp)
-            .border(
-                border = BorderStroke(
-                    width = 0.5.dp, brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color.Red,
-                            Color.Blue
-                        )
-                    )
-                ),
-                shape = cornerShape
-            )
+            .colorFullBorder(cornerShape)
             .clip(cornerShape)
             .background(imageBackgroundColor),
         alignment = Alignment.Center,
     )
 }
+
+fun Modifier.colorFullBorder(cornerShape: Shape = RoundedCornerShape(12.dp)) = this.border(
+    border = BorderStroke(
+        width = 0.5.dp, brush = Brush.linearGradient(
+            colors = listOf(
+                Color.Red,
+                Color.Blue
+            )
+        )
+    ),
+    shape = cornerShape
+)
+
 
 @Composable
 fun TopWithBottomText(
@@ -108,7 +112,9 @@ fun TopWithBottomText(
     topTextName: String,
     topTextColor: Color = MaterialTheme.colors.onPrimary,
     bottomTextName: String,
-    bottomTextColor: Color = SecondaryTextColor
+    bottomTextColor: Color = SecondaryTextColor,
+    topTextStyle: TextStyle = MaterialTheme.typography.h2,
+    bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
 ) {
     Column(
         modifier = modifier,
@@ -117,7 +123,7 @@ fun TopWithBottomText(
         Text(
             text = topTextName,
             color = topTextColor,
-            style = MaterialTheme.typography.h2,
+            style = topTextStyle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -125,7 +131,7 @@ fun TopWithBottomText(
         Text(
             text = bottomTextName,
             color = bottomTextColor,
-            style = MaterialTheme.typography.body1,
+            style = bottomTextStyle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

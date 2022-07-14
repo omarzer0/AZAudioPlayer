@@ -17,9 +17,9 @@ class DatabaseCallback @Inject constructor(
         audioDbHelper.compareWithLocalList(dao)
     }
 
-    override fun onCreate(db: SupportSQLiteDatabase) {
-        super.onCreate(db)
-        val dao = database.get().getAudioDao()
-        audioDbHelper.createFavouritePlaylist(dao)
-    }
+//    override fun onCreate(db: SupportSQLiteDatabase) {
+//        super.onCreate(db)
+//        val dao = database.get().getAudioDao()
+//        audioDbHelper.createFavouritePlaylist(dao)
+//    }
 }

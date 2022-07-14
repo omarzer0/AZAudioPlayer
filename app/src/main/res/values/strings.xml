@@ -20,5 +20,10 @@
     <string name="of_audios">Audios</string>
 
     <string name="play">Play</string>
+    <string name="pause">Pause</string>
+
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="favourites">Favourites</string>
 
 </resources>
