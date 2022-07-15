@@ -55,13 +55,6 @@ class PlayerBottomSheetViewModel @Inject constructor(
         }, POSITION_UPDATE_INTERVAL_MILLIS)
     }
 
-//    val currentPlayingAudio = audioServiceConnection.audioConnectionData.distinctUntilChanged().also { data ->
-//        data.observeForever {
-//            Log.e("imageTestVM", "changed ${it.nowPlayingAudio.displayName}")
-//            Log.e("imageTestVM", "changed ${it.nowPlayingAudio.cover}")
-//        }
-//    }
-
     val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
     val playbackState = audioServiceConnection.playbackState.distinctUntilChanged()
 

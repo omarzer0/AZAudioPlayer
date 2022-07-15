@@ -5,9 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -101,16 +98,32 @@ fun PlayerScreen(
                 .height(250.dp)
         )
 
-        AudioSeekbar(position,
-            totalTime = audio.duration,
-            isPlaying = isPlaying,
-            viewModel = viewModel,
-            onValueChange = {
-                position = it
+        // TODO need cleaning up!
+        var stopAutoUpdate by remember { mutableStateOf(false) }
+        var autoUpdateValue by remember(currentPosition.value) {
+            mutableStateOf(currentPosition.value ?: 0)
+        }
+        var userDraggedValue by remember { mutableStateOf(0f) }
+
+        AudioSeekbar(
+            sliderValue = when {
+                stopAutoUpdate -> userDraggedValue
+                else -> {
+                    autoUpdateValue.toFloat()
+                }
             },
-            onValueChangeFinished = {
-                viewModel.seekToPosition(it)
-            }
+            totalTime = audio.duration.toFloat(),
+            onValueChanged = {
+                stopAutoUpdate = true
+//                viewModel.pause()
+                userDraggedValue = it
+                autoUpdateValue = it.toLong()
+            },
+            onValueChangeFinished = { userDragPosition ->
+                viewModel.seekToPosition(userDragPosition.toLong())
+                stopAutoUpdate = false
+//                viewModel.play()
+            },
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -162,55 +175,30 @@ fun TopBar() {
 
 @Composable
 fun AudioSeekbar(
-    sliderPosition: Long,
-    totalTime: Long,
-    isPlaying: Boolean,
-    viewModel: PlayerBottomSheetViewModel,
-    onValueChange: (Long) -> Unit,
-    onValueChangeFinished: (Long) -> Unit
+    sliderValue: Float,
+    totalTime: Float,
+    onValueChanged: (Float) -> Unit,
+    onValueChangeFinished: (userDragPosition: Float) -> Unit,
 ) {
-    var sliderValue by remember(key1 = sliderPosition) { mutableStateOf(sliderPosition) }
-    var manuallyStopped by remember(key1 = true) { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-
-        val interactionSource = remember { MutableInteractionSource() }
-        val isDragged by interactionSource.collectIsDraggedAsState()
-
-
-        val clickable = Modifier.clickable(
-            interactionSource = interactionSource,
-            indication = null
-        ) { }
-
-
         Slider(
-            value = sliderValue.toFloat(),
+            value = sliderValue,
             onValueChange = { newValue ->
-                if (isDragged && isPlaying) {
-                    viewModel.pause()
-                    manuallyStopped = true
-                }
-                sliderValue = newValue.toLong()
+                onValueChanged(newValue)
             },
-            valueRange = 0.toFloat()..totalTime.toFloat(),
+            valueRange = 0f..totalTime,
             onValueChangeFinished = {
-                if (manuallyStopped) {
-                    viewModel.play()
-                    manuallyStopped = false
-                }
                 onValueChangeFinished(sliderValue)
             },
             colors = SliderDefaults.colors(
                 thumbColor = Red,
                 activeTrackColor = MaterialTheme.colors.secondary,
             ),
-            interactionSource = interactionSource,
-            modifier = Modifier.then(clickable)
         )
 
         Row(

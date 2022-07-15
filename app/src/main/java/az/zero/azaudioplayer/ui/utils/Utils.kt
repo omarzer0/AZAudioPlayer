@@ -21,7 +21,8 @@ fun setCompContent(context: Context,content: @Composable () -> Unit): View {
     }
 }
 
-fun createTimeLabel(time: Long): String {
+fun createTimeLabel(mTime: Float): String {
+    val time = mTime.toLong()
     val min = time / 1000 / 60
     val sec = time / 1000 % 60
     var label = "$min:"
