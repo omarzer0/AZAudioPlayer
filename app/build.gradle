@@ -141,10 +141,6 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
 
 
-    //    // Compose navigation
-//    implementation 'io.github.raamcosta.compose-destinations:core:1.5.2-beta'
-//    ksp 'io.github.raamcosta.compose-destinations:ksp:1.5.2-beta'
-
 }
 
 

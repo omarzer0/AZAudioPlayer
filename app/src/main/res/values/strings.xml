@@ -26,4 +26,6 @@
     <string name="next">Next</string>
     <string name="favourites">Favourites</string>
 
+    <string name="audios">Audios</string>
+    <string name="drag">Drag</string>
 </resources>

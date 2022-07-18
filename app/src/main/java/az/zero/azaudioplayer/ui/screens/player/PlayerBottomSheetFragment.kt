@@ -15,9 +15,13 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
@@ -31,6 +35,7 @@ import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.*
+import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -68,7 +73,6 @@ fun PlayerScreen(
     val isPlaying = playingState.value?.isPlaying ?: false
     val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
     val currentPosition = viewModel.currentPosition.observeAsState()
-    var position = currentPosition.value ?: 0
 
     Column(
         modifier = Modifier
@@ -77,7 +81,9 @@ fun PlayerScreen(
             .verticalScroll(rememberScrollState())
     ) {
 
-        TopBar()
+        TopBar {
+            navController.navigateUp()
+        }
 
         TopWithBottomText(
             modifier = Modifier
@@ -115,14 +121,12 @@ fun PlayerScreen(
             totalTime = audio.duration.toFloat(),
             onValueChanged = {
                 stopAutoUpdate = true
-//                viewModel.pause()
                 userDraggedValue = it
                 autoUpdateValue = it.toLong()
             },
             onValueChangeFinished = { userDragPosition ->
                 viewModel.seekToPosition(userDragPosition.toLong())
                 stopAutoUpdate = false
-//                viewModel.play()
             },
         )
 
@@ -145,15 +149,15 @@ fun PlayerScreen(
 }
 
 @Composable
-fun TopBar() {
-    Row(
+fun TopBar(onDragDownClick: () -> Unit) {
+    Box(
         modifier = Modifier
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        contentAlignment = Center,
     ) {
 
         IconButton(
-            modifier = Modifier.mirror(),
+            modifier = Modifier.mirror().align(CenterStart),
             onClick = {}
         ) {
             Icon(
@@ -165,11 +169,17 @@ fun TopBar() {
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(16.dp)
-                .padding(end = 16.dp)
-                .background(Red)
-        )
+                .fillMaxSize()
+                .clickableSafeClick { onDragDownClick() },
+            contentAlignment = Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                stringResource(id = R.string.drag),
+                tint = Color.Gray,
+                modifier = Modifier.size(midIconsSize)
+            )
+        }
     }
 }
 
@@ -196,8 +206,9 @@ fun AudioSeekbar(
                 onValueChangeFinished(sliderValue)
             },
             colors = SliderDefaults.colors(
-                thumbColor = Red,
-                activeTrackColor = MaterialTheme.colors.secondary,
+                thumbColor = SelectedColor,
+                activeTrackColor = SelectedColor,
+                inactiveTrackColor = MaterialTheme.colors.background
             ),
         )
 
