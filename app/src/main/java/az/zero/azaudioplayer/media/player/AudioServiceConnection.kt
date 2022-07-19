@@ -19,14 +19,17 @@ import az.zero.azaudioplayer.media.player.extensions.isPlayEnabled
 import az.zero.azaudioplayer.media.player.extensions.isPlaying
 import az.zero.azaudioplayer.media.player.extensions.isPrepared
 import az.zero.azaudioplayer.media.service.AudioService
+import az.zero.azaudioplayer.ui.utils.DataStoreManager
+import az.zero.azaudioplayer.ui.utils.DataStoreManager.Companion.LAST_PLAYED_AUDIO_ID_KEY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AudioServiceConnection @Inject constructor(
-    val context: Context,
-    val dao: AudioDao,
-    @ApplicationScope val scope: CoroutineScope
+    private val context: Context,
+    private val dao: AudioDao,
+    @ApplicationScope private val scope: CoroutineScope,
+    private val dataStoreManager: DataStoreManager
 ) {
     private val _nowPlayingAudio = MutableLiveData(EMPTY_AUDIO)
     val nowPlayingAudio: LiveData<Audio?> = _nowPlayingAudio
@@ -72,7 +75,7 @@ class AudioServiceConnection @Inject constructor(
             }
         } else {
             // New song so play it
-            // TODO save audio id to dataStore
+            dataStoreManager.saveLastPlayedAudio(mediaItem)
             transportControls.playFromMediaId(mediaItem, null)
         }
     }
@@ -156,8 +159,10 @@ class AudioServiceConnection @Inject constructor(
 
     init {
         scope.launch {
-            // TODO replace with last played song
-            _nowPlayingAudio.postValue(EMPTY_AUDIO)
+            val lastAudioId = dataStoreManager.read(LAST_PLAYED_AUDIO_ID_KEY, "")
+            val audio = if (lastAudioId.isEmpty()) EMPTY_AUDIO
+            else dao.getAudioById(lastAudioId) ?: EMPTY_AUDIO
+            _nowPlayingAudio.postValue(audio)
         }
     }
 }

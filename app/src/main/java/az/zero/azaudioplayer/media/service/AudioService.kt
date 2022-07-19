@@ -26,9 +26,6 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.upstream.DefaultDataSource
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 
@@ -47,9 +44,6 @@ class AudioService : MediaBrowserServiceCompat() {
     private lateinit var audioNotificationManager: AudioNotificationManager
     private lateinit var playerEventListener: PlayerEventListener
 
-//    private val serviceJob = Job()
-//    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
-
     private lateinit var mediaSessionCompat: MediaSessionCompat
     private lateinit var mediaSessionConnector: MediaSessionConnector
 
@@ -57,6 +51,8 @@ class AudioService : MediaBrowserServiceCompat() {
 
     private var currentPlaylistItems: List<Audio> = emptyList()
 
+    private var indexOfCurrentPlayingAudio = 0
+    private var currentAudioPosition = 0L
 
     override fun onCreate() {
         super.onCreate()
@@ -67,8 +63,12 @@ class AudioService : MediaBrowserServiceCompat() {
             val mediaItems = list.map { it.toExoMediaItem() }
             Log.e("mediaList", "onCreate: $mediaItems")
             if (mediaItems.isEmpty()) return@observeForever
+
+            indexOfCurrentPlayingAudio = exoPlayer.currentMediaItemIndex
+            currentAudioPosition = exoPlayer.currentPosition
+
             exoPlayer.setMediaItems(mediaItems)
-            exoPlayer.seekTo(0, 0)
+            exoPlayer.seekTo(indexOfCurrentPlayingAudio, currentAudioPosition)
         }
 
         val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {

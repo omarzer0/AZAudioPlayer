@@ -8,6 +8,7 @@ import az.zero.azaudioplayer.data.db.AudioDao
 import az.zero.azaudioplayer.data.db.DatabaseCallback
 import az.zero.azaudioplayer.data.db.helpers.AudioTypeConverters
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
+import az.zero.azaudioplayer.ui.utils.DataStoreManager
 
 import dagger.Module
 import dagger.Provides
@@ -28,8 +29,9 @@ object AppModule {
     fun provideMusicServiceConnection(
         @ApplicationContext context: Context,
         dao: AudioDao,
-        @ApplicationScope scope: CoroutineScope
-    ) = AudioServiceConnection(context, dao, scope)
+        @ApplicationScope scope: CoroutineScope,
+        dataStoreManager: DataStoreManager
+    ) = AudioServiceConnection(context, dao, scope,dataStoreManager)
 
     @Singleton
     @Provides

@@ -29,9 +29,10 @@ class AudioDbHelper @Inject constructor(
             val localList = getMusic()
             computeItemsToAdd(databaseList, localList, dao)
             computeItemsToDelete(databaseList, localList, dao)
+            // TODO get all new audios and use them instead of localList
             computeAlbumItems(localList, dao)
             computeArtistItems(localList, dao)
-            computeFavouritePlaylist(dao, localList)
+            computeFavouritePlaylist(dao)
         }
     }
 
@@ -51,18 +52,17 @@ class AudioDbHelper @Inject constructor(
         }
     }
 
-    private fun computeFavouritePlaylist(dao: AudioDao, audioList: List<Audio>) {
-        audioList.filter { it.isFavourite }.also {
-            applicationScope.launch {
-                dao.deleteFavouritePlaylist()
-                dao.addPlayList(
-                    Playlist(
-                        name = context.getString(R.string.favourites),
-                        audioList = it,
-                        isFavouritePlaylist = true
-                    )
+    private fun computeFavouritePlaylist(dao: AudioDao) {
+        applicationScope.launch {
+            val favouriteList = dao.getAllDbAudioSingleList().filter { it.isFavourite }
+            dao.deleteFavouritePlaylist()
+            dao.addPlayList(
+                Playlist(
+                    name = context.getString(R.string.favourites),
+                    audioList = favouriteList,
+                    isFavouritePlaylist = true
                 )
-            }
+            )
         }
     }
 

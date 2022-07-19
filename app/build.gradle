@@ -107,6 +107,9 @@ dependencies {
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
 
+    // Datastore
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
 
     //// Compose
     implementation "androidx.compose.ui:ui:$compose_version"

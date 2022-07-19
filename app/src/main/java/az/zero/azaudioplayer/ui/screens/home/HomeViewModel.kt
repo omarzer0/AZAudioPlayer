@@ -2,10 +2,13 @@ package az.zero.azaudioplayer.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.viewModelScope
 import az.zero.azaudioplayer.data.db.AudioDao
+import az.zero.azaudioplayer.domain.models.Audio
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
 import az.zero.azaudioplayer.ui.screens.home.AudioActions.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -34,6 +37,11 @@ class HomeViewModel @Inject constructor(
 
     val allPlaylists by lazy { audioDao.getAllPlayLists().distinctUntilChanged() }
 
+    fun addOrRemoveFromFavourite(audio: Audio) {
+        viewModelScope.launch {
+            audioDao.addOrRemoveFromFavouritePlayList(audio)
+        }
+    }
 }
 
 sealed class AudioActions {

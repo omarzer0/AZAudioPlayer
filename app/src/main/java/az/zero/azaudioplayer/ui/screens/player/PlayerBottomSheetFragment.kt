@@ -19,8 +19,6 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -132,11 +130,9 @@ fun PlayerScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        var isFav by remember { mutableStateOf(true) }
-
         CustomActionsRow(
-            isFavourite = isFav,
-            onFavouriteClick = { isFav = !isFav }
+            isFavourite = audio.isFavourite,
+            onFavouriteClick = { viewModel.addOrRemoveFromFavourite(audio) }
         )
 
         AudioActionsRow(
@@ -157,8 +153,12 @@ fun TopBar(onDragDownClick: () -> Unit) {
     ) {
 
         IconButton(
-            modifier = Modifier.mirror().align(CenterStart),
-            onClick = {}
+            modifier = Modifier
+                .mirror()
+                .align(CenterStart),
+            onClick = {
+
+            }
         ) {
             Icon(
                 Icons.Filled.MoreVert,
@@ -271,7 +271,7 @@ fun CustomActionsRow(
             Icon(
                 imageVector = if (isFavourite) Icons.Filled.Favorite
                 else Icons.Outlined.FavoriteBorder,
-                stringResource(id = R.string.more),
+                stringResource(id = R.string.add_or_remove_from_favourites),
                 tint = if (isFavourite) SelectedColor
                 else MaterialTheme.colors.onPrimary,
                 modifier = Modifier.size(smallIconsSize)

@@ -5,14 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -33,13 +30,13 @@ import az.zero.azaudioplayer.media.player.EMPTY_AUDIO
 import az.zero.azaudioplayer.media.player.extensions.isPlaying
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
-import az.zero.azaudioplayer.ui.screens.player.PlayerBottomSheetFragment
 import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.PlaylistScreen
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.common_composables.TextTab
+import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
@@ -116,16 +113,20 @@ fun HomeFragmentContent(
 
 @Composable
 fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBodyClick: () -> Unit) {
+
+    val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
+    val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
+    val playingState = viewModel.playbackState.observeAsState()
+    val isPlaying = playingState.value?.isPlaying ?: false
+    val enabled = audio.data.isNotEmpty()
+
     Column(
-        modifier = modifier.clickable { onBodyClick() },
+        modifier = modifier.clickableSafeClick {
+            if (enabled) onBodyClick()
+        },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
-        val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
-        val playingState = viewModel.playbackState.observeAsState()
-        val isPlaying = playingState.value?.isPlaying ?: false
 
         Spacer(
             modifier = Modifier
@@ -149,6 +150,21 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
             )
 
             IconButton(
+                enabled = enabled,
+                modifier = Modifier
+                    .weight(0.1f)
+                    .mirror(), onClick = { viewModel.addOrRemoveFromFavourite(audio) }
+            ) {
+                Icon(
+                    if (audio.isFavourite) Icons.Filled.Favorite
+                    else Icons.Outlined.FavoriteBorder,
+                    stringResource(id = R.string.add_or_remove_from_favourites),
+                    tint = if (audio.isFavourite) Color.Red else MaterialTheme.colors.onPrimary
+                )
+            }
+
+            IconButton(
+                enabled = enabled,
                 modifier = Modifier
                     .weight(0.1f)
                     .mirror(), onClick = {

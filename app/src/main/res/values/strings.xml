@@ -28,4 +28,6 @@
 
     <string name="audios">Audios</string>
     <string name="drag">Drag</string>
+
+    <string name="add_or_remove_from_favourites">Add or remove from favourites</string>
 </resources>

@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Playlist(
+    @PrimaryKey
     val name: String,
     val audioList: List<Audio>,
     val isFavouritePlaylist: Boolean = false,
-    @PrimaryKey val id: Long? = null
 )
 
 
