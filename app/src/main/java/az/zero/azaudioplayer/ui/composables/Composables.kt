@@ -6,10 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
+import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
 import coil.compose.AsyncImagePainter
@@ -102,7 +100,7 @@ fun LocalImageIcon(
     localImageUrl: ImageVector,
     modifier: Modifier = Modifier,
     cornerShape: Shape = RoundedCornerShape(12.dp),
-    iconTint :Color= MaterialTheme.colors.onPrimary,
+    iconTint: Color = MaterialTheme.colors.onPrimary,
     imageBackgroundColor: Color = Color.White,
     addBorder: Boolean = true
 ) {
@@ -242,7 +240,8 @@ fun BasicAudioItem(
     addBorder: Boolean = true,
     iconVector: ImageVector,
     iconText: String,
-    iconColor: Color
+    iconColor: Color,
+    onTailItemClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -282,15 +281,65 @@ fun BasicAudioItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        IconButton(
-            modifier = Modifier
-                .mirror()
-                .weight(0.1f), onClick = {}) {
+        if (onTailItemClick != null) {
+            IconButton(
+                modifier = Modifier
+                    .mirror()
+                    .weight(0.1f), onClick = { onTailItemClick() }) {
+                Icon(
+                    iconVector,
+                    iconText,
+                    tint = iconColor
+                )
+            }
+        } else {
             Icon(
                 iconVector,
                 iconText,
-                tint = iconColor
+                tint = iconColor,
+                modifier = Modifier
+                    .mirror()
+                    .weight(0.1f)
             )
         }
+
+
+    }
+}
+
+@Composable
+fun CustomEditText(
+    modifier: Modifier = Modifier,
+    text: String,
+    hint: String = "",
+    maxLines: Int = 1,
+    singleLine: Boolean = true,
+    onTextChanged: (String) -> Unit = {},
+) {
+
+    Column(modifier = modifier) {
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Create a new playlist", style = MaterialTheme.typography.h2)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = text,
+            onValueChange = {
+                onTextChanged(it.trim())
+            },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = SecondaryTextColor,
+                unfocusedBorderColor = SecondaryTextColor,
+                focusedLabelColor = SecondaryTextColor,
+                unfocusedLabelColor = SecondaryTextColor,
+                cursorColor = SelectedColor
+            ),
+            label = { Text(text = hint) },
+            maxLines = maxLines,
+            singleLine = singleLine,
+            textStyle = TextStyle(color = SecondaryTextColor),
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

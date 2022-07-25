@@ -44,13 +44,13 @@ fun ArtistScreen(
         }
 
         items(artistList, key = { it.artist.name }) { artist ->
-            ArtistItem(artist) {
+            ArtistItem(artist, onClick = {
                 navController.navigate(
                     HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
                         artist.audioList.toTypedArray()
                     )
                 )
-            }
+            })
         }
 
     }
@@ -59,7 +59,8 @@ fun ArtistScreen(
 @Composable
 fun ArtistItem(
     artist: Artist,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onTailItemClick: (() -> Unit)? = null
 ) {
     val artistName = artist.artist.name
     val textColor = MaterialTheme.colors.onPrimary
@@ -85,16 +86,29 @@ fun ArtistItem(
             )
         Spacer(modifier = Modifier.width(16.dp))
 
-        IconButton(
-            modifier = Modifier
-                .weight(0.1f)
-                .align(CenterVertically)
-                .mirror(), onClick = {}) {
+        if (onTailItemClick != null) {
+            IconButton(
+                modifier = Modifier
+                    .weight(0.1f)
+                    .align(CenterVertically)
+                    .mirror(), onClick = {}) {
+                Icon(
+                    Icons.Filled.KeyboardArrowRight,
+                    stringResource(id = R.string.more),
+                    tint = SecondaryTextColor
+                )
+            }
+        } else {
             Icon(
                 Icons.Filled.KeyboardArrowRight,
                 stringResource(id = R.string.more),
-                tint = SecondaryTextColor
+                tint = SecondaryTextColor,
+                modifier = Modifier
+                    .weight(0.1f)
+                    .align(CenterVertically)
+                    .mirror(),
             )
         }
+
     }
 }

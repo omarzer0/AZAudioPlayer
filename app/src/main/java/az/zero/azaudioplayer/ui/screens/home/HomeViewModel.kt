@@ -5,8 +5,8 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
 import az.zero.azaudioplayer.data.db.AudioDao
 import az.zero.azaudioplayer.domain.models.Audio
+import az.zero.azaudioplayer.domain.models.Playlist
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
-import az.zero.azaudioplayer.ui.screens.home.AudioActions.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,6 +41,17 @@ class HomeViewModel @Inject constructor(
 
     fun playOrPause() {
         audioServiceConnection.playOrPause()
+    }
+
+    fun createANewPlayList(playlistName: String) {
+        viewModelScope.launch {
+            audioDao.addPlayList(
+                Playlist(
+                    name = playlistName,
+                    emptyList()
+                )
+            )
+        }
     }
 }
 

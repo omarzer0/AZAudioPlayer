@@ -34,11 +34,13 @@ fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: 
         itemsIndexed(audioList) { index, audio ->
             AudioItem(
                 audio,
-                isSelected = selectedId == index
-            ) {
-                selectedId = index
-                viewModel.audioAction(AudioActions.Toggle(audio.data))
-            }
+                isSelected = selectedId == index,
+                onClick = {
+                    selectedId = index
+                    viewModel.audioAction(AudioActions.Toggle(audio.data))
+                }, onIconClick = {
+
+                })
         }
     }
 }
@@ -47,7 +49,8 @@ fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: 
 fun AudioItem(
     audio: Audio,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onIconClick: () -> Unit
 ) {
     val textColor = if (isSelected) SelectedColor
     else MaterialTheme.colors.onPrimary
@@ -61,6 +64,7 @@ fun AudioItem(
         iconVector = Icons.Filled.MoreVert,
         iconColor = SecondaryTextColor,
         iconText = stringResource(id = R.string.more),
-        onItemClick = { onClick() }
+        onItemClick = { onClick() },
+        onTailItemClick = onIconClick
     )
 }
