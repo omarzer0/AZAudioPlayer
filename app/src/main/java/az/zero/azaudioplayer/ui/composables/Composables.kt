@@ -98,6 +98,47 @@ fun LocalImage(
 }
 
 @Composable
+fun LocalImageIcon(
+    localImageUrl: ImageVector,
+    modifier: Modifier = Modifier,
+    cornerShape: Shape = RoundedCornerShape(12.dp),
+    iconTint :Color= MaterialTheme.colors.onPrimary,
+    imageBackgroundColor: Color = Color.White,
+    addBorder: Boolean = true
+) {
+//    Image(
+//        imageVector = localImageUrl,
+//        contentDescription = null,
+//        contentScale = contentScale,
+//        modifier = modifier
+//            .size(width = 48.dp, height = 48.dp)
+//            .then(
+//                if (addBorder) Modifier.colorFullBorder(cornerShape)
+//                else Modifier
+//            )
+//            .clip(cornerShape)
+//            .background(imageBackgroundColor)
+//            .padding(8.dp),
+//        alignment = Alignment.Center,
+//    )
+
+    Icon(
+        imageVector = localImageUrl,
+        contentDescription = null,
+        tint = iconTint,
+        modifier = modifier
+            .size(width = 48.dp, height = 48.dp)
+            .then(
+                if (addBorder) Modifier.colorFullBorder(cornerShape)
+                else Modifier
+            )
+            .clip(cornerShape)
+            .background(imageBackgroundColor)
+            .padding(8.dp)
+    )
+}
+
+@Composable
 fun CustomImage(
     image: String,
     modifier: Modifier = Modifier,

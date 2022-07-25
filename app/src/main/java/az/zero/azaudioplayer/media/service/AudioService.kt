@@ -61,12 +61,9 @@ class AudioService : MediaBrowserServiceCompat() {
             if (list.isEmpty()) return@observeForever
             currentPlaylistItems = list
             val mediaItems = list.map { it.toExoMediaItem() }
-            Log.e("mediaList", "onCreate: $mediaItems")
             if (mediaItems.isEmpty()) return@observeForever
-
             indexOfCurrentPlayingAudio = exoPlayer.currentMediaItemIndex
             currentAudioPosition = exoPlayer.currentPosition
-
             exoPlayer.setMediaItems(mediaItems)
             exoPlayer.seekTo(indexOfCurrentPlayingAudio, currentAudioPosition)
         }
@@ -158,7 +155,6 @@ class AudioService : MediaBrowserServiceCompat() {
     ) {
         val resultsSent = audioDataSource.whenReady { successfullyInitialized ->
             if (successfullyInitialized) {
-                Log.e("MainViewModel", "onLoadChildren: ")
                 val compatList = currentPlaylistItems.map { it.toMediaItem() }.toMutableList()
                 result.sendResult(compatList)
             } else {

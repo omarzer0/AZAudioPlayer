@@ -2,13 +2,14 @@ package az.zero.azaudioplayer.media.player
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.Bundle
 import android.os.SystemClock
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
+import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import az.zero.azaudioplayer.data.db.AudioDao
@@ -19,8 +20,10 @@ import az.zero.azaudioplayer.media.player.extensions.isPlayEnabled
 import az.zero.azaudioplayer.media.player.extensions.isPlaying
 import az.zero.azaudioplayer.media.player.extensions.isPrepared
 import az.zero.azaudioplayer.media.service.AudioService
+import az.zero.azaudioplayer.ui.screens.home.AudioActions
 import az.zero.azaudioplayer.ui.utils.DataStoreManager
 import az.zero.azaudioplayer.ui.utils.DataStoreManager.Companion.LAST_PLAYED_AUDIO_ID_KEY
+import az.zero.azaudioplayer.ui.utils.DataStoreManager.Companion.REPEAT_MODE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,8 +43,8 @@ class AudioServiceConnection @Inject constructor(
     private val _playbackState = MutableLiveData(EMPTY_PLAYBACK_STATE)
     val playbackState: LiveData<PlaybackStateCompat?> = _playbackState
 
-//    private val _audioConnectionData = MutableLiveData<AudioConnectionData>()
-//    val audioConnectionData: LiveData<AudioConnectionData> = _audioConnectionData
+    private val _repeatMode = MutableLiveData(REPEAT_MODE_ALL)
+    val repeatMode: LiveData<Int> = _repeatMode
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback()
 
@@ -81,7 +84,7 @@ class AudioServiceConnection @Inject constructor(
     }
 
     fun playOrPause() {
-        val isPlaying = _playbackState.value?.state == PlaybackStateCompat.STATE_PLAYING
+        val isPlaying = _playbackState.value?.state == STATE_PLAYING
         if (isPlaying) transportControls.pause()
         else transportControls.play()
     }
@@ -98,12 +101,25 @@ class AudioServiceConnection @Inject constructor(
         transportControls.skipToPrevious()
     }
 
-    fun pause() {
-        transportControls.pause()
+    fun changeRepeatMode() {
+        scope.launch {
+            val oldRepeatMode: Int = dataStoreManager.read(REPEAT_MODE, REPEAT_MODE_ALL)
+            val repeatMode = if (oldRepeatMode == REPEAT_MODE_ALL) REPEAT_MODE_ONE
+            else REPEAT_MODE_ALL
+            transportControls.setRepeatMode(repeatMode)
+            _repeatMode.postValue(repeatMode)
+            dataStoreManager.saveRepeatMode(repeatMode)
+        }
     }
 
-    fun play() {
-        transportControls.play()
+    fun getPlayBackState(): PlaybackStateCompat = _playbackState.value ?: EMPTY_PLAYBACK_STATE
+
+    fun audioAction(action: AudioActions) {
+        when (action) {
+            AudioActions.Pause -> transportControls.pause()
+            AudioActions.Play -> transportControls.play()
+            is AudioActions.Toggle -> playPauseOrToggle(action.audioDataId)
+        }
     }
 
     inner class MediaBrowserConnectionCallback :
@@ -115,6 +131,17 @@ class AudioServiceConnection @Inject constructor(
                     registerCallback(MediaControllerCallback())
                 }
             _isConnected.postValue(true)
+            scope.launch {
+                // Prepare exo player with saved repeat mode
+                val oldRepeatMode: Int = dataStoreManager.read(REPEAT_MODE, REPEAT_MODE_ALL)
+                _repeatMode.postValue(oldRepeatMode)
+                transportControls.setRepeatMode(oldRepeatMode)
+
+                // Prepare exo player with the last played song
+                val lastAudioId = dataStoreManager.read(LAST_PLAYED_AUDIO_ID_KEY, "")
+                if (lastAudioId.isNotEmpty())
+                    transportControls.prepareFromMediaId(lastAudioId, Bundle.EMPTY)
+            }
 
         }
 
@@ -131,7 +158,6 @@ class AudioServiceConnection @Inject constructor(
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             // Player state ex: (play/pause) changed
-            Log.e("playPauseOrToggle", "playPauseOrToggle:dasdsa${state?.position}")
             _playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
         }
 
@@ -150,26 +176,25 @@ class AudioServiceConnection @Inject constructor(
 
         override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {
             super.onQueueChanged(queue)
-
+            SHUFFLE_MODE_GROUP
+            SHUFFLE_MODE_INVALID
+            SHUFFLE_MODE_ALL
         }
     }
 
-    fun getPlayBackState(): PlaybackStateCompat = _playbackState.value ?: EMPTY_PLAYBACK_STATE
-
-
-    init {
-        scope.launch {
-            val lastAudioId = dataStoreManager.read(LAST_PLAYED_AUDIO_ID_KEY, "")
-            val audio = if (lastAudioId.isEmpty()) EMPTY_AUDIO
-            else dao.getAudioById(lastAudioId) ?: EMPTY_AUDIO
-            _nowPlayingAudio.postValue(audio)
-        }
-    }
+//    init {
+//        scope.launch {
+//            val lastAudioId = dataStoreManager.read(LAST_PLAYED_AUDIO_ID_KEY, "")
+//            val audio = if (lastAudioId.isEmpty()) EMPTY_AUDIO
+//            else dao.getAudioById(lastAudioId) ?: EMPTY_AUDIO
+//            _nowPlayingAudio.postValue(audio)
+//        }
+//    }
 }
 
 @Suppress("PropertyName")
-val EMPTY_PLAYBACK_STATE: PlaybackStateCompat = PlaybackStateCompat.Builder()
-    .setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
+val EMPTY_PLAYBACK_STATE: PlaybackStateCompat = Builder()
+    .setState(STATE_NONE, 0, 0f)
     .build()
 
 @Suppress("PropertyName")
@@ -181,17 +206,9 @@ val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
 val EMPTY_AUDIO = Audio("", "", "", 0, "", "", "", "", 0)
 
 inline val PlaybackStateCompat.currentPlayBackPosition: Long
-    get() = if (state == PlaybackStateCompat.STATE_PLAYING) {
+    get() = if (state == STATE_PLAYING) {
         val timeDelta = SystemClock.elapsedRealtime() - lastPositionUpdateTime
         (position + (timeDelta * playbackSpeed)).toLong()
     } else {
         position
     }
-
-
-//data class AudioConnectionData(
-//    val isConnected: Boolean = false,
-//    val networkFailure: Boolean = false,
-//    val playbackState: PlaybackStateCompat? = EMPTY_PLAYBACK_STATE,
-//    val nowPlayingAudio: Audio = EMPTY_AUDIO,
-//)

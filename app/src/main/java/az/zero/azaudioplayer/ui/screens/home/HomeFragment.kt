@@ -168,8 +168,7 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
                 modifier = Modifier
                     .weight(0.1f)
                     .mirror(), onClick = {
-                    if (isPlaying) viewModel.audioAction(AudioActions.Pause)
-                    else viewModel.audioAction(AudioActions.Toggle(audio.data))
+                    viewModel.playOrPause()
                 }
             ) {
                 Icon(

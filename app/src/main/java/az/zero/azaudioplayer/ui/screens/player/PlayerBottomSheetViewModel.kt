@@ -6,9 +6,9 @@ import android.util.Log
 import androidx.lifecycle.*
 import az.zero.azaudioplayer.data.db.AudioDao
 import az.zero.azaudioplayer.domain.models.Audio
-import az.zero.azaudioplayer.domain.models.Playlist
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
 import az.zero.azaudioplayer.media.player.currentPlayBackPosition
+import az.zero.azaudioplayer.ui.screens.home.AudioActions
 import az.zero.azaudioplayer.ui.utils.POSITION_UPDATE_INTERVAL_MILLIS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -21,6 +21,9 @@ class PlayerBottomSheetViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var updatePosition = true
+    val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
+    val playbackState = audioServiceConnection.playbackState.distinctUntilChanged()
+    val repeatMode = audioServiceConnection.repeatMode
 
     fun seekToPosition(position: Long) {
         audioServiceConnection.seekTo(position)
@@ -38,6 +41,10 @@ class PlayerBottomSheetViewModel @Inject constructor(
         audioServiceConnection.skipToNext()
     }
 
+    fun changeRepeatMode() {
+        audioServiceConnection.changeRepeatMode()
+    }
+
     private val handler = Handler(Looper.getMainLooper())
 
     private val _currentPosition = MutableLiveData<Long>().apply {
@@ -51,14 +58,10 @@ class PlayerBottomSheetViewModel @Inject constructor(
             if (_currentPosition.value != currPosition)
                 _currentPosition.postValue(currPosition)
             if (updatePosition) checkPlaybackPosition()
-
-            Log.e("PlayerScreenIn", "currentPosition: ${currentPosition.value}")
-
         }, POSITION_UPDATE_INTERVAL_MILLIS)
     }
 
-    val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
-    val playbackState = audioServiceConnection.playbackState.distinctUntilChanged()
+
 
     init {
         checkPlaybackPosition()
@@ -67,14 +70,6 @@ class PlayerBottomSheetViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         updatePosition = false
-    }
-
-    fun pause() {
-        audioServiceConnection.pause()
-    }
-
-    fun play() {
-        audioServiceConnection.play()
     }
 
     fun addOrRemoveFromFavourite(audio: Audio) {

@@ -1,9 +1,13 @@
 package az.zero.azaudioplayer.ui.screens.player
 
 import android.os.Bundle
+import android.support.v4.media.session.PlaybackStateCompat
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +24,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
@@ -71,6 +76,8 @@ fun PlayerScreen(
     val isPlaying = playingState.value?.isPlaying ?: false
     val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
     val currentPosition = viewModel.currentPosition.observeAsState()
+    val repeatMode =
+        viewModel.repeatMode.observeAsState().value ?: PlaybackStateCompat.REPEAT_MODE_ALL
 
     Column(
         modifier = Modifier
@@ -132,7 +139,9 @@ fun PlayerScreen(
 
         CustomActionsRow(
             isFavourite = audio.isFavourite,
-            onFavouriteClick = { viewModel.addOrRemoveFromFavourite(audio) }
+            repeatMode = repeatMode,
+            onFavouriteClick = { viewModel.addOrRemoveFromFavourite(audio) },
+            onChangeRepeatModeClick = { viewModel.changeRepeatMode() }
         )
 
         AudioActionsRow(
@@ -239,7 +248,9 @@ fun AudioSeekbar(
 fun CustomActionsRow(
     modifier: Modifier = Modifier,
     isFavourite: Boolean,
+    repeatMode: Int,
     onFavouriteClick: () -> Unit,
+    onChangeRepeatModeClick: () -> Unit,
 ) {
 
     Row(
@@ -248,13 +259,27 @@ fun CustomActionsRow(
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        val context = LocalContext.current
+        var toast: Toast? by remember { mutableStateOf(null) }
         IconButton(
-            onClick = {}
+            onClick = {
+                onChangeRepeatModeClick()
+                val message = when (repeatMode) {
+                    // reversed
+                    REPEAT_MODE_ONE -> "Repeat All"
+                    else -> "Repeat Once"
+                }
+                toast?.cancel()
+                toast = Toast.makeText(context, message, Toast.LENGTH_LONG)
+                toast?.show()
+            }
         ) {
 
             Icon(
-                imageVector = if (isFavourite) Icons.Filled.RepeatOne
-                else Icons.Filled.Repeat,
+                imageVector = when (repeatMode) {
+                    REPEAT_MODE_ONE -> Icons.Filled.RepeatOne
+                    else -> Icons.Filled.Repeat
+                },
                 stringResource(id = R.string.more),
                 tint = MaterialTheme.colors.onPrimary,
                 modifier = Modifier.size(smallIconsSize)
@@ -327,7 +352,12 @@ fun AudioActionsRow(
 
         IconButton(
             modifier = Modifier.mirror(),
-            onClick = { onPlayPauseClick() }
+            onClick = {
+                Log.e("AudioActionsRowBefore", "AudioActionsRow: $isPlaying")
+                onPlayPauseClick()
+                Log.e("AudioActionsRowBefore", "AudioActionsRow: $isPlaying")
+
+            }
         ) {
 
             Icon(

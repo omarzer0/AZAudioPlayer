@@ -19,11 +19,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun audioAction(action: AudioActions) {
-        when (action) {
-            Pause -> audioServiceConnection.transportControls.pause()
-            Play -> audioServiceConnection.transportControls.play()
-            is Toggle -> audioServiceConnection.playPauseOrToggle(action.audioDataId)
-        }
+        audioServiceConnection.audioAction(action)
     }
 
     val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
@@ -41,6 +37,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             audioDao.addOrRemoveFromFavouritePlayList(audio)
         }
+    }
+
+    fun playOrPause() {
+        audioServiceConnection.playOrPause()
     }
 }
 
