@@ -32,4 +32,6 @@
     <string name="add_or_remove_from_favourites">Add or remove from favourites</string>
 
     <string name="new_playlist">New Playlist</string>
+    <string name="back">Back</string>
+    <string name="clear">Clear</string>
 </resources>

@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import az.zero.azaudioplayer.data.db.AudioDao
 import az.zero.azaudioplayer.domain.models.Audio
 import az.zero.azaudioplayer.domain.models.Playlist
+import az.zero.azaudioplayer.domain.use_case.AudioActionUseCase
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
+import az.zero.azaudioplayer.utils.AudioActions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,17 +17,18 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val audioServiceConnection: AudioServiceConnection,
-    private val audioDao: AudioDao
+    private val audioDao: AudioDao,
+    private val audioActionUseCase: AudioActionUseCase
 ) : ViewModel() {
 
     fun audioAction(action: AudioActions) {
-        audioServiceConnection.audioAction(action)
+        audioActionUseCase(action)
     }
 
     val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
     val playbackState = audioServiceConnection.playbackState
 
-    val allAudio by lazy { audioDao.getAllDbAudio().distinctUntilChanged() }
+    val allAudio = audioDao.getAllDbAudio().distinctUntilChanged()
 
     val allAlbums by lazy { audioDao.getAlbumWithAudio().distinctUntilChanged() }
 
@@ -53,11 +56,5 @@ class HomeViewModel @Inject constructor(
             )
         }
     }
-}
-
-sealed class AudioActions {
-    object Play : AudioActions()
-    object Pause : AudioActions()
-    data class Toggle(val audioDataId: String) : AudioActions()
 }
 

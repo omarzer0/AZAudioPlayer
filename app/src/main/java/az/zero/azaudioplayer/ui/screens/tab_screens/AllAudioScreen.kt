@@ -14,13 +14,11 @@ import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.domain.models.Audio
 import az.zero.azaudioplayer.ui.composables.BasicAudioItem
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
-import az.zero.azaudioplayer.ui.screens.home.AudioActions
-import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 
 @Composable
-fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: Int = -1) {
+fun AllAudioScreen(audioList: List<Audio>?, selected: Int = -1, onAudioItemClick: (Audio) -> Unit) {
     var selectedId = selected
 
     if (audioList.isNullOrEmpty()) return
@@ -37,9 +35,9 @@ fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: 
                 isSelected = selectedId == index,
                 onClick = {
                     selectedId = index
-                    viewModel.audioAction(AudioActions.Toggle(audio.data))
+                    onAudioItemClick(audio)
                 }, onIconClick = {
-
+                    // TODO on audio more icon click impl
                 })
         }
     }
@@ -49,6 +47,7 @@ fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: 
 fun AudioItem(
     audio: Audio,
     isSelected: Boolean,
+    annotatedTextQuery: String = "",
     onClick: () -> Unit,
     onIconClick: () -> Unit
 ) {
@@ -59,12 +58,13 @@ fun AudioItem(
         imageUrl = audio.cover,
         cornerShape = CircleShape,
         topText = audio.title,
-        bottomText = "${audio.artist} - ${audio.album}",
+        bottomTexts = listOf(audio.artist, audio.album),
         topTextColor = textColor,
         iconVector = Icons.Filled.MoreVert,
         iconColor = SecondaryTextColor,
         iconText = stringResource(id = R.string.more),
         onItemClick = { onClick() },
-        onTailItemClick = onIconClick
+        onTailItemClick = onIconClick,
+        annotatedTextQuery = annotatedTextQuery
     )
 }

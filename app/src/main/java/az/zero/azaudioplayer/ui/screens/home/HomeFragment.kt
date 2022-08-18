@@ -38,6 +38,7 @@ import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.common_composables.TextTab
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
+import az.zero.azaudioplayer.utils.AudioActions
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -66,7 +67,14 @@ fun HomeFragmentContent(
 ) {
     Scaffold(
         backgroundColor = MaterialTheme.colors.primary,
-        topBar = { AppBar() },
+        topBar = {
+            AppBar(onSearchClick = {
+                val searchDirections = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
+                navController.navigate(searchDirections)
+            }, onMoreClick = {
+
+            })
+        },
     ) {
         Column {
             TextTab(
@@ -92,7 +100,9 @@ fun HomeFragmentContent(
                 when (it) {
                     0 -> {
                         val audioList = viewModel.allAudio.observeAsState().value
-                        AllAudioScreen(viewModel, audioList, 0)
+                        AllAudioScreen(audioList, 0) { audio ->
+                            viewModel.audioAction(AudioActions.Toggle(audio.data))
+                        }
                     }
                     1 -> ArtistScreen(viewModel, navController)
                     2 -> AlbumScreen(viewModel, navController)
@@ -113,7 +123,6 @@ fun HomeFragmentContent(
 
 @Composable
 fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBodyClick: () -> Unit) {
-
     val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
     val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
     val playingState = viewModel.playbackState.observeAsState()
@@ -183,25 +192,28 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
 }
 
 @Composable
-fun AppBar() {
+fun AppBar(
+    onSearchClick: () -> Unit,
+    onMoreClick: () -> Unit,
+) {
     TopAppBar(
         title = {
             Text(
-                text = stringResource(id = az.zero.azaudioplayer.R.string.app_name),
+                text = stringResource(id = R.string.app_name),
                 color = MaterialTheme.colors.onPrimary
             )
         },
         backgroundColor = MaterialTheme.colors.primary,
         elevation = 0.dp,
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = { onSearchClick() }) {
                 Icon(
                     Icons.Filled.Search,
                     stringResource(id = R.string.search),
                     tint = MaterialTheme.colors.onPrimary
                 )
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = { onMoreClick() }) {
                 Icon(
                     Icons.Filled.MoreVert,
                     stringResource(id = R.string.more),

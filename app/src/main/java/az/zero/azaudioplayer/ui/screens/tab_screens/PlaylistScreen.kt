@@ -117,11 +117,15 @@ fun CustomDialog(
                 ) {
                     Button(
                         onClick = {
-                            if (text.isEmpty()){
+                            if (text.isEmpty()) {
                                 toast?.cancel()
-                                toast = Toast.makeText(context, "Name Can't be empty", Toast.LENGTH_LONG)
+                                toast = Toast.makeText(
+                                    context,
+                                    "Name Can't be empty",
+                                    Toast.LENGTH_LONG
+                                )
                                 toast?.show()
-                            }else{
+                            } else {
                                 onOpenDialogChanged()
                                 onCreateClick(text)
                                 text = ""
@@ -165,7 +169,8 @@ fun AddPlayList(
             addBorder = false,
             iconTint = SecondaryTextColor,
             imageBackgroundColor = MaterialTheme.colors.primary,
-            modifier = Modifier.border(width = 1.dp, SecondaryTextColor, RoundedCornerShape(12.dp))
+            modifier = Modifier.border(width = 1.dp, SecondaryTextColor, RoundedCornerShape(12.dp)),
+            innerImagePadding = 12.dp
         )
         Spacer(modifier = Modifier.width(16.dp))
 

@@ -2,13 +2,11 @@ package az.zero.azaudioplayer.ui.screens.player
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.*
 import az.zero.azaudioplayer.data.db.AudioDao
 import az.zero.azaudioplayer.domain.models.Audio
 import az.zero.azaudioplayer.media.player.AudioServiceConnection
 import az.zero.azaudioplayer.media.player.currentPlayBackPosition
-import az.zero.azaudioplayer.ui.screens.home.AudioActions
 import az.zero.azaudioplayer.ui.utils.POSITION_UPDATE_INTERVAL_MILLIS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -60,7 +58,6 @@ class PlayerBottomSheetViewModel @Inject constructor(
             if (updatePosition) checkPlaybackPosition()
         }, POSITION_UPDATE_INTERVAL_MILLIS)
     }
-
 
 
     init {

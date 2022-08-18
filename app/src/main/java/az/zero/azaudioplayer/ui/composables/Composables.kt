@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,8 +19,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
@@ -102,7 +107,8 @@ fun LocalImageIcon(
     cornerShape: Shape = RoundedCornerShape(12.dp),
     iconTint: Color = MaterialTheme.colors.onPrimary,
     imageBackgroundColor: Color = Color.White,
-    addBorder: Boolean = true
+    addBorder: Boolean = true,
+    innerImagePadding: Dp = 8.dp
 ) {
 //    Image(
 //        imageVector = localImageUrl,
@@ -132,7 +138,7 @@ fun LocalImageIcon(
             )
             .clip(cornerShape)
             .background(imageBackgroundColor)
-            .padding(8.dp)
+            .padding(innerImagePadding)
     )
 }
 
@@ -223,6 +229,64 @@ fun TopWithBottomText(
 
 
 @Composable
+fun TopWithBottomTextWithAnnotatedText(
+    modifier: Modifier = Modifier,
+    topTextName: String,
+    topTextColor: Color = MaterialTheme.colors.onPrimary,
+    bottomTextNames: List<String>,
+    bottomTextColor: Color = SecondaryTextColor,
+    topTextStyle: TextStyle = MaterialTheme.typography.h2,
+    bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
+    annotatedTextQuery: String = ""
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Text(
+            text = getAnnotatedText(annotatedTextQuery, topTextName),
+            color = topTextColor,
+            style = topTextStyle,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row {
+            bottomTextNames.forEachIndexed { index, text ->
+                val addDelimiter = index != bottomTextNames.size - 1
+                val splitText = remember(annotatedTextQuery) {
+                    getAnnotatedText(
+                        annotatedTextQuery,
+                        text + if (addDelimiter) " - " else ""
+                    )
+                }
+                Text(
+                    text = splitText,
+                    color = bottomTextColor,
+                    style = bottomTextStyle,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
+    }
+}
+
+fun getAnnotatedText(annotatedTextQuery: String, textToUse: String): AnnotatedString {
+    val textStartIndex = textToUse.indexOf(annotatedTextQuery, 0, true)
+    val textEndIndex = textStartIndex + annotatedTextQuery.length
+    val builder = AnnotatedString.Builder(textToUse)
+    return if (annotatedTextQuery.isEmpty()) builder.toAnnotatedString()
+    else buildAnnotatedString {
+        append(textToUse)
+        addStyle(style = SpanStyle(SelectedColor), textStartIndex, textEndIndex)
+    }
+}
+
+
+@Composable
 fun BasicAudioItem(
     modifier: Modifier = Modifier,
     imageUrl: String?,
@@ -231,13 +295,15 @@ fun BasicAudioItem(
     onItemClick: () -> Unit,
     topText: String,
     topTextColor: Color = MaterialTheme.colors.onPrimary,
-    bottomText: String,
+    bottomText: String = "",
+    bottomTexts: List<String> = emptyList(),
     bottomTextColor: Color = SecondaryTextColor,
     topTextStyle: TextStyle = MaterialTheme.typography.h2,
     bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
     imageBackgroundColor: Color = Color.White,
     imageModifier: Modifier = Modifier,
     addBorder: Boolean = true,
+    annotatedTextQuery: String = "",
     iconVector: ImageVector,
     iconText: String,
     iconColor: Color,
@@ -269,15 +335,29 @@ fun BasicAudioItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        TopWithBottomText(
-            modifier = Modifier.weight(0.6f),
-            topTextName = topText,
-            bottomTextName = bottomText,
-            topTextColor = topTextColor,
-            bottomTextColor = bottomTextColor,
-            topTextStyle = topTextStyle,
-            bottomTextStyle = bottomTextStyle
-        )
+        if (bottomTexts.isEmpty()) {
+            TopWithBottomText(
+                modifier = Modifier.weight(0.6f),
+                topTextName = topText,
+                bottomTextName = bottomText,
+                topTextColor = topTextColor,
+                bottomTextColor = bottomTextColor,
+                topTextStyle = topTextStyle,
+                bottomTextStyle = bottomTextStyle
+            )
+        } else {
+            TopWithBottomTextWithAnnotatedText(
+                modifier = Modifier.weight(0.6f),
+                topTextName = topText,
+                bottomTextNames = bottomTexts,
+                topTextColor = topTextColor,
+                bottomTextColor = bottomTextColor,
+                topTextStyle = topTextStyle,
+                bottomTextStyle = bottomTextStyle,
+                annotatedTextQuery = annotatedTextQuery
+            )
+        }
+
 
         Spacer(modifier = Modifier.width(16.dp))
 

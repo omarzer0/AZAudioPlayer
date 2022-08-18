@@ -13,4 +13,9 @@
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/onPrimary</item>
     </style>
+
+    <style name="MainActivityTheme" parent="Theme.AZAudioPlayer">
+        <item name="android:navigationBarColor">@color/onPrimary</item>
+        <item name="android:background">@color/onPrimary</item>
+    </style>
 </resources>

@@ -6,23 +6,24 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <application
-        xmlns:tools="http://schemas.android.com/tools" tools:ignore="Instantiatable"
+    <application xmlns:tools="http://schemas.android.com/tools"
         android:name=".AZApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true"
-        android:theme="@style/Theme.AZAudioPlayer">
+        android:theme="@style/Theme.AZAudioPlayer"
+        tools:ignore="Instantiatable">
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/MainActivityTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +31,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".media.service.AudioService"
+        <service
+            android:name=".media.service.AudioService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />

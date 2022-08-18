@@ -20,10 +20,10 @@ import az.zero.azaudioplayer.media.player.extensions.isPlayEnabled
 import az.zero.azaudioplayer.media.player.extensions.isPlaying
 import az.zero.azaudioplayer.media.player.extensions.isPrepared
 import az.zero.azaudioplayer.media.service.AudioService
-import az.zero.azaudioplayer.ui.screens.home.AudioActions
 import az.zero.azaudioplayer.ui.utils.DataStoreManager
 import az.zero.azaudioplayer.ui.utils.DataStoreManager.Companion.LAST_PLAYED_AUDIO_ID_KEY
 import az.zero.azaudioplayer.ui.utils.DataStoreManager.Companion.REPEAT_MODE
+import az.zero.azaudioplayer.utils.AudioActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject

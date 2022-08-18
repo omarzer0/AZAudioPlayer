@@ -11,6 +11,9 @@
         <action
             android:id="@+id/action_homeFragment_to_albumDetailsFragment"
             app:destination="@id/albumDetailsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
     </fragment>
     <fragment
         android:id="@+id/albumDetailsFragment"
@@ -24,4 +27,8 @@
         android:id="@+id/playerBottomSheetFragment"
         android:name="az.zero.azaudioplayer.ui.screens.player.PlayerBottomSheetFragment"
         android:label="PlayerBottomSheetFragment" /><action android:id="@+id/action_global_playerBottomSheetFragment" app:destination="@id/playerBottomSheetFragment"/>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.search.SearchFragment"
+        android:label="SearchFragment" />
 </navigation>
