@@ -137,11 +137,11 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(
+        Divider(
             modifier = Modifier
-                .height(0.5.dp)
                 .fillMaxWidth()
-                .background(Color.LightGray)
+                .height(1.dp) ,
+            color = MaterialTheme.colors.background
         )
 
         Row(

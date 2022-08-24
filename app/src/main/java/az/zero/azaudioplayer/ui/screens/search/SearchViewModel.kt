@@ -9,6 +9,7 @@ import az.zero.azaudioplayer.domain.models.Audio
 import az.zero.azaudioplayer.domain.use_case.AudioActionUseCase
 import az.zero.azaudioplayer.utils.AudioActions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,9 +21,12 @@ class SearchViewModel @Inject constructor(
 
     private val _allAudio = MutableLiveData<List<Audio>>()
     val allAudio: LiveData<List<Audio>> = _allAudio
+    private var searchJob: Job? = null
+
 
     fun searchAudios(query: String) {
-        viewModelScope.launch {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
             _allAudio.postValue(audioDao.getAllDbAudioSingleListByQuery(query))
         }
     }

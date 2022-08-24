@@ -1,5 +1,6 @@
 package az.zero.azaudioplayer.domain.models
 
+import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
@@ -14,6 +15,7 @@ import az.zero.azaudioplayer.domain.models.Audio.Companion.YEAR
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.MediaMetadata
 import kotlinx.parcelize.Parcelize
+
 
 @Parcelize
 @Entity
@@ -61,6 +63,9 @@ fun Audio.toMediaMetadataCompat(): MediaMetadataCompat {
 }
 
 fun Audio.toMediaItem(): MediaBrowserCompat.MediaItem {
+//    val extras = Bundle().apply {
+//        putInt(MediaMetadataCompat.METADATA_KEY_DURATION, duration.toInt())
+//    }
     val desc = MediaDescriptionCompat.Builder()
         .setMediaUri(data.toUri())
         .setTitle(title)
@@ -68,11 +73,15 @@ fun Audio.toMediaItem(): MediaBrowserCompat.MediaItem {
         .setSubtitle(displayName)
         .setMediaId(data)
         .setIconUri(cover.toUri())
+//        .setExtras(extras)
         .build()
     return MediaBrowserCompat.MediaItem(desc, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE)
 }
 
 fun Audio.toExoMediaItem(): MediaItem {
+//    val extras = Bundle().apply {
+//        putInt(MediaMetadataCompat.METADATA_KEY_DURATION, duration.toInt())
+//    }
     return MediaItem.Builder()
         .setMediaId(data)
         .setUri(data.toUri())
@@ -84,6 +93,7 @@ fun Audio.toExoMediaItem(): MediaItem {
                 .setArtist(artist)
                 .setAlbumTitle(album)
                 .setDescription(displayName)
+//                .setExtras(extras)
                 .build()
         ).build()
 }

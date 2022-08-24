@@ -20,7 +20,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -34,6 +37,7 @@ import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
+import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
 import az.zero.azaudioplayer.utils.AudioActions
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -120,10 +124,8 @@ fun SearchBar(
     onBackBtnClick: () -> Unit = {},
     onClearClick: () -> Unit,
 ) {
-    Surface(
-        elevation = 8.dp,
-        modifier = modifier,
-        color = MaterialTheme.colors.primary
+    Column(
+        modifier = modifier.background(MaterialTheme.colors.primary),
     ) {
         Row(
             modifier = Modifier
@@ -135,6 +137,7 @@ fun SearchBar(
 
             IconButton(onClick = { onBackBtnClick() }) {
                 Icon(
+                    modifier = Modifier.mirror(),
                     imageVector = Icons.Filled.ArrowBack,
                     tint = MaterialTheme.colors.onPrimary,
                     contentDescription = stringResource(id = R.string.back)
@@ -168,6 +171,13 @@ fun SearchBar(
                 }
             }
         }
+
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp) ,
+            color = MaterialTheme.colors.background
+        )
     }
 }
 
@@ -179,9 +189,8 @@ fun TextWithClearIcon(
     onSearch: (String) -> Unit,
     onClearClick: () -> Unit,
 ) {
-
-
     val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -198,6 +207,7 @@ fun TextWithClearIcon(
                 color = MaterialTheme.colors.onPrimary
             ),
             modifier = Modifier
+                .focusRequester(focusRequester)
                 .weight(8f)
                 .onFocusChanged {
                     onShouldShowHint(!it.isFocused && text.isEmpty())
@@ -209,6 +219,10 @@ fun TextWithClearIcon(
                 focusManager.clearFocus()
             })
         )
+
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
 
         if (isClearIconVisible && text.isNotEmpty()) {
             IconButton(
