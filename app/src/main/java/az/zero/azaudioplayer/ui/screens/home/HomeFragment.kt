@@ -30,10 +30,7 @@ import az.zero.azaudioplayer.media.player.EMPTY_AUDIO
 import az.zero.azaudioplayer.media.player.extensions.isPlaying
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
-import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen
-import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
-import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
-import az.zero.azaudioplayer.ui.screens.tab_screens.PlaylistScreen
+import az.zero.azaudioplayer.ui.screens.tab_screens.*
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.common_composables.TextTab
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
@@ -42,6 +39,7 @@ import az.zero.azaudioplayer.utils.AudioActions
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalMaterialApi
 @ExperimentalPagerApi
 @AndroidEntryPoint
 class HomeFragment : BaseFragment() {
@@ -58,6 +56,7 @@ class HomeFragment : BaseFragment() {
     }
 }
 
+@ExperimentalMaterialApi
 @ExperimentalPagerApi
 @Composable
 fun HomeFragmentContent(
@@ -65,8 +64,14 @@ fun HomeFragmentContent(
     viewModel: HomeViewModel,
     navController: NavController
 ) {
-    Scaffold(
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+    )
+
+    BottomSheetScaffold(
         backgroundColor = MaterialTheme.colors.primary,
+        scaffoldState = bottomSheetScaffoldState,
+        sheetPeekHeight = 0.dp,
         topBar = {
             AppBar(onSearchClick = {
                 val searchDirections = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
@@ -74,7 +79,16 @@ fun HomeFragmentContent(
             }, onMoreClick = {
 
             })
-        },
+        }, sheetContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .background(Color.Blue)
+            ) {
+
+            }
+        }
     ) {
         Column {
             TextTab(
@@ -100,9 +114,22 @@ fun HomeFragmentContent(
                 when (it) {
                     0 -> {
                         val audioList = viewModel.allAudio.observeAsState().value
-                        AllAudioScreen(audioList, 0) { audio ->
-                            viewModel.audioAction(AudioActions.Toggle(audio.data))
-                        }
+                        val currentPlayingID =
+                            viewModel.currentPlayingAudio.observeAsState().value?.data ?: ""
+                        AllAudioScreen(audioList, currentPlayingID,
+                            onAudioItemClick = { audio ->
+                                viewModel.audioAction(AudioActions.Toggle(audio.data))
+                            },
+                            onAudioIconClick = { audio, menuAction ->
+                                when (menuAction) {
+                                    MenuActionTypeForAllScreen.DELETE -> {
+
+                                    }
+                                    MenuActionTypeForAllScreen.EDIT -> {
+
+                                    }
+                                }
+                            })
                     }
                     1 -> ArtistScreen(viewModel, navController)
                     2 -> AlbumScreen(viewModel, navController)
@@ -140,7 +167,7 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1.dp) ,
+                .height(1.dp),
             color = MaterialTheme.colors.background
         )
 

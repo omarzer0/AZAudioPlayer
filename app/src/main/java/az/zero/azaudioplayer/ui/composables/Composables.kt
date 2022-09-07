@@ -7,8 +7,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,10 +19,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -152,6 +154,7 @@ fun CustomImage(
     addBorder: Boolean = true
 ) {
     val painter = rememberAsyncImagePainter(
+        contentScale = contentScale,
         model = ImageRequest.Builder(LocalContext.current)
             .data(image)
             .transformations(RoundedCornersTransformation(12.dp.value))
@@ -307,13 +310,14 @@ fun BasicAudioItem(
     iconVector: ImageVector,
     iconText: String,
     iconColor: Color,
-    onTailItemClick: (() -> Unit)? = null
+    onTailItemClick: ((MenuActionType) -> Unit)? = null,
+    menuItemList: List<DropDownItemWithAction> = emptyList()
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickableSafeClick { onItemClick() }
-            .padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 12.dp),
+            .padding(start = 12.dp, bottom = 8.dp, top = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -362,16 +366,12 @@ fun BasicAudioItem(
         Spacer(modifier = Modifier.width(16.dp))
 
         if (onTailItemClick != null) {
-            IconButton(
-                modifier = Modifier
-                    .mirror()
-                    .weight(0.1f), onClick = { onTailItemClick() }) {
-                Icon(
-                    iconVector,
-                    iconText,
-                    tint = iconColor
-                )
-            }
+            IconWithMenu(
+                iconVector = iconVector,
+                iconText = iconText,
+                iconColor = iconColor,
+                items = menuItemList
+            )
         } else {
             Icon(
                 iconVector,
@@ -379,13 +379,54 @@ fun BasicAudioItem(
                 tint = iconColor,
                 modifier = Modifier
                     .mirror()
-                    .weight(0.1f)
+                    .padding(end = 12.dp)
             )
         }
-
-
     }
 }
+
+
+@Composable
+fun IconWithMenu(
+    iconVector: ImageVector,
+    iconText: String,
+    iconColor: Color,
+    items: List<DropDownItemWithAction>,
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    IconButton(modifier = Modifier.mirror(), onClick = { expanded = true }) {
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+
+            items.forEach {
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                    }) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(id = it.stringID), textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+        Icon(
+            iconVector,
+            iconText,
+            tint = iconColor
+        )
+    }
+}
+
+data class DropDownItemWithAction(
+    val stringID: Int,
+    val menuActionType: MenuActionType
+)
+
+interface MenuActionType
 
 @Composable
 fun CustomEditText(

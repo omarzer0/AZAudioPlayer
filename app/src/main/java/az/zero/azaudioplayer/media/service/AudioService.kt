@@ -117,7 +117,8 @@ class AudioService : MediaBrowserServiceCompat() {
 
         override fun getSupportedPrepareActions(): Long {
             return PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
-                    PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                    PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
+                    PlaybackStateCompat.ACTION_SEEK_TO
         }
 
         override fun onPrepare(playWhenReady: Boolean) = Unit

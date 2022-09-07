@@ -21,9 +21,13 @@ class AlbumDetailsFragment : BaseFragment() {
     ): View {
         val audioList = args.audioList.toList()
         return setFragmentContent {
-            AllAudioScreen(audioList) { audio ->
+            AllAudioScreen(audioList,
+                "",
+                onAudioItemClick = { audio ->
                 viewModel.audioAction(AudioActions.Toggle(audio.data))
-            }
+            }, onAudioIconClick = { audio, menuActionType ->
+
+            })
         }
     }
 }

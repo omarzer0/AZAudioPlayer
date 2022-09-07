@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,6 +26,7 @@ import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
+import az.zero.azaudioplayer.ui.utils.LONG_TEXT
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
 
@@ -69,7 +71,9 @@ fun ArtistItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickableSafeClick { onClick() }
-            .padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 12.dp)
+            .padding(start = 12.dp, bottom = 8.dp, top = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = artistName,
@@ -79,7 +83,6 @@ fun ArtistItem(
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Start,
             modifier = Modifier
-                .fillMaxWidth()
                 .align(CenterVertically)
                 .weight(0.6f),
 
@@ -89,9 +92,8 @@ fun ArtistItem(
         if (onTailItemClick != null) {
             IconButton(
                 modifier = Modifier
-                    .weight(0.1f)
                     .align(CenterVertically)
-                    .mirror(), onClick = {}) {
+                    .mirror(), onClick = { onTailItemClick() }) {
                 Icon(
                     Icons.Filled.KeyboardArrowRight,
                     stringResource(id = R.string.more),
@@ -104,9 +106,9 @@ fun ArtistItem(
                 stringResource(id = R.string.more),
                 tint = SecondaryTextColor,
                 modifier = Modifier
-                    .weight(0.1f)
                     .align(CenterVertically)
-                    .mirror(),
+                    .mirror()
+                    .padding(end = 12.dp)
             )
         }
 

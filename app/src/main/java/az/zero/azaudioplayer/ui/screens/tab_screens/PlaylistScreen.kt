@@ -132,7 +132,7 @@ fun CustomDialog(
                             }
                         }
                     ) {
-                        Text("Create", color = SecondaryTextColor)
+                        Text("Create", color = MaterialTheme.colors.onPrimary)
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -143,7 +143,7 @@ fun CustomDialog(
                             text = ""
                         }
                     ) {
-                        Text("Cancel", color = SecondaryTextColor)
+                        Text("Cancel", color = MaterialTheme.colors.onPrimary)
                     }
                 }
             }

@@ -13,13 +13,21 @@ import androidx.compose.ui.res.stringResource
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.domain.models.Audio
 import az.zero.azaudioplayer.ui.composables.BasicAudioItem
+import az.zero.azaudioplayer.ui.composables.DropDownItemWithAction
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
+import az.zero.azaudioplayer.ui.composables.MenuActionType
+import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.DELETE
+import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.EDIT
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 
 @Composable
-fun AllAudioScreen(audioList: List<Audio>?, selected: Int = -1, onAudioItemClick: (Audio) -> Unit) {
-    var selectedId = selected
+fun AllAudioScreen(
+    audioList: List<Audio>?,
+    selectedId: String,
+    onAudioItemClick: (Audio) -> Unit,
+    onAudioIconClick: (Audio, MenuActionType) -> Unit
+) {
 
     if (audioList.isNullOrEmpty()) return
 
@@ -31,16 +39,26 @@ fun AllAudioScreen(audioList: List<Audio>?, selected: Int = -1, onAudioItemClick
 
         itemsIndexed(audioList) { index, audio ->
             AudioItem(
-                audio,
-                isSelected = selectedId == index,
+                audio = audio,
+                menuItemList = menuActionList,
+                isSelected = audio.data == selectedId,
                 onClick = {
-                    selectedId = index
+//                    selectedId = index
                     onAudioItemClick(audio)
-                }, onIconClick = {
-                    // TODO on audio more icon click impl
+                }, onIconClick = { menuAction ->
+                    onAudioIconClick(audio, menuAction)
                 })
         }
     }
+}
+
+val menuActionList = listOf(
+    DropDownItemWithAction(R.string.delete, DELETE),
+)
+
+enum class MenuActionTypeForAllScreen : MenuActionType {
+    DELETE,
+    EDIT
 }
 
 @Composable
@@ -49,7 +67,9 @@ fun AudioItem(
     isSelected: Boolean,
     annotatedTextQuery: String = "",
     onClick: () -> Unit,
-    onIconClick: () -> Unit
+    onIconClick: (MenuActionType) -> Unit,
+    menuItemList: List<DropDownItemWithAction> = emptyList()
+
 ) {
     val textColor = if (isSelected) SelectedColor
     else MaterialTheme.colors.onPrimary
@@ -65,6 +85,7 @@ fun AudioItem(
         iconText = stringResource(id = R.string.more),
         onItemClick = { onClick() },
         onTailItemClick = onIconClick,
-        annotatedTextQuery = annotatedTextQuery
+        annotatedTextQuery = annotatedTextQuery,
+        menuItemList = menuItemList
     )
 }

@@ -16,7 +16,6 @@
 
     <style name="MainActivityTheme" parent="Theme.AZAudioPlayer">
         <item name="android:navigationBarColor">@color/onPrimary</item>
-        <item name="android:background">@color/onPrimary</item>
         <item name="android:backgroundTint">@color/onPrimary</item>
     </style>
 </resources>

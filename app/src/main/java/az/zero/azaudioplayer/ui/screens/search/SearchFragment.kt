@@ -58,60 +58,46 @@ class SearchFragment : BaseFragment() {
                 mutableStateOf("")
             }
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                item {
-                    HeaderSearchItem(
-                        text,
-                        navController = findNavController(),
-                        onClearClick = { text = "" },
-                        onSearch = { query -> text = query;viewModel.searchAudios(query) })
-                }
+            Column(modifier = Modifier.fillMaxSize()) {
+                SearchBar(
+                    text = text,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    hint = stringResource(id = R.string.search),
+                    onSearch = { query ->
+                        text = query
+                        viewModel.searchAudios(query)
+                    }, onBackBtnClick = {
+                        findNavController().navigateUp()
+                    }, onClearClick = {
+                        text = ""
+                        viewModel.searchAudios("")
+                    })
 
-                item {
-                    val headerText = "${allAudios.size} ${stringResource(id = R.string.of_audios)}"
-                    ItemsHeader(text = headerText)
-                }
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    item {
+                        val headerText =
+                            "${allAudios.size} ${stringResource(id = R.string.of_audios)}"
+                        ItemsHeader(text = headerText)
+                    }
 
-                itemsIndexed(allAudios) { index, audio ->
-                    AudioItem(
-                        audio,
-                        isSelected = selectedId == index,
-                        annotatedTextQuery = text,
-                        onClick = {
-                            selectedId = index
-                            viewModel.audioAction(AudioActions.Toggle(audioDataId = audio.data))
-                        },
-                        onIconClick = {
-                            // TODO on audio more icon click impl
-                        })
+                    itemsIndexed(allAudios) { index, audio ->
+                        AudioItem(
+                            audio,
+                            isSelected = selectedId == index,
+                            annotatedTextQuery = text,
+                            onClick = {
+                                selectedId = index
+                                viewModel.audioAction(AudioActions.Toggle(audioDataId = audio.data))
+                            },
+                            onIconClick = {
+                                // TODO on audio more icon click impl
+                            })
+                    }
                 }
             }
         }
-    }
-}
-
-
-@Composable
-fun HeaderSearchItem(
-    text: String,
-    navController: NavController,
-    onSearch: (String) -> Unit = {},
-    onClearClick: () -> Unit,
-) {
-    Box {
-        SearchBar(
-            text = text,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            hint = stringResource(id = R.string.search),
-            onSearch = { query ->
-                onSearch(query)
-            }, onBackBtnClick = {
-                navController.navigateUp()
-            }, onClearClick = {
-                onClearClick()
-            })
     }
 }
 
@@ -126,6 +112,7 @@ fun SearchBar(
 ) {
     Column(
         modifier = modifier.background(MaterialTheme.colors.primary),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             modifier = Modifier
@@ -191,6 +178,7 @@ fun TextWithClearIcon(
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
+    var shouldRequestFocus by remember { mutableStateOf(true) }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -217,11 +205,14 @@ fun TextWithClearIcon(
                 keyboardType = KeyboardType.Text
             ), keyboardActions = KeyboardActions(onSearch = {
                 focusManager.clearFocus()
+                shouldRequestFocus = false
             })
         )
 
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
+        if (shouldRequestFocus) {
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
         }
 
         if (isClearIconVisible && text.isNotEmpty()) {
