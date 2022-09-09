@@ -3,12 +3,14 @@ package az.zero.azaudioplayer.ui.screens.tab_screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.domain.models.Artist
+import az.zero.azaudioplayer.ui.composables.BasicAudioItem
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
@@ -62,55 +65,18 @@ fun ArtistScreen(
 fun ArtistItem(
     artist: Artist,
     onClick: () -> Unit,
-    onTailItemClick: (() -> Unit)? = null
 ) {
     val artistName = artist.artist.name
     val textColor = MaterialTheme.colors.onPrimary
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickableSafeClick { onClick() }
-            .padding(start = 12.dp, bottom = 8.dp, top = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = artistName,
-            color = textColor,
-            style = MaterialTheme.typography.h2,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .align(CenterVertically)
-                .weight(0.6f),
+    BasicAudioItem(
+        cornerShape = CircleShape,
+        topText = artistName,
+        topTextColor = textColor,
+        iconVector = Icons.Filled.KeyboardArrowRight,
+        iconColor = SecondaryTextColor,
+        iconText = stringResource(id = R.string.more),
+        onItemClick = onClick,
+    )
 
-            )
-        Spacer(modifier = Modifier.width(16.dp))
-
-        if (onTailItemClick != null) {
-            IconButton(
-                modifier = Modifier
-                    .align(CenterVertically)
-                    .mirror(), onClick = { onTailItemClick() }) {
-                Icon(
-                    Icons.Filled.KeyboardArrowRight,
-                    stringResource(id = R.string.more),
-                    tint = SecondaryTextColor
-                )
-            }
-        } else {
-            Icon(
-                Icons.Filled.KeyboardArrowRight,
-                stringResource(id = R.string.more),
-                tint = SecondaryTextColor,
-                modifier = Modifier
-                    .align(CenterVertically)
-                    .mirror()
-                    .padding(end = 12.dp)
-            )
-        }
-
-    }
 }

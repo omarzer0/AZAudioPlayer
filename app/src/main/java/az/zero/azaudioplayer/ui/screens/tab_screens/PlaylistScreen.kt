@@ -192,18 +192,18 @@ fun AddPlayList(
 @Composable
 fun PlaylistItem(playlist: Playlist, onClick: () -> Unit) {
     val image = if (playlist.isFavouritePlaylist) R.drawable.ic_fav else R.drawable.ic_music
-    val backgroundColor = if (playlist.isFavouritePlaylist) Color.Red else Color.White
+    val backgroundColor = if (playlist.isFavouritePlaylist) Color.Red else null
 
     BasicAudioItem(
         imageUrl = null,
         localImageUrl = image,
-        onItemClick = { onClick() },
+        onItemClick = onClick,
         topText = playlist.name,
         bottomText = "${playlist.audioList.size} ${stringResource(id = R.string.audios)}",
         iconVector = Icons.Filled.KeyboardArrowRight,
         iconColor = SecondaryTextColor,
         iconText = stringResource(id = R.string.more),
         imageBackgroundColor = backgroundColor,
-        addBorder = !playlist.isFavouritePlaylist
+        addBorder = false
     )
 }

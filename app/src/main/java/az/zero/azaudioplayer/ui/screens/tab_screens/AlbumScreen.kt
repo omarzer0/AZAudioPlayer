@@ -64,6 +64,6 @@ fun AlbumItem(album: Album, onClick: () -> Unit) {
         iconVector = Icons.Filled.KeyboardArrowRight,
         iconColor = SecondaryTextColor,
         iconText = stringResource(id = R.string.more),
-        onItemClick = { onClick() }
+        onItemClick = onClick
     )
 }

@@ -28,7 +28,6 @@ fun AllAudioScreen(
     onAudioItemClick: (Audio) -> Unit,
     onAudioIconClick: (Audio, MenuActionType) -> Unit
 ) {
-
     if (audioList.isNullOrEmpty()) return
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -43,7 +42,6 @@ fun AllAudioScreen(
                 menuItemList = menuActionList,
                 isSelected = audio.data == selectedId,
                 onClick = {
-//                    selectedId = index
                     onAudioItemClick(audio)
                 }, onIconClick = { menuAction ->
                     onAudioIconClick(audio, menuAction)
@@ -83,7 +81,7 @@ fun AudioItem(
         iconVector = Icons.Filled.MoreVert,
         iconColor = SecondaryTextColor,
         iconText = stringResource(id = R.string.more),
-        onItemClick = { onClick() },
+        onItemClick = onClick,
         onTailItemClick = onIconClick,
         annotatedTextQuery = annotatedTextQuery,
         menuItemList = menuItemList
