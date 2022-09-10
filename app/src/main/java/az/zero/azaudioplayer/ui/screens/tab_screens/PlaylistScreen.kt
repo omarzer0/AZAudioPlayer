@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.domain.models.Playlist
 import az.zero.azaudioplayer.ui.composables.BasicAudioItem
 import az.zero.azaudioplayer.ui.composables.CustomEditText
 import az.zero.azaudioplayer.ui.composables.LocalImageIcon
@@ -34,6 +33,7 @@ import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
+import az.zero.db.entities.DBPlaylist
 
 @Composable
 fun PlaylistScreen(
@@ -48,11 +48,11 @@ fun PlaylistScreen(
         var openDialog by rememberSaveable { mutableStateOf(false) }
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(items = allPlaylist, key = { it.name }) { playlist ->
-                PlaylistItem(playlist = playlist) {
+            items(items = allPlaylist) { playlist ->
+                PlaylistItem(DBPlaylist = playlist) {
                     navController.navigate(
                         HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                            playlist.audioList.toTypedArray()
+                            playlist.DBAudioList.toTypedArray()
                         )
                     )
                 }
@@ -190,16 +190,16 @@ fun AddPlayList(
 }
 
 @Composable
-fun PlaylistItem(playlist: Playlist, onClick: () -> Unit) {
-    val image = if (playlist.isFavouritePlaylist) R.drawable.ic_fav else R.drawable.ic_music
-    val backgroundColor = if (playlist.isFavouritePlaylist) Color.Red else null
+fun PlaylistItem(DBPlaylist: DBPlaylist, onClick: () -> Unit) {
+    val image = if (DBPlaylist.isFavouritePlaylist) R.drawable.ic_fav else R.drawable.ic_music
+    val backgroundColor = if (DBPlaylist.isFavouritePlaylist) Color.Red else null
 
     BasicAudioItem(
         imageUrl = null,
         localImageUrl = image,
         onItemClick = onClick,
-        topText = playlist.name,
-        bottomText = "${playlist.audioList.size} ${stringResource(id = R.string.audios)}",
+        topText = DBPlaylist.name,
+        bottomText = "${DBPlaylist.DBAudioList.size} ${stringResource(id = R.string.audios)}",
         iconVector = Icons.Filled.KeyboardArrowRight,
         iconColor = SecondaryTextColor,
         iconText = stringResource(id = R.string.more),

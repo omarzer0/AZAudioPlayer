@@ -3,12 +3,10 @@ package az.zero.azaudioplayer.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
-import az.zero.azaudioplayer.data.db.AudioDao
-import az.zero.azaudioplayer.domain.models.Audio
-import az.zero.azaudioplayer.domain.models.Playlist
-import az.zero.azaudioplayer.domain.use_case.AudioActionUseCase
-import az.zero.azaudioplayer.media.player.AudioServiceConnection
-import az.zero.azaudioplayer.utils.AudioActions
+import az.zero.base.utils.AudioActions
+import az.zero.db.entities.DBAudio
+import az.zero.db.entities.DBPlaylist
+import az.zero.player.AudioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,40 +14,38 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val audioServiceConnection: AudioServiceConnection,
-    private val audioDao: AudioDao,
-    private val audioActionUseCase: AudioActionUseCase
+    private val audioRepository: AudioRepository,
 ) : ViewModel() {
 
     fun audioAction(action: AudioActions) {
-        audioActionUseCase(action)
+        audioRepository.audioAction(action)
     }
 
-    val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
-    val playbackState = audioServiceConnection.playbackState
+    val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
+    val playbackState = audioRepository.playbackState
 
-    val allAudio = audioDao.getAllDbAudio().distinctUntilChanged()
+    val allAudio = audioRepository.getAllAudio()
 
-    val allAlbums by lazy { audioDao.getAlbumWithAudio().distinctUntilChanged() }
+    val allAlbums by lazy { audioRepository.getAlbumWithAudio() }
 
-    val allArtists by lazy { audioDao.getArtistWithAudio().distinctUntilChanged() }
+    val allArtists by lazy { audioRepository.getArtistWithAudio() }
 
-    val allPlaylists by lazy { audioDao.getAllPlayLists().distinctUntilChanged() }
+    val allPlaylists = audioRepository.getAllPlayLists().distinctUntilChanged()
 
-    fun addOrRemoveFromFavourite(audio: Audio) {
+    fun addOrRemoveFromFavourite(DBAudio: DBAudio) {
         viewModelScope.launch {
-            audioDao.addOrRemoveFromFavouritePlayList(audio)
+            audioRepository.addOrRemoveFromFavouritePlayList(DBAudio)
         }
     }
 
     fun playOrPause() {
-        audioServiceConnection.playOrPause()
+        audioRepository.playOrPause()
     }
 
     fun createANewPlayList(playlistName: String) {
         viewModelScope.launch {
-            audioDao.addPlayList(
-                Playlist(
+            audioRepository.addPlayList(
+                DBPlaylist(
                     name = playlistName,
                     emptyList()
                 )

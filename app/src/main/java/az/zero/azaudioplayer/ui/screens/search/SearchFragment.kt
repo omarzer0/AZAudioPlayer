@@ -23,14 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
@@ -38,7 +36,7 @@ import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
-import az.zero.azaudioplayer.utils.AudioActions
+import az.zero.base.utils.AudioActions
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -52,7 +50,7 @@ class SearchFragment : BaseFragment() {
         return setFragmentContent {
             var selectedId = -1
 
-            val allAudios = viewModel.allAudio.observeAsState().value ?: emptyList()
+            val allAudios = viewModel.allDBAudio.observeAsState().value ?: emptyList()
 
             var text by rememberSaveable {
                 mutableStateOf("")
@@ -162,7 +160,7 @@ fun SearchBar(
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1.dp) ,
+                .height(1.dp),
             color = MaterialTheme.colors.background
         )
     }

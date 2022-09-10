@@ -1,17 +1,17 @@
 package az.zero.azaudioplayer.ui.screens.details
 
 import androidx.lifecycle.ViewModel
-import az.zero.azaudioplayer.domain.use_case.AudioActionUseCase
-import az.zero.azaudioplayer.utils.AudioActions
+import az.zero.base.utils.AudioActions
+import az.zero.player.AudioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class AlbumDetailsViewModel @Inject constructor(
-    private val audioActionUseCase: AudioActionUseCase
+    private val audioRepository: AudioRepository
 ) : ViewModel() {
     fun audioAction(action: AudioActions) {
-        audioActionUseCase(action)
+        audioRepository.audioAction(action)
     }
 }
 

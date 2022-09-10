@@ -26,7 +26,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.media.player.EMPTY_AUDIO
 import az.zero.azaudioplayer.media.player.extensions.isPlaying
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
@@ -35,7 +34,8 @@ import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.common_composables.TextTab
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
-import az.zero.azaudioplayer.utils.AudioActions
+import az.zero.base.utils.AudioActions
+import az.zero.player.EMPTY_AUDIO
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 

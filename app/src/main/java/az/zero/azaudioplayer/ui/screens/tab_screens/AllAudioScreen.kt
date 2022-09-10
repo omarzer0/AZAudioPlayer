@@ -11,34 +11,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.domain.models.Audio
 import az.zero.azaudioplayer.ui.composables.BasicAudioItem
 import az.zero.azaudioplayer.ui.composables.DropDownItemWithAction
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.composables.MenuActionType
 import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.DELETE
-import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.EDIT
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
+import az.zero.db.entities.DBAudio
 
 @Composable
 fun AllAudioScreen(
-    audioList: List<Audio>?,
+    DBAudioList: List<DBAudio>?,
     selectedId: String,
-    onAudioItemClick: (Audio) -> Unit,
-    onAudioIconClick: (Audio, MenuActionType) -> Unit
+    onAudioItemClick: (DBAudio) -> Unit,
+    onAudioIconClick: (DBAudio, MenuActionType) -> Unit
 ) {
-    if (audioList.isNullOrEmpty()) return
+    if (DBAudioList.isNullOrEmpty()) return
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            val headerText = "${audioList.size} ${stringResource(id = R.string.of_audios)}"
+            val headerText = "${DBAudioList.size} ${stringResource(id = R.string.of_audios)}"
             ItemsHeader(text = headerText)
         }
 
-        itemsIndexed(audioList) { index, audio ->
+        itemsIndexed(DBAudioList) { index, audio ->
             AudioItem(
-                audio = audio,
+                DBAudio = audio,
                 menuItemList = menuActionList,
                 isSelected = audio.data == selectedId,
                 onClick = {
@@ -61,7 +60,7 @@ enum class MenuActionTypeForAllScreen : MenuActionType {
 
 @Composable
 fun AudioItem(
-    audio: Audio,
+    DBAudio: DBAudio,
     isSelected: Boolean,
     annotatedTextQuery: String = "",
     onClick: () -> Unit,
@@ -73,10 +72,10 @@ fun AudioItem(
     else MaterialTheme.colors.onPrimary
 
     BasicAudioItem(
-        imageUrl = audio.cover,
+        imageUrl = DBAudio.cover,
         cornerShape = CircleShape,
-        topText = audio.title,
-        bottomTexts = listOf(audio.artist, audio.album),
+        topText = DBAudio.title,
+        bottomTexts = listOf(DBAudio.artist, DBAudio.album),
         topTextColor = textColor,
         iconVector = Icons.Filled.MoreVert,
         iconColor = SecondaryTextColor,

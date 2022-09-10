@@ -102,7 +102,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
 
     def roomVersion = "2.4.2"
-
     implementation "androidx.room:room-runtime:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
@@ -143,9 +142,12 @@ dependencies {
     // More Icons
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
 
+    api project(path: ':base')
+    api project(path: ':db')
+    api project(path: ':datastore')
+    api project(path: ':player')
 
 }
-
 
 kapt {
     correctErrorTypes true

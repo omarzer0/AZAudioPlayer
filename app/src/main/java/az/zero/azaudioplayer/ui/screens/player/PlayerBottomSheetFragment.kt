@@ -31,7 +31,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.media.player.EMPTY_AUDIO
 import az.zero.azaudioplayer.media.player.extensions.isPlaying
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
@@ -40,6 +39,7 @@ import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.utils.*
 import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
+import az.zero.player.EMPTY_AUDIO
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

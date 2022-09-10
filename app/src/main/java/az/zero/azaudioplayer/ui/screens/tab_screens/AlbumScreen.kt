@@ -13,12 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.domain.models.Album
 import az.zero.azaudioplayer.ui.composables.BasicAudioItem
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
+import az.zero.db.entities.DBAlbumWithAudioList
 
 
 @Composable
@@ -36,10 +36,10 @@ fun AlbumScreen(
         }
 
         items(items = albumList, key = { it.album.name }) { album ->
-            AlbumItem(album = album) {
+            AlbumItem(DBAlbumWithAudioList = album) {
                 navController.navigate(
                     HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                        album.audioList.toTypedArray()
+                        album.DBAudioList.toTypedArray()
                     )
                 )
             }
@@ -49,17 +49,17 @@ fun AlbumScreen(
 }
 
 @Composable
-fun AlbumItem(album: Album, onClick: () -> Unit) {
+fun AlbumItem(DBAlbumWithAudioList: DBAlbumWithAudioList, onClick: () -> Unit) {
 
     val image = remember {
-        if (album.audioList.isNullOrEmpty()) ""
-        else album.audioList[0].cover
+        if (DBAlbumWithAudioList.DBAudioList.isNullOrEmpty()) ""
+        else DBAlbumWithAudioList.DBAudioList[0].cover
     }
 
     BasicAudioItem(
         imageUrl = image,
-        topText = album.album.name,
-        bottomText = album.audioList[0].artist,
+        topText = DBAlbumWithAudioList.album.name,
+        bottomText = DBAlbumWithAudioList.DBAudioList[0].artist,
         topTextColor = MaterialTheme.colors.onPrimary,
         iconVector = Icons.Filled.KeyboardArrowRight,
         iconColor = SecondaryTextColor,

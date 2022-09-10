@@ -15,3 +15,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "AZAudioPlayer"
 include ':app'
+include ':base'
+include ':db'
+include ':datastore'
+include ':player'

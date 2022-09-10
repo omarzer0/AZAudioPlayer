@@ -1,15 +1,10 @@
 package az.zero.azaudioplayer.di
 
 import android.content.Context
-import androidx.room.Room
-import az.zero.azaudioplayer.data.db.AppDatabase
-import az.zero.azaudioplayer.data.db.AppDatabase.Companion.DATABASE_NAME
-import az.zero.azaudioplayer.data.db.AudioDao
-import az.zero.azaudioplayer.data.db.DatabaseCallback
-import az.zero.azaudioplayer.data.db.helpers.AudioTypeConverters
-import az.zero.azaudioplayer.media.player.AudioServiceConnection
-import az.zero.azaudioplayer.ui.utils.DataStoreManager
-
+import az.zero.base.di.ApplicationScope
+import az.zero.datastore.DataStoreManager
+import az.zero.db.AudioDao
+import az.zero.player.AudioRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,31 +26,31 @@ object AppModule {
         dao: AudioDao,
         @ApplicationScope scope: CoroutineScope,
         dataStoreManager: DataStoreManager
-    ) = AudioServiceConnection(context, dao, scope,dataStoreManager)
+    ) = AudioRepository(context, dao, scope, dataStoreManager)
 
-    @Singleton
-    @Provides
-    fun provideDatabase(
-        @ApplicationContext context: Context,
-        callback: DatabaseCallback
-    ): AppDatabase =
-        Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
-            .addTypeConverter(AudioTypeConverters())
-            .fallbackToDestructiveMigration()
-            .addCallback(callback)
-            .build()
+//    @Singleton
+//    @Provides
+//    fun provideDatabase(
+//        @ApplicationContext context: Context,
+//        callback: DatabaseCallback
+//    ): AppDatabase =
+//        Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
+//            .addTypeConverter(AudioTypeConverters())
+//            .fallbackToDestructiveMigration()
+//            .addCallback(callback)
+//            .build()
+//
+//    @Singleton
+//    @Provides
+//    fun providesAudioDao(appDatabase: AppDatabase): AudioDao = appDatabase.getAudioDao()
 
-    @Singleton
-    @Provides
-    fun providesAudioDao(appDatabase: AppDatabase): AudioDao = appDatabase.getAudioDao()
-
-    @ApplicationScope
-    @Provides
-    @Singleton
-    fun provideApplicationScope() = CoroutineScope(SupervisorJob())
+//    @ApplicationScope
+//    @Provides
+//    @Singleton
+//    fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 }
 
-@Retention(AnnotationRetention.RUNTIME)
-@Qualifier
-annotation class ApplicationScope
+//@Retention(AnnotationRetention.RUNTIME)
+//@Qualifier
+//annotation class ApplicationScope
 

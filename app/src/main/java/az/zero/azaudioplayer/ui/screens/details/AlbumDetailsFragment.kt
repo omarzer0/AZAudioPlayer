@@ -8,7 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
-import az.zero.azaudioplayer.utils.AudioActions
+import az.zero.base.utils.AudioActions
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,10 +24,10 @@ class AlbumDetailsFragment : BaseFragment() {
             AllAudioScreen(audioList,
                 "",
                 onAudioItemClick = { audio ->
-                viewModel.audioAction(AudioActions.Toggle(audio.data))
-            }, onAudioIconClick = { audio, menuActionType ->
+                    viewModel.audioAction(AudioActions.Toggle(audio.data))
+                }, onAudioIconClick = { audio, menuActionType ->
 
-            })
+                })
         }
     }
 }

@@ -21,7 +21,7 @@
         android:label="AlbumDetailsFragment" >
         <argument
             android:name="audioList"
-            app:argType="az.zero.azaudioplayer.domain.models.Audio[]" />
+            app:argType="az.zero.db.entities.DBAudio[]" />
     </fragment>
     <dialog
         android:id="@+id/playerBottomSheetFragment"
