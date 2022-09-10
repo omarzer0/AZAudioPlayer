@@ -130,6 +130,11 @@ class AudioDbHelper @Inject constructor(
                     "computeArtistItems: \nlocal= ${localList.size}\nartists= ${artists.size}"
                 )
             }
+
+            Log.e(
+                "computeArtistItems",
+                "computeArtistItems: DONNNNNNNEEEE"
+            )
         }
     }
 
