@@ -143,7 +143,7 @@ class AudioRepository @Inject constructor(
     }
 
     suspend fun getAllDbAudioSingleListByQuery(query: String): List<DBAudio>? {
-        return audioDao.getAllDbAudioSingleListByQuery(query)
+        return audioDao.getAllDbAudioSingleListByQuery(query.trim())
     }
 
     inner class MediaBrowserConnectionCallback : MediaBrowserCompat.ConnectionCallback() {

@@ -143,7 +143,7 @@ fun TopWithBottomTextWithAnnotatedText(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Text(
-            text = getAnnotatedText(annotatedTextQuery, topTextName),
+            text = getAnnotatedText(annotatedTextQuery.trim(), topTextName),
             color = topTextColor,
             style = topTextStyle,
             maxLines = 1,
@@ -156,7 +156,7 @@ fun TopWithBottomTextWithAnnotatedText(
                 val addDelimiter = index != bottomTextNames.size - 1
                 val splitText = remember(annotatedTextQuery) {
                     getAnnotatedText(
-                        annotatedTextQuery,
+                        annotatedTextQuery.trim(),
                         text + if (addDelimiter) " - " else ""
                     )
                 }

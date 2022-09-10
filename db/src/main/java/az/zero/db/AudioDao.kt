@@ -15,7 +15,7 @@ interface AudioDao {
     suspend fun getAllDbAudioSingleList(): List<DBAudio>
 
     @Query("SELECT * FROM DBAudio WHERE title LIKE '%' || :searchQuery || '%' OR album LIKE '%' || :searchQuery || '%' OR artist LIKE '%' || :searchQuery || '%' ORDER BY lastDateModified DESC ")
-    suspend fun getAllDbAudioSingleListByQuery(searchQuery: String): List<DBAudio>
+    suspend fun getAllDbAudioSingleListByQuery(searchQuery: String): List<DBAudio>?
 
     @Transaction
     @Query("SELECT * FROM DBAlbum")

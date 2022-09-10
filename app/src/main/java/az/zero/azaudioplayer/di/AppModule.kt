@@ -28,29 +28,4 @@ object AppModule {
         dataStoreManager: DataStoreManager
     ) = AudioRepository(context, dao, scope, dataStoreManager)
 
-//    @Singleton
-//    @Provides
-//    fun provideDatabase(
-//        @ApplicationContext context: Context,
-//        callback: DatabaseCallback
-//    ): AppDatabase =
-//        Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
-//            .addTypeConverter(AudioTypeConverters())
-//            .fallbackToDestructiveMigration()
-//            .addCallback(callback)
-//            .build()
-//
-//    @Singleton
-//    @Provides
-//    fun providesAudioDao(appDatabase: AppDatabase): AudioDao = appDatabase.getAudioDao()
-
-//    @ApplicationScope
-//    @Provides
-//    @Singleton
-//    fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 }
-
-//@Retention(AnnotationRetention.RUNTIME)
-//@Qualifier
-//annotation class ApplicationScope
-
