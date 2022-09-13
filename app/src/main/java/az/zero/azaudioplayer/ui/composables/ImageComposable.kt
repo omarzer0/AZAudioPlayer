@@ -160,3 +160,51 @@ fun MyImage(
 //            ),
 //        alignment = Alignment.Center,
 //    )
+
+
+//GlideImage(
+//            imageModel = audio.cover,
+//            contentScale = ContentScale.Fit,
+//            modifier = Modifier
+//                .align(CenterHorizontally)
+//                .width(300.dp)
+//                .height(250.dp)
+//                .clip(RoundedCornerShape(12.dp)),
+//            loading = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_music),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .width(300.dp)
+//                        .height(250.dp)
+//                )
+////                dominantColor = MaterialTheme.colors.primary
+//            },
+//            success = { imageState ->
+//                imageState.drawable?.let {
+//                    viewModel.calculateDominantColor(it) { color, imageBitmap ->
+//                        dominantColor = color
+//                        imageOfBitmap = imageBitmap
+//                    }
+//                }
+//                imageOfBitmap?.let {
+//                    CustomImage(
+//                        bitmap = imageOfBitmap,
+//                        image = audio.cover,
+//                        modifier = Modifier
+//                            .width(300.dp)
+//                            .height(250.dp)
+//                    )
+//                }
+//            },
+//            failure = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_music),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .width(300.dp)
+//                        .height(250.dp)
+//                )
+//                dominantColor = MaterialTheme.colors.primary
+//            },
+//        )
