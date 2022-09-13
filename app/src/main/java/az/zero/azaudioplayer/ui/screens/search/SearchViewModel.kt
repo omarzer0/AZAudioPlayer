@@ -1,9 +1,6 @@
 package az.zero.azaudioplayer.ui.screens.search
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 import az.zero.player.AudioRepository
@@ -21,6 +18,7 @@ class SearchViewModel @Inject constructor(
     val allDBAudio: LiveData<List<DBAudio>> = _allAudio
     private var searchJob: Job? = null
 
+    val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
 
     fun searchAudios(query: String) {
         searchJob?.cancel()

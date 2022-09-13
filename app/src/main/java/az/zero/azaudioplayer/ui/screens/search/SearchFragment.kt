@@ -4,39 +4,32 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.runtime.*
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
+import az.zero.azaudioplayer.ui.composables.MenuActionType
+import az.zero.azaudioplayer.ui.composables.SearchBar
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
-import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
-import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
 import az.zero.base.utils.AudioActions
+import az.zero.db.entities.DBAudio
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,184 +41,85 @@ class SearchFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         return setFragmentContent {
-            var selectedId = -1
-
-            val allAudios = viewModel.allDBAudio.observeAsState().value ?: emptyList()
-
-            var text by rememberSaveable {
-                mutableStateOf("")
-            }
-
-            Column(modifier = Modifier.fillMaxSize()) {
-                SearchBar(
-                    text = text,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    hint = stringResource(id = R.string.search),
-                    onSearch = { query ->
-                        text = query
-                        viewModel.searchAudios(query)
-                    }, onBackBtnClick = {
-                        findNavController().navigateUp()
-                    }, onClearClick = {
-                        text = ""
-                        viewModel.searchAudios("")
-                    })
-
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    item {
-                        val headerText =
-                            "${allAudios.size} ${stringResource(id = R.string.of_audios)}"
-                        ItemsHeader(text = headerText)
-                    }
-
-                    itemsIndexed(allAudios) { index, audio ->
-                        AudioItem(
-                            audio,
-                            isSelected = selectedId == index,
-                            annotatedTextQuery = text,
-                            onClick = {
-                                selectedId = index
-                                viewModel.audioAction(
-                                    AudioActions.Toggle(audioDataId = audio.data),
-                                    null
-                                )
-                            },
-                            onIconClick = {
-                                // TODO on audio more icon click impl
-                            })
-                    }
-                }
-            }
+            SearchScreen(viewModel = viewModel, navController = findNavController())
         }
     }
 }
 
 @Composable
-fun SearchBar(
-    modifier: Modifier = Modifier,
-    text: String,
-    hint: String = "",
-    onSearch: (String) -> Unit = {},
-    onBackBtnClick: () -> Unit = {},
-    onClearClick: () -> Unit,
+fun SearchScreen(
+    viewModel: SearchViewModel,
+    navController: NavController
 ) {
-    Column(
-        modifier = modifier.background(MaterialTheme.colors.primary),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 4.dp, end = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = CenterVertically
-        ) {
 
-            IconButton(onClick = { onBackBtnClick() }) {
-                Icon(
-                    modifier = Modifier.mirror(),
-                    imageVector = Icons.Filled.ArrowBack,
-                    tint = MaterialTheme.colors.onPrimary,
-                    contentDescription = stringResource(id = R.string.back)
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colors.primary)
-            ) {
-                var isHintDisplayed by remember {
-                    mutableStateOf(hint != "")
-                }
-
-                TextWithClearIcon(
-                    text = text,
-                    isClearIconVisible = !isHintDisplayed,
-                    onShouldShowHint = { isHintDisplayed = it },
-                    onSearch = { onSearch(it) },
-                    onClearClick = { onClearClick() }
-                )
-
-                if (isHintDisplayed) {
-                    Text(
-                        modifier = Modifier,
-                        text = hint,
-                        style = MaterialTheme.typography.h2.copy(
-                            color = SecondaryTextColor
-                        ),
-                    )
-                }
-            }
+    SearchScreen(
+        allAudios = viewModel.allDBAudio.observeAsState().value ?: emptyList(),
+        selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: "",
+        onSearch = { viewModel.searchAudios(it) },
+        onBackBtnClick = { navController.navigateUp() },
+        onClearClick = { viewModel.searchAudios("") },
+        onAudioItemClick = { audio ->
+            viewModel.audioAction(
+                AudioActions.Toggle(audioDataId = audio.data),
+                null
+            )
+        },
+        onAudioIconClick = { dbAudio, menuActionType ->
+            // TODO on audio more icon click impl
         }
-
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp),
-            color = MaterialTheme.colors.background
-        )
-    }
+    )
 }
 
 @Composable
-fun TextWithClearIcon(
-    text: String,
-    isClearIconVisible: Boolean = true,
-    onShouldShowHint: (Boolean) -> Unit,
+private fun SearchScreen(
+    allAudios: List<DBAudio>,
+    selectedId: String,
     onSearch: (String) -> Unit,
+    onBackBtnClick: () -> Unit,
     onClearClick: () -> Unit,
+    onAudioItemClick: (DBAudio) -> Unit,
+    onAudioIconClick: (DBAudio, MenuActionType) -> Unit
+
 ) {
-    val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
-    var shouldRequestFocus by remember { mutableStateOf(true) }
+    var text by rememberSaveable {
+        mutableStateOf("")
+    }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = CenterVertically
-    ) {
-        BasicTextField(
-            value = text,
-            onValueChange = {
-                onSearch(it)
-            },
-            maxLines = 1,
-            singleLine = true,
-            textStyle = MaterialTheme.typography.h2.copy(
-                color = MaterialTheme.colors.onPrimary
-            ),
+    Column(modifier = Modifier.fillMaxSize()) {
+        SearchBar(
+            text = text,
             modifier = Modifier
-                .focusRequester(focusRequester)
-                .weight(8f)
-                .onFocusChanged {
-                    onShouldShowHint(!it.isFocused && text.isEmpty())
-                },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Search,
-                keyboardType = KeyboardType.Text
-            ), keyboardActions = KeyboardActions(onSearch = {
-                focusManager.clearFocus()
-                shouldRequestFocus = false
+                .fillMaxWidth()
+                .height(56.dp),
+            hint = stringResource(id = R.string.search),
+            onSearch = { query ->
+                text = query
+                onSearch(query)
+            }, onBackBtnClick = onBackBtnClick, onClearClick = {
+                text = ""
+                onClearClick()
             })
-        )
 
-        if (shouldRequestFocus) {
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item {
+                val headerText =
+                    "${allAudios.size} ${stringResource(id = R.string.of_audios)}"
+                ItemsHeader(text = headerText)
             }
-        }
 
-        if (isClearIconVisible && text.isNotEmpty()) {
-            IconButton(
-                modifier = Modifier.weight(1f),
-                onClick = { onClearClick() }) {
-                Icon(
-                    imageVector = Icons.Filled.Clear,
-                    tint = MaterialTheme.colors.onPrimary,
-                    contentDescription = stringResource(id = R.string.clear)
-                )
+            items(allAudios) { audio ->
+                AudioItem(
+                    audio,
+                    isSelected = audio.data == selectedId,
+                    annotatedTextQuery = text,
+                    onClick = {
+                        onAudioItemClick(audio)
+                    },
+                    onIconClick = {
+                        onAudioIconClick(audio, it)
+                    })
             }
         }
     }
 }
+

@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.utils.common_composables
+package az.zero.azaudioplayer.ui.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect

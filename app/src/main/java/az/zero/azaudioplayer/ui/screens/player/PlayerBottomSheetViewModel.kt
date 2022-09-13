@@ -4,7 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.*
 import az.zero.azaudioplayer.media.player.extensions.currentPlayBackPosition
-import az.zero.azaudioplayer.ui.utils.POSITION_UPDATE_INTERVAL_MILLIS
+import az.zero.azaudioplayer.utils.POSITION_UPDATE_INTERVAL_MILLIS
 import az.zero.db.entities.DBAudio
 import az.zero.player.AudioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

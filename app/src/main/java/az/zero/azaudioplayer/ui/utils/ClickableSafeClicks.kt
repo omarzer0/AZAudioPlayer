@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.utils.common_composables
+package az.zero.azaudioplayer.ui.utils
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable

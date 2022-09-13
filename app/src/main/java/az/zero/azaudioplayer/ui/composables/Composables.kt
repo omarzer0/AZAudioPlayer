@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
+import az.zero.azaudioplayer.ui.utils.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.colorFullBorder
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
 

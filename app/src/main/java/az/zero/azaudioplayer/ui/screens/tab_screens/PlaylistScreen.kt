@@ -32,7 +32,7 @@ import az.zero.azaudioplayer.ui.composables.LocalImageIcon
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
-import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
+import az.zero.azaudioplayer.ui.utils.clickableSafeClick
 import az.zero.db.entities.DBPlaylist
 
 @Composable
@@ -41,39 +41,49 @@ fun PlaylistScreen(
     navController: NavController
 ) {
 
-    val allPlaylist = viewModel.allPlaylists.observeAsState().value
-    if (allPlaylist.isNullOrEmpty()) return
+    val allPlaylist = viewModel.allPlaylists.observeAsState().value ?: emptyList()
 
+    PlaylistScreen(
+        allPlaylist = allPlaylist,
+        onPlayListClick = {
+            navController.navigate(
+                HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
+                    it.DBAudioList.toTypedArray()
+                )
+            )
+        }, onCreateClickNewPlaylist = { playlistName ->
+            // TODO check if name already exists
+            viewModel.createANewPlayList(playlistName)
+        }
+    )
+
+}
+
+@Composable
+fun PlaylistScreen(
+    allPlaylist: List<DBPlaylist>,
+    onPlayListClick: (DBPlaylist) -> Unit,
+    onCreateClickNewPlaylist: (String) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         var openDialog by rememberSaveable { mutableStateOf(false) }
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = allPlaylist) { playlist ->
-                PlaylistItem(DBPlaylist = playlist) {
-                    navController.navigate(
-                        HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                            playlist.DBAudioList.toTypedArray()
-                        )
-                    )
-                }
+                PlaylistItem(DBPlaylist = playlist) { onPlayListClick(playlist) }
             }
 
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                AddPlayList {
-                    openDialog = true
-                }
+                AddPlayList { openDialog = true }
             }
         }
 
         CustomDialog(
             openDialog = openDialog,
-            onOpenDialogChanged = {
-                openDialog = !openDialog
-            },
+            onOpenDialogChanged = { openDialog = !openDialog },
             onCreateClick = { playlistName ->
-                // TODO check if name already exists
-                viewModel.createANewPlayList(playlistName)
+                onCreateClickNewPlaylist(playlistName)
             }
         )
 

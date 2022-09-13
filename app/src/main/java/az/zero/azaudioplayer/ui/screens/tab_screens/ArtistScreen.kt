@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
@@ -21,14 +20,33 @@ import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.db.entities.DBArtistWithAudios
 
-
+/**
+ *  Stateful version of the ArtistScreen
+ * */
 @Composable
 fun ArtistScreen(
     viewModel: HomeViewModel,
     navController: NavController
 ) {
-    val artistList = viewModel.allArtists.observeAsState().value
-    if (artistList.isNullOrEmpty()) return
+    val allArtists = viewModel.allArtists.observeAsState().value ?: emptyList()
+    ArtistScreen(artistList = allArtists) { artist ->
+        navController.navigate(
+            HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
+                artist.DBAudioList.toTypedArray()
+            )
+        )
+    }
+
+}
+
+/**
+ *  Stateless version of the ArtistScreen
+ * */
+@Composable
+private fun ArtistScreen(
+    artistList: List<DBArtistWithAudios>,
+    onArtistClick: (DBArtistWithAudios) -> Unit
+) {
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
@@ -38,11 +56,7 @@ fun ArtistScreen(
 
         items(artistList, key = { it.artist.name }) { artist ->
             ArtistItem(artist, onClick = {
-                navController.navigate(
-                    HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                        artist.DBAudioList.toTypedArray()
-                    )
-                )
+                onArtistClick(artist)
             })
         }
 

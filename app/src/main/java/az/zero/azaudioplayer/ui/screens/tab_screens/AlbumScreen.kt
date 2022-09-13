@@ -26,8 +26,7 @@ fun AlbumScreen(
     viewModel: HomeViewModel,
     navController: NavController
 ) {
-    val albumList = viewModel.allAlbums.observeAsState().value
-    if (albumList.isNullOrEmpty()) return
+    val albumList = viewModel.allAlbums.observeAsState().value ?: emptyList()
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {

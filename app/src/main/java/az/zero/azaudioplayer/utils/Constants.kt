@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.utils
+package az.zero.azaudioplayer.utils
 
 import androidx.compose.ui.unit.dp
 

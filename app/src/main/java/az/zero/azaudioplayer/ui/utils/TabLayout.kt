@@ -1,6 +1,5 @@
-package az.zero.azaudioplayer.ui.utils.common_composables
+package az.zero.azaudioplayer.ui.utils
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.IndicatorHeight

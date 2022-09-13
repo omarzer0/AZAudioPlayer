@@ -1,13 +1,13 @@
-package az.zero.azaudioplayer.ui.utils
+package az.zero.azaudioplayer.core
 
 import android.content.Context
 import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
-import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.theme.AZAudioPlayerTheme
 
-fun setCompContent(context: Context,content: @Composable () -> Unit): View {
+
+fun setCompContent(context: Context, content: @Composable () -> Unit): View {
     return ComposeView(context).apply {
         setContent {
             AZAudioPlayerTheme {
@@ -19,14 +19,4 @@ fun setCompContent(context: Context,content: @Composable () -> Unit): View {
             }
         }
     }
-}
-
-fun createTimeLabel(mTime: Float): String {
-    val time = mTime.toLong()
-    val min = time / 1000 / 60
-    val sec = time / 1000 % 60
-    var label = "$min:"
-    if (sec < 10) label += "0"
-    label += sec
-    return label
 }
