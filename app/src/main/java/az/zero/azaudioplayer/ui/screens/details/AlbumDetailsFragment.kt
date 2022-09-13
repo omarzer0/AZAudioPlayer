@@ -24,7 +24,7 @@ class AlbumDetailsFragment : BaseFragment() {
             AllAudioScreen(audioList,
                 "",
                 onAudioItemClick = { audio ->
-                    viewModel.audioAction(AudioActions.Toggle(audio.data))
+                    viewModel.audioAction(AudioActions.Toggle(audio.data),audioList)
                 }, onAudioIconClick = { audio, menuActionType ->
 
                 })

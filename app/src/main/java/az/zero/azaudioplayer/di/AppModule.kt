@@ -5,6 +5,7 @@ import az.zero.base.di.ApplicationScope
 import az.zero.datastore.DataStoreManager
 import az.zero.db.AudioDao
 import az.zero.player.AudioRepository
+import az.zero.player.audio_data_source.AudioDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +26,8 @@ object AppModule {
         @ApplicationContext context: Context,
         dao: AudioDao,
         @ApplicationScope scope: CoroutineScope,
-        dataStoreManager: DataStoreManager
-    ) = AudioRepository(context, dao, scope, dataStoreManager)
+        dataStoreManager: DataStoreManager,
+        audioDataSource: AudioDataSource
+    ) = AudioRepository(context, dao, scope, dataStoreManager,audioDataSource)
 
 }

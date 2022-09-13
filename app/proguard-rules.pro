@@ -20,8 +20,6 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class az.zero.azaudioplayer.domain.models.** {*;}
-
 -keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
     <fields>;
 }

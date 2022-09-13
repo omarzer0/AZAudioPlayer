@@ -17,8 +17,8 @@ class HomeViewModel @Inject constructor(
     private val audioRepository: AudioRepository,
 ) : ViewModel() {
 
-    fun audioAction(action: AudioActions) {
-        audioRepository.audioAction(action)
+    fun audioAction(action: AudioActions,newAudioList: List<DBAudio>?) {
+        audioRepository.audioAction(action, newAudioList = newAudioList )
     }
 
     val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()

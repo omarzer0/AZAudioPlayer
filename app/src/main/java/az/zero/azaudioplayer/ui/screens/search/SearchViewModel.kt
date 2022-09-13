@@ -25,12 +25,13 @@ class SearchViewModel @Inject constructor(
     fun searchAudios(query: String) {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            _allAudio.postValue(audioRepository.getAllDbAudioSingleListByQuery(query))
+            val filteredList = audioRepository.getAllDbAudioSingleListByQuery(query) ?: emptyList()
+            _allAudio.postValue(filteredList)
         }
     }
 
-    fun audioAction(action: AudioActions) {
-        audioRepository.audioAction(action)
+    fun audioAction(action: AudioActions, newAudioList: List<DBAudio>?) {
+        audioRepository.audioAction(action, newAudioList = newAudioList)
     }
 
     init {

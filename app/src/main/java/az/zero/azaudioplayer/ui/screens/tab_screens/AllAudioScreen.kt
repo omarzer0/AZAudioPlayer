@@ -2,7 +2,7 @@ package az.zero.azaudioplayer.ui.screens.tab_screens
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
@@ -22,20 +22,20 @@ import az.zero.db.entities.DBAudio
 
 @Composable
 fun AllAudioScreen(
-    DBAudioList: List<DBAudio>?,
+    dbAudioList: List<DBAudio>?,
     selectedId: String,
     onAudioItemClick: (DBAudio) -> Unit,
     onAudioIconClick: (DBAudio, MenuActionType) -> Unit
 ) {
-    if (DBAudioList.isNullOrEmpty()) return
+    if (dbAudioList.isNullOrEmpty()) return
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            val headerText = "${DBAudioList.size} ${stringResource(id = R.string.of_audios)}"
+            val headerText = "${dbAudioList.size} ${stringResource(id = R.string.of_audios)}"
             ItemsHeader(text = headerText)
         }
 
-        itemsIndexed(DBAudioList) { index, audio ->
+        items(dbAudioList, key = { it.data }) { audio ->
             AudioItem(
                 DBAudio = audio,
                 menuItemList = menuActionList,

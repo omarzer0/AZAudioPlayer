@@ -87,7 +87,10 @@ class SearchFragment : BaseFragment() {
                             annotatedTextQuery = text,
                             onClick = {
                                 selectedId = index
-                                viewModel.audioAction(AudioActions.Toggle(audioDataId = audio.data))
+                                viewModel.audioAction(
+                                    AudioActions.Toggle(audioDataId = audio.data),
+                                    null
+                                )
                             },
                             onIconClick = {
                                 // TODO on audio more icon click impl

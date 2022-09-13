@@ -1,22 +1,20 @@
 package az.zero.player.audio_data_source
 
-import androidx.lifecycle.distinctUntilChanged
-import az.zero.player.AudioRepository
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import az.zero.db.entities.DBAudio
 import az.zero.player.audio_data_source.State.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class AudioDataSource @Inject constructor(
-    private val audioRepository: AudioRepository
-) {
-    val audiosLiveData = audioRepository.getAllAudio().distinctUntilChanged()
+@Singleton
+class AudioDataSource @Inject constructor() {
 
-    init {
-        audiosLiveData.observeForever {
-            if (it.isNotEmpty()) state = STATE_INITIALIZED
-        }
-    }
+    private val _audiosLiveData = MutableLiveData<List<DBAudio>>()
+    val audiosLiveData: LiveData<List<DBAudio>> = _audiosLiveData
+
     // TODO Here define the list of playlist that vm and browse tree observe
-
     private var state: State = STATE_CREATED
         set(value) {
             if (value == STATE_INITIALIZED || value == STATE_ERROR) {
@@ -43,6 +41,12 @@ class AudioDataSource @Inject constructor(
         // else call the action with either success (if INITIALIZED successfully) or error
         action(state == STATE_INITIALIZED)
         return true
+    }
+
+    fun updateAudioList(newAudioList: List<DBAudio>) {
+        Log.e("playPauseOrToggleData", "${newAudioList.size}")
+        _audiosLiveData.postValue(newAudioList)
+//        state = STATE_INITIALIZED
     }
 
 }

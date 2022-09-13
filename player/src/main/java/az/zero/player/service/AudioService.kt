@@ -13,6 +13,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
 import az.zero.db.entities.DBAudio
+import az.zero.player.NOTHING_DESCRIPTION
 import az.zero.player.audio_data_source.AudioDataSource
 import az.zero.player.callbacks.AudioNotificationManager
 import az.zero.player.callbacks.PlayerEventListener
@@ -50,21 +51,20 @@ class AudioService : MediaBrowserServiceCompat() {
 
     private var currentPlaylistItems: List<DBAudio> = emptyList()
 
-    private var indexOfCurrentPlayingAudio = 0
-    private var currentAudioPosition = 0L
+//    private var indexOfCurrentPlayingAudio = 0
+//    private var currentAudioPosition = 0L
 
     override fun onCreate() {
         super.onCreate()
+
+        Log.e("AudioService", "onCreate: ")
 
         audioDataSource.audiosLiveData.observeForever { list ->
             if (list.isEmpty()) return@observeForever
             currentPlaylistItems = list
             val mediaItems = list.map { it.toExoMediaItem() }
             if (mediaItems.isEmpty()) return@observeForever
-            indexOfCurrentPlayingAudio = exoPlayer.currentMediaItemIndex
-            currentAudioPosition = exoPlayer.currentPosition
             exoPlayer.setMediaItems(mediaItems)
-            exoPlayer.seekTo(indexOfCurrentPlayingAudio, currentAudioPosition)
         }
 
         val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
@@ -102,7 +102,8 @@ class AudioService : MediaBrowserServiceCompat() {
     inner class AudioQueueNavigator : TimelineQueueNavigator(mediaSessionCompat) {
         override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
             // called when service needs a new description form a media item
-            return audioDataSource.audiosLiveData.value!![windowIndex].toMediaMetadataCompat().description
+            return audioDataSource.audiosLiveData.value?.get(windowIndex)
+                ?.toMediaMetadataCompat()?.description ?: NOTHING_DESCRIPTION
         }
     }
 
@@ -127,6 +128,7 @@ class AudioService : MediaBrowserServiceCompat() {
             playWhenReady: Boolean,
             extras: Bundle?
         ) {
+            if (currentPlaylistItems.isEmpty()) return
             val mediaIndex = currentPlaylistItems.indexOfFirst { it.data == mediaId }
             exoPlayer.playWhenReady = playWhenReady
             exoPlayer.seekTo(mediaIndex, 0)

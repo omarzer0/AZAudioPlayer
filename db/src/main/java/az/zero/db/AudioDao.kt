@@ -46,15 +46,15 @@ interface AudioDao {
     @Update(onConflict = REPLACE)
     suspend fun updateAudio(DBAudio: DBAudio): Int
 
-    suspend fun addOrRemoveFromFavouritePlayList(DBAudio: DBAudio) {
+    suspend fun addOrRemoveFromFavouritePlayList(dbAudio: DBAudio) {
         val favPlaylist = getFavouritePlaylist().firstOrNull() ?: return
         val favPlaylistAudios = favPlaylist.DBAudioList.toMutableList()
-        if (DBAudio.isFavourite) {
-            val audioToRemove = favPlaylistAudios.firstOrNull { it.data == DBAudio.data }
-            val removed = favPlaylistAudios.remove(audioToRemove)
-        } else favPlaylistAudios.add(DBAudio)
+        if (dbAudio.isFavourite) {
+            val audioToRemove = favPlaylistAudios.firstOrNull { it.data == dbAudio.data }
+            favPlaylistAudios.remove(audioToRemove)
+        } else favPlaylistAudios.add(dbAudio)
 
-        updateAudio(DBAudio.copy(isFavourite = !DBAudio.isFavourite))
+        updateAudio(dbAudio.copy(isFavourite = !dbAudio.isFavourite))
         addPlayList(
             favPlaylist.copy(
                 DBAudioList = favPlaylistAudios,

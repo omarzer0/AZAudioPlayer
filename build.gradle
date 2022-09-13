@@ -8,7 +8,7 @@ buildscript {
         hilt_version = '2.38.1'
         fragmentVersion = "1.4.0"
         navigationVersion = "2.4.2"
-        lifecycleVersion = "2.4.0"
+        lifecycleVersion = "2.5.1"
 
     }
 

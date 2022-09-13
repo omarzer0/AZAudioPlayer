@@ -118,7 +118,7 @@ fun HomeFragmentContent(
                             viewModel.currentPlayingAudio.observeAsState().value?.data ?: ""
                         AllAudioScreen(audioList, currentPlayingID,
                             onAudioItemClick = { audio ->
-                                viewModel.audioAction(AudioActions.Toggle(audio.data))
+                                viewModel.audioAction(AudioActions.Toggle(audio.data), audioList)
                             },
                             onAudioIconClick = { audio, menuAction ->
                                 when (menuAction) {
