@@ -1,10 +1,10 @@
-package az.zero.player
+package az.zero.azaudioplayer
 
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -13,10 +13,9 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import az.zero.azaudioplayer.media.player.extensions.id
-import az.zero.azaudioplayer.media.player.extensions.isPlayEnabled
-import az.zero.azaudioplayer.media.player.extensions.isPlaying
-import az.zero.azaudioplayer.media.player.extensions.isPrepared
+import androidx.navigation.NavDeepLinkBuilder
+import az.zero.azaudioplayer.media.player.extensions.*
+import az.zero.azaudioplayer.ui.MainActivity
 import az.zero.base.di.ApplicationScope
 import az.zero.base.utils.AudioActions
 import az.zero.datastore.DataStoreManager
@@ -26,7 +25,11 @@ import az.zero.db.AudioDao
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import az.zero.player.audio_data_source.AudioDataSource
+import az.zero.player.extensions.isPlayEnabled
+import az.zero.player.extensions.isPlaying
+import az.zero.player.extensions.isPrepared
 import az.zero.player.service.AudioService
+import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -41,6 +44,15 @@ class AudioRepository @Inject constructor(
     private val dataStoreManager: DataStoreManager,
     private val audioDataSource: AudioDataSource
 ) {
+
+    @OptIn(ExperimentalPagerApi::class)
+    fun pendingIntent(): PendingIntent {
+        return NavDeepLinkBuilder(context)
+            .setGraph(R.navigation.main_nav_graph)
+            .setComponentName(MainActivity::class.java)
+            .setDestination(R.id.playerBottomSheetFragment)
+            .createPendingIntent()
+    }
 
     fun getAllAudio() = audioDao.getAllDbAudio()
 
@@ -235,6 +247,8 @@ class AudioRepository @Inject constructor(
     }
 
     init {
+        audioDataSource.setDestinationAndGraphIds(pendingIntent())
+
         scope.launch {
             val allAudio = audioDao.getAllDbAudioSingleList()
             audioDataSource.updateAudioList(allAudio)
@@ -242,18 +256,3 @@ class AudioRepository @Inject constructor(
     }
 }
 
-@Suppress("PropertyName")
-val EMPTY_PLAYBACK_STATE: PlaybackStateCompat = Builder()
-    .setState(STATE_NONE, 0, 0f)
-    .build()
-
-@Suppress("PropertyName")
-val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
-    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "")
-    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
-    .build()
-
-val NOTHING_DESCRIPTION: MediaDescriptionCompat = MediaDescriptionCompat.Builder()
-    .build()
-
-val EMPTY_AUDIO = DBAudio("", "", "", 0, "", "", "", "", 0)

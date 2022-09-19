@@ -19,8 +19,11 @@ package az.zero.azaudioplayer.media.player.extensions
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.net.toUri
+import az.zero.db.entities.DBAudio
 
 /**
  * Useful extensions for [MediaMetadataCompat].
@@ -238,3 +241,19 @@ inline var MediaMetadataCompat.Builder.downloadStatus: Long
     set(value) {
         putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
     }
+
+@Suppress("PropertyName")
+val EMPTY_PLAYBACK_STATE: PlaybackStateCompat = PlaybackStateCompat.Builder()
+    .setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
+    .build()
+
+@Suppress("PropertyName")
+val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
+    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "")
+    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
+    .build()
+
+val NOTHING_DESCRIPTION: MediaDescriptionCompat = MediaDescriptionCompat.Builder()
+    .build()
+
+val EMPTY_AUDIO = DBAudio("", "", "", 0, "", "", "", "", 0)

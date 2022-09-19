@@ -3,10 +3,10 @@ package az.zero.azaudioplayer.ui.screens.player
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.*
-import az.zero.azaudioplayer.media.player.extensions.currentPlayBackPosition
+import az.zero.azaudioplayer.AudioRepository
+import az.zero.player.extensions.currentPlayBackPosition
 import az.zero.azaudioplayer.utils.POSITION_UPDATE_INTERVAL_MILLIS
 import az.zero.db.entities.DBAudio
-import az.zero.player.AudioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -51,8 +51,7 @@ class PlayerBottomSheetViewModel @Inject constructor(
     private fun checkPlaybackPosition() {
         handler.postDelayed({
             val currPosition = audioRepository.getPlayBackState().currentPlayBackPosition
-            if (_currentPosition.value != currPosition)
-                _currentPosition.postValue(currPosition)
+            if (_currentPosition.value != currPosition) _currentPosition.postValue(currPosition)
             if (updatePosition) checkPlaybackPosition()
         }, POSITION_UPDATE_INTERVAL_MILLIS)
     }

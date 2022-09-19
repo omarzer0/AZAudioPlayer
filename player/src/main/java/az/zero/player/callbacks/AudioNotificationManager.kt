@@ -1,6 +1,8 @@
 package az.zero.player.callbacks
 
+import android.app.PendingIntent
 import android.content.Context
+import android.graphics.Bitmap
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
@@ -12,6 +14,7 @@ class AudioNotificationManager(
     private val context: Context,
     private val sessionToken: MediaSessionCompat.Token,
     private val notificationListener: PlayerNotificationManager.NotificationListener,
+    private val pendingIntent: PendingIntent?,
 ) {
     private val mediaController = MediaControllerCompat(context, sessionToken)
 
@@ -21,7 +24,7 @@ class AudioNotificationManager(
         NOTIFICATION_ID,
         NOTIFICATION_CHANNEL_ID
     )
-//        .setMediaDescriptionAdapter(DescriptionAdapter(mediaController))
+        .setMediaDescriptionAdapter(DescriptionAdapter(mediaController))
         .setNotificationListener(notificationListener)
         .build().apply {
             setSmallIcon(az.zero.base.R.drawable.ic_music)
@@ -42,6 +45,24 @@ class AudioNotificationManager(
 
     companion object {
         const val NOTIFICATION_ID = 1015
+    }
+
+    private inner class DescriptionAdapter(private val mediaController: MediaControllerCompat) :
+        PlayerNotificationManager.MediaDescriptionAdapter {
+
+        override fun getCurrentContentTitle(player: Player): CharSequence =
+            mediaController.metadata.description.title?.toString() ?: ""
+
+        override fun createCurrentContentIntent(player: Player): PendingIntent? =
+            pendingIntent
+
+        override fun getCurrentContentText(player: Player): CharSequence? =
+            mediaController.metadata.description.subtitle?.toString()
+
+        override fun getCurrentLargeIcon(
+            player: Player,
+            callback: PlayerNotificationManager.BitmapCallback
+        ): Bitmap? = null
     }
 }
 

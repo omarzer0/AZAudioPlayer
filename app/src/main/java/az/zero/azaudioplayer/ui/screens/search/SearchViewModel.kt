@@ -1,9 +1,9 @@
 package az.zero.azaudioplayer.ui.screens.search
 
 import androidx.lifecycle.*
+import az.zero.azaudioplayer.AudioRepository
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
-import az.zero.player.AudioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

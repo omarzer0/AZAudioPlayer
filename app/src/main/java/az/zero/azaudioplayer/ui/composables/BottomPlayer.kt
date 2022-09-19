@@ -18,11 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.media.player.extensions.isPlaying
+import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
+import az.zero.player.extensions.isPlaying
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.utils.clickableSafeClick
 import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
-import az.zero.player.EMPTY_AUDIO
 
 @Composable
 fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBodyClick: () -> Unit) {

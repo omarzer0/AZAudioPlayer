@@ -1,5 +1,6 @@
 package az.zero.player.audio_data_source
 
+import android.app.PendingIntent
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -47,6 +48,13 @@ class AudioDataSource @Inject constructor() {
         Log.e("playPauseOrToggleData", "${newAudioList.size}")
         _audiosLiveData.postValue(newAudioList)
 //        state = STATE_INITIALIZED
+    }
+
+    var pendingIntent: PendingIntent? = null
+        private set
+
+    fun setDestinationAndGraphIds(mPendingIntent: PendingIntent) {
+        pendingIntent = mPendingIntent
     }
 
 }

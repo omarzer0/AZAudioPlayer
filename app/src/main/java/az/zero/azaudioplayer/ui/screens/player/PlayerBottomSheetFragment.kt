@@ -32,7 +32,8 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.setCompContent
-import az.zero.azaudioplayer.media.player.extensions.isPlaying
+import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
+import az.zero.player.extensions.isPlaying
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
@@ -43,7 +44,6 @@ import az.zero.azaudioplayer.utils.createTimeLabel
 import az.zero.azaudioplayer.utils.largeIconSize
 import az.zero.azaudioplayer.utils.midIconsSize
 import az.zero.azaudioplayer.utils.smallIconsSize
-import az.zero.player.EMPTY_AUDIO
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
