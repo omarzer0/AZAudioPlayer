@@ -35,4 +35,11 @@
     <string name="back">Back</string>
     <string name="clear">Clear</string>
     <string name="delete">Delete</string>
+
+    <string name="no_result">No Results</string>
+    <string name="add_audio">Add Audio</string>
+    <string name="done">Done</string>
+    <string name="playlist_already_exists">Playlist already exists</string>
+    <string name="rename">Rename</string>
+
 </resources>

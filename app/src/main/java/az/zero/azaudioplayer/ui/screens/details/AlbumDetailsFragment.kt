@@ -16,9 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class AlbumDetailsFragment : BaseFragment() {
     private val args: AlbumDetailsFragmentArgs by navArgs()
-
     private val viewModel: AlbumDetailsViewModel by viewModels()
-//    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

@@ -8,6 +8,8 @@ import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +32,7 @@ class HomeViewModel @Inject constructor(
 
     val allArtists by lazy { audioRepository.getArtistWithAudio() }
 
-    val allPlaylists = audioRepository.getAllPlayLists().distinctUntilChanged()
+    val allPlaylists by lazy { audioRepository.getAllPlayLists() }
 
     fun addOrRemoveFromFavourite(DBAudio: DBAudio) {
         viewModelScope.launch {
@@ -42,14 +44,19 @@ class HomeViewModel @Inject constructor(
         audioRepository.playOrPause()
     }
 
-    fun createANewPlayList(playlistName: String) {
+    private val _errorFlow = MutableSharedFlow<Boolean>()
+    val errorFlow = _errorFlow.asSharedFlow()
+
+    fun createANewPlayListIfNotExist(playlistName: String) {
         viewModelScope.launch {
-            audioRepository.addPlayList(
-                DBPlaylist(
-                    name = playlistName,
-                    emptyList()
-                )
-            )
+            val exist = audioRepository.getSinglePlayListById(playlistName) != null
+            _errorFlow.emit(false)
+            if (!exist) {
+                audioRepository.addPlayList(DBPlaylist(name = playlistName, emptyList()))
+            } else {
+                _errorFlow.emit(true)
+            }
+
         }
     }
 }

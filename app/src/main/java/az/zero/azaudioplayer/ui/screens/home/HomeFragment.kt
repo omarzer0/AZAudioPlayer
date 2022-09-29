@@ -32,7 +32,7 @@ import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.PlaylistScreen
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.utils.TextTab
+import az.zero.azaudioplayer.ui.ui_utils.TextTab
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 

@@ -23,9 +23,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.utils.clickableSafeClick
-import az.zero.azaudioplayer.ui.utils.ui_extensions.colorFullBorder
-import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.ui_utils.clickableSafeClick
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.colorFullBorder
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 
 @Composable
 fun ItemsHeader(
@@ -95,32 +95,40 @@ fun LocalImageIcon(
 @Composable
 fun TopWithBottomText(
     modifier: Modifier = Modifier,
+    onTopTextModifier: Modifier = Modifier,
+    onBottomTextModifier: Modifier = Modifier,
     topTextName: String,
     topTextColor: Color = MaterialTheme.colors.onPrimary,
     bottomTextName: String,
     bottomTextColor: Color = SecondaryTextColor,
     topTextStyle: TextStyle = MaterialTheme.typography.h2,
     bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
+    topTextAlign: TextAlign = TextAlign.Start,
+    bottomTextAlign: TextAlign = TextAlign.Start,
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Text(
+            modifier = onTopTextModifier.fillMaxWidth(),
             text = topTextName,
             color = topTextColor,
             style = topTextStyle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            textAlign = topTextAlign
         )
         if (bottomTextName.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
+                modifier = onBottomTextModifier.fillMaxWidth(),
                 text = bottomTextName,
                 color = bottomTextColor,
                 style = bottomTextStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                textAlign = bottomTextAlign
             )
         }
     }

@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.utils.ui_extensions
+package az.zero.azaudioplayer.ui.ui_utils.ui_extensions
 
 import android.util.LayoutDirection
 import androidx.compose.foundation.BorderStroke

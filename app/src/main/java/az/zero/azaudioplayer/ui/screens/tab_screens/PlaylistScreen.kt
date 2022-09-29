@@ -32,7 +32,7 @@ import az.zero.azaudioplayer.ui.composables.LocalImageIcon
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
-import az.zero.azaudioplayer.ui.utils.clickableSafeClick
+import az.zero.azaudioplayer.ui.ui_utils.clickableSafeClick
 import az.zero.db.entities.DBPlaylist
 
 @Composable
@@ -42,18 +42,26 @@ fun PlaylistScreen(
 ) {
 
     val allPlaylist = viewModel.allPlaylists.observeAsState().value ?: emptyList()
+    val errorAddingDuplicatePlaylistName by viewModel.errorFlow.collectAsState(initial = false)
+
+    if (errorAddingDuplicatePlaylistName) {
+        Toast.makeText(
+            LocalContext.current,
+            stringResource(id = R.string.playlist_already_exists),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 
     PlaylistScreen(
         allPlaylist = allPlaylist,
+        errorAddingDuplicatePlaylistName = errorAddingDuplicatePlaylistName,
         onPlayListClick = {
             navController.navigate(
-                HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                    it.DBAudioList.toTypedArray()
-                )
+                HomeFragmentDirections.actionHomeFragmentToPlaylistDetailsFragment(it.name)
             )
         }, onCreateClickNewPlaylist = { playlistName ->
             // TODO check if name already exists
-            viewModel.createANewPlayList(playlistName)
+            viewModel.createANewPlayListIfNotExist(playlistName)
         }
     )
 
@@ -62,6 +70,7 @@ fun PlaylistScreen(
 @Composable
 fun PlaylistScreen(
     allPlaylist: List<DBPlaylist>,
+    errorAddingDuplicatePlaylistName: Boolean,
     onPlayListClick: (DBPlaylist) -> Unit,
     onCreateClickNewPlaylist: (String) -> Unit
 ) {
@@ -81,7 +90,9 @@ fun PlaylistScreen(
 
         CustomDialog(
             openDialog = openDialog,
-            onOpenDialogChanged = { openDialog = !openDialog },
+            onOpenDialogChanged = {
+                openDialog = !openDialog
+            },
             onCreateClick = { playlistName ->
                 onCreateClickNewPlaylist(playlistName)
             }

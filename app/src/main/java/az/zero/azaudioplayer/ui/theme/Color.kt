@@ -1,7 +1,6 @@
 package az.zero.azaudioplayer.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import az.zero.azaudioplayer.ui.utils.ui_extensions.getColorFromHex
 
 //https://material.io/design/color/the-color-system.html#tools-for-picking-colors
 

@@ -22,7 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
-import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 
 @Composable
 fun SearchBar(
@@ -30,7 +30,7 @@ fun SearchBar(
     text: String,
     hint: String = "",
     onSearch: (String) -> Unit = {},
-    onBackBtnClick: () -> Unit = {},
+    onBackBtnClick: (() -> Unit)? = null,
     onClearClick: () -> Unit,
 ) {
     Column(
@@ -40,29 +40,33 @@ fun SearchBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(56.dp)
                 .padding(start = 4.dp, end = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            IconButton(onClick = { onBackBtnClick() }) {
-                Icon(
-                    modifier = Modifier.mirror(),
-                    imageVector = Icons.Filled.ArrowBack,
-                    tint = MaterialTheme.colors.onPrimary,
-                    contentDescription = stringResource(id = R.string.back)
-                )
+            onBackBtnClick?.let {
+                IconButton(onClick = { it() }) {
+                    Icon(
+                        modifier = Modifier.mirror(),
+                        imageVector = Icons.Filled.ArrowBack,
+                        tint = MaterialTheme.colors.onPrimary,
+                        contentDescription = stringResource(id = R.string.back)
+                    )
+                }
             }
+
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colors.primary)
+                    .fillMaxSize()
             ) {
                 var isHintDisplayed by remember {
                     mutableStateOf(hint != "")
                 }
 
                 TextWithClearIcon(
+                    modifier = Modifier.fillMaxSize(),
                     text = text,
                     isClearIconVisible = !isHintDisplayed,
                     onShouldShowHint = { isHintDisplayed = it },
@@ -93,6 +97,7 @@ fun SearchBar(
 
 @Composable
 fun TextWithClearIcon(
+    modifier: Modifier = Modifier,
     text: String,
     isClearIconVisible: Boolean = true,
     onShouldShowHint: (Boolean) -> Unit,
@@ -104,7 +109,7 @@ fun TextWithClearIcon(
     var shouldRequestFocus by remember { mutableStateOf(true) }
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         BasicTextField(

@@ -38,8 +38,8 @@ import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.utils.clickableSafeClick
-import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.ui_utils.clickableSafeClick
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 import az.zero.azaudioplayer.utils.createTimeLabel
 import az.zero.azaudioplayer.utils.largeIconSize
 import az.zero.azaudioplayer.utils.midIconsSize

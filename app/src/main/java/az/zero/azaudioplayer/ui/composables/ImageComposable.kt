@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.ui.utils.ui_extensions.colorFullBorder
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.colorFullBorder
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest

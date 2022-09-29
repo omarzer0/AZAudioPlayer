@@ -51,7 +51,7 @@ fun AlbumScreen(
 fun AlbumItem(DBAlbumWithAudioList: DBAlbumWithAudioList, onClick: () -> Unit) {
 
     val image = remember {
-        if (DBAlbumWithAudioList.DBAudioList.isNullOrEmpty()) ""
+        if (DBAlbumWithAudioList.DBAudioList.isEmpty()) ""
         else DBAlbumWithAudioList.DBAudioList[0].cover
     }
 

@@ -1,5 +1,6 @@
 package az.zero.db
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
@@ -62,9 +63,6 @@ interface AudioDao {
         )
     }
 
-    @Insert(onConflict = REPLACE)
-    suspend fun addPlayList(DBPlaylist: DBPlaylist): Long
-
     @Delete
     suspend fun delete(DBAudio: DBAudio)
 
@@ -82,5 +80,62 @@ interface AudioDao {
 
     @Query("SELECT * FROM DBAudio WHERE data =:audioData")
     suspend fun getAudioById(audioData: String): DBAudio?
+
+    @Query("SELECT * FROM DBAudio WHERE data =:audioData")
+    fun getAudioLiveDataById(audioData: String): LiveData<DBAudio>
+
+    @Query("SELECT * FROM DBPlaylist WHERE name=:playlistId")
+    suspend fun getSinglePlaylistById(playlistId: String): DBPlaylist?
+
+    @Query("SELECT * FROM DBPlaylist WHERE name=:playlistId")
+    fun getPlaylistById(playlistId: String): LiveData<DBPlaylist>
+
+    @Query("DELETE FROM DBPlaylist WHERE name=:playlistId")
+    suspend fun deletePlaylistById(playlistId: String)
+
+    @Insert(onConflict = REPLACE)
+    suspend fun addPlayList(DBPlaylist: DBPlaylist): Long
+
+    @Query("UPDATE DBAudio SET isFavourite = 0 WHERE isFavourite = 1")
+    suspend fun unFavAllFavAudio()
+
+    @Transaction
+    suspend fun clearFavList(context: Context) {
+        unFavAllFavAudio()
+
+        addPlayList(
+            DBPlaylist(
+                name = context.getString(az.zero.base.R.string.favourites),
+                DBAudioList = emptyList(),
+                isFavouritePlaylist = true
+            )
+        )
+
+
+//        val allFavAudio = getFavouritePlaylist().firstOrNull() ?: return
+//        Log.e("clearFavList", "clearFavList: $allFavAudio")
+//        val newUnFavAudio = allFavAudio.DBAudioList.map {
+//            it.copy(isFavourite = false)
+//        }
+//        newUnFavAudio.forEach { updateAudio(it) }
+//        Log.e("clearFavList", "clearFavList: ${getFavouritePlaylist()}")
+
+//        unFavAllFavAudio()
+//        deleteFavouritePlaylist()
+//        addPlayList(
+//            DBPlaylist(
+//                name = context.getString(az.zero.base.R.string.favourites),
+//                DBAudioList = emptyList(),
+//                isFavouritePlaylist = true
+//            )
+//        )
+
+//        val favList = getFavouritePlaylist().firstOrNull()!!.DBAudioList
+//        Log.e("clearFavList", "clearFavList: ${favList.size}")
+//        unFavAllFavAudio()
+////        deleteFavouritePlaylist()
+//        val newFavList = getFavouritePlaylist().firstOrNull()!!.DBAudioList
+//        Log.e("clearFavList", "clearFavList: ${newFavList.size}")
+    }
 
 }

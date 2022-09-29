@@ -12,9 +12,12 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDeepLinkBuilder
-import az.zero.azaudioplayer.media.player.extensions.*
+import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
+import az.zero.azaudioplayer.media.player.extensions.EMPTY_PLAYBACK_STATE
+import az.zero.azaudioplayer.media.player.extensions.id
 import az.zero.azaudioplayer.ui.MainActivity
 import az.zero.base.di.ApplicationScope
 import az.zero.base.utils.AudioActions
@@ -62,7 +65,7 @@ class AudioRepository @Inject constructor(
 
     fun getAllPlayLists() = audioDao.getAllPlayLists()
 
-    private val _nowPlayingAudio = MutableLiveData(EMPTY_AUDIO)
+    private var _nowPlayingAudio = MutableLiveData(EMPTY_AUDIO)
     val nowPlayingDBAudio: LiveData<DBAudio?> = _nowPlayingAudio
 
     private val _isConnected = MutableLiveData(false)
@@ -175,13 +178,24 @@ class AudioRepository @Inject constructor(
 
     suspend fun addOrRemoveFromFavouritePlayList(dbAudio: DBAudio) {
         audioDao.addOrRemoveFromFavouritePlayList(dbAudio)
-        val audio = audioDao.getAudioById(dbAudio.data) ?: EMPTY_AUDIO
-        _nowPlayingAudio.postValue(audio)
+//        val audio = audioDao.getAudioById(dbAudio.data) ?: EMPTY_AUDIO
+//        _nowPlayingAudio.postValue(audio)
+        getUpdatedCurrentlyPlaying(dbAudio.data)
     }
 
-    suspend fun addPlayList(dbPlaylist: DBPlaylist) {
-        audioDao.addPlayList(dbPlaylist)
-    }
+    suspend fun addPlayList(dbPlaylist: DBPlaylist) = audioDao.addPlayList(dbPlaylist)
+
+    suspend fun deletePlayListById(playlistId: String) = audioDao.deletePlaylistById(playlistId)
+
+    suspend fun getSinglePlayListById(playlistId: String) =
+        audioDao.getSinglePlaylistById(playlistId)
+
+    suspend fun getFavouritePlaylist() = audioDao.getFavouritePlaylist()
+
+    suspend fun clearFavList() = audioDao.clearFavList(context)
+
+    fun getPlaylistById(playlistId: String) = audioDao.getPlaylistById(playlistId)
+
 
     suspend fun getAllDbAudioSingleListByQuery(query: String): List<DBAudio>? {
         return audioDao.getAllDbAudioSingleListByQuery(query.trim())
@@ -228,8 +242,9 @@ class AudioRepository @Inject constructor(
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             // Current playing song changed
             scope.launch {
-                val audio = metadata?.id?.let { audioDao.getAudioById(it) } ?: EMPTY_AUDIO
-                _nowPlayingAudio.postValue(audio)
+//                val audio = metadata?.id?.let { audioDao.getAudioById(it) } ?: EMPTY_AUDIO
+//                _nowPlayingAudio.postValue(audio)
+                getUpdatedCurrentlyPlaying(metadata?.id ?: "")
             }
         }
 
@@ -246,6 +261,12 @@ class AudioRepository @Inject constructor(
         }
     }
 
+    suspend fun getUpdatedCurrentlyPlaying(audioId: String) {
+        val audio = audioDao.getAudioById(audioId) ?: EMPTY_AUDIO
+        val existingAudio = _nowPlayingAudio.value ?: return
+        if (audio != existingAudio) _nowPlayingAudio.postValue(audio)
+    }
+
     init {
         audioDataSource.setDestinationAndGraphIds(pendingIntent())
 
@@ -254,5 +275,13 @@ class AudioRepository @Inject constructor(
             audioDataSource.updateAudioList(allAudio)
         }
     }
+}
+
+fun <T> LiveData<T>.toMutableLiveData(): MutableLiveData<T> {
+    val mediatorLiveData = MediatorLiveData<T>()
+    mediatorLiveData.addSource(this) {
+        mediatorLiveData.value = it
+    }
+    return mediatorLiveData
 }
 

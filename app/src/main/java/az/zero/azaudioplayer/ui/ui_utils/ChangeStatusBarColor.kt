@@ -1,9 +1,9 @@
-package az.zero.azaudioplayer.ui.utils
+package az.zero.azaudioplayer.ui.ui_utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import az.zero.azaudioplayer.ui.utils.ui_extensions.isColorDark
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.isColorDark
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
