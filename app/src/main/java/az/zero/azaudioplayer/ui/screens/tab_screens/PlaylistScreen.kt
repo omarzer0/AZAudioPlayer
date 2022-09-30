@@ -213,10 +213,13 @@ fun AddPlayList(
 @Composable
 fun PlaylistItem(DBPlaylist: DBPlaylist, onClick: () -> Unit) {
     val image = if (DBPlaylist.isFavouritePlaylist) R.drawable.ic_fav else R.drawable.ic_music
+    val urlImageIfFound = if (DBPlaylist.DBAudioList.isEmpty()) null
+    else DBPlaylist.DBAudioList[0].cover
+
     val backgroundColor = if (DBPlaylist.isFavouritePlaylist) Color.Red else null
 
     BasicAudioItem(
-        imageUrl = null,
+        imageUrl = urlImageIfFound,
         localImageUrl = image,
         onItemClick = onClick,
         topText = DBPlaylist.name,

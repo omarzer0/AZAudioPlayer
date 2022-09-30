@@ -11,9 +11,12 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -389,10 +392,8 @@ fun FavMoreDropDown(
 fun PlaylistDetails(
     playlist: DBPlaylist,
 ) {
-    val image = remember {
-        if (playlist.DBAudioList.isEmpty()) ""
-        else playlist.DBAudioList[0].cover
-    }
+    val image = if (playlist.DBAudioList.isEmpty()) ""
+    else playlist.DBAudioList[0].cover
 
     Row(
         modifier = Modifier

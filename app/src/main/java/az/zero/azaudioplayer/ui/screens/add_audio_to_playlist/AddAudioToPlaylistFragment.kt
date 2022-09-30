@@ -4,24 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -60,13 +59,21 @@ fun AddAudioToPlaylistScreen(
     val audioList = viewModel.allDBAudio.observeAsState().value ?: emptyList()
     val selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: ""
 
+    var text by rememberSaveable { mutableStateOf("") }
 
     AddAudioToPlaylistScreen(
         audioList = audioList,
         selectedId = selectedId,
+        text = text,
         onBackIconClick = { navController.navigateUp() },
-        onSearch = { viewModel.searchAudios(it) },
-        onClearClick = { viewModel.searchAudios("") },
+        onSearch = {
+            text = it
+            viewModel.searchAudios(it)
+        },
+        onClearClick = {
+            text = ""
+            viewModel.searchAudios("")
+        },
         onDone = {
             viewModel.onDone()
             navController.navigateUp()
@@ -81,44 +88,32 @@ fun AddAudioToPlaylistScreen(
 fun AddAudioToPlaylistScreen(
     audioList: List<AudioWithSelected>,
     selectedId: String,
+    text: String,
     onBackIconClick: () -> Unit,
     onSearch: (query: String) -> Unit,
     onClearClick: () -> Unit,
     onDone: () -> Unit,
     onAudioSelectionChange: (audioId: String) -> Unit
 ) {
+
     Column(modifier = Modifier.fillMaxSize()) {
 
         AddAudioToPlaylistHeader(
-            onBackIconClick = onBackIconClick,
-            onDone = onDone
-        )
-
-        var text by rememberSaveable {
-            mutableStateOf("")
-        }
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        CustomSearchBar(
-            text = text,
             hint = stringResource(id = R.string.search),
-            onSearch = { query ->
-                text = query
+            text = text,
+            onClearClick = onClearClick,
+            onDone = onDone,
+            onBackIconClick = onBackIconClick,
+            onTextValueChanged = { query ->
                 onSearch(query)
-            },
-            onClearClick = {
-                onClearClick()
-                text = ""
             }
         )
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item {
-                val headerText =
-                    "${audioList.size} ${stringResource(id = R.string.of_audios)}"
-                ItemsHeader(text = headerText)
-            }
+//            item {
+//                val headerText = "${audioList.size} ${stringResource(id = R.string.of_audios)}"
+//                ItemsHeader(text = headerText)
+//            }
 
             items(items = audioList, key = { it.audio.data }) { audioWithSelected ->
                 SelectableAudiItem(
@@ -133,44 +128,59 @@ fun AddAudioToPlaylistScreen(
 }
 
 @Composable
-fun CustomSearchBar(
+fun AddAudioToPlaylistHeader(
     modifier: Modifier = Modifier,
     text: String,
     hint: String = "",
-    onSearch: (String) -> Unit = {},
+    onTextValueChanged: (String) -> Unit = {},
     onClearClick: () -> Unit,
+    onBackIconClick: () -> Unit,
+    onDone: () -> Unit,
 ) {
-    Row(
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .padding(start = 8.dp, end = 8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            modifier = Modifier.padding(start = 8.dp),
-            imageVector = Icons.Filled.Search,
-            contentDescription = ""
-        )
-        Spacer(modifier = Modifier.width(16.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .padding(start = 4.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
 
-        var isHintDisplayed by remember {
-            mutableStateOf(hint != "")
+            IconButton(
+                onClick = { onBackIconClick() }) {
+                Icon(
+                    Icons.Filled.ArrowBack,
+                    stringResource(id = R.string.back),
+                    tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.mirror()
+                )
+            }
+            TextWithClearIcon(
+                modifier = Modifier.weight(1f),
+                text = text,
+                hint = hint,
+                onTextValueChanged = { onTextValueChanged(it) },
+                onClearClick = { onClearClick() }
+            )
+
+            IconButton(onClick = { onDone() }) {
+                Icon(
+                    Icons.Filled.Check,
+                    stringResource(id = R.string.done),
+                    tint = MaterialTheme.colors.onPrimary
+                )
+            }
         }
 
-        TextWithClearIcon(
-            modifier = Modifier.fillMaxWidth(),
-            text = text,
-            onShouldShowHint = { isHintDisplayed = it },
-            isClearIconVisible = !isHintDisplayed,
-            onSearch = { onSearch(it) },
-            onClearClick = { onClearClick() }
+        Divider(
+            modifier = Modifier.padding(top = 4.dp),
+            color = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray,
         )
-
     }
 }
+
 
 @Composable
 fun SelectableAudiItem(
@@ -214,39 +224,39 @@ fun SelectableAudiItem(
     }
 }
 
-@Composable
-fun AddAudioToPlaylistHeader(
-    onBackIconClick: () -> Unit,
-    onDone: () -> Unit
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.add_audio),
-                color = MaterialTheme.colors.onPrimary
-            )
-        },
-        backgroundColor = MaterialTheme.colors.primary,
-        elevation = 0.dp,
-        navigationIcon = {
-            IconButton(
-                onClick = { onBackIconClick() }) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    stringResource(id = R.string.back),
-                    tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.mirror()
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = { onDone() }) {
-                Icon(
-                    Icons.Filled.Check,
-                    stringResource(id = R.string.done),
-                    tint = MaterialTheme.colors.onPrimary
-                )
-            }
-        }
-    )
-}
+//@Composable
+//fun AddAudioToPlaylistHeader(
+//    onBackIconClick: () -> Unit,
+//    onDone: () -> Unit
+//) {
+//    TopAppBar(
+//        title = {
+//            Text(
+//                text = stringResource(id = R.string.add_audio),
+//                color = MaterialTheme.colors.onPrimary
+//            )
+//        },
+//        backgroundColor = MaterialTheme.colors.primary,
+//        elevation = 0.dp,
+//        navigationIcon = {
+//            IconButton(
+//                onClick = { onBackIconClick() }) {
+//                Icon(
+//                    Icons.Filled.ArrowBack,
+//                    stringResource(id = R.string.back),
+//                    tint = MaterialTheme.colors.onPrimary,
+//                    modifier = Modifier.mirror()
+//                )
+//            }
+//        },
+//        actions = {
+//            IconButton(onClick = { onDone() }) {
+//                Icon(
+//                    Icons.Filled.Check,
+//                    stringResource(id = R.string.done),
+//                    tint = MaterialTheme.colors.onPrimary
+//                )
+//            }
+//        }
+//    )
+//}
