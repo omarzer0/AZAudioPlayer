@@ -13,6 +13,7 @@ import az.zero.azaudioplayer.R
 fun AppBar(
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
+    customDropDownContent: (@Composable () -> Unit)? = null,
 ) {
     TopAppBar(
         title = {
@@ -24,6 +25,8 @@ fun AppBar(
         backgroundColor = MaterialTheme.colors.primary,
         elevation = 0.dp,
         actions = {
+            customDropDownContent?.invoke()
+
             IconButton(onClick = { onSearchClick() }) {
                 Icon(
                     Icons.Filled.Search,

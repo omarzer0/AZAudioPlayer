@@ -92,7 +92,7 @@ fun MyImage(
         contentDescription = null,
         contentScale = contentScale,
         modifier = modifier
-            .size(width = 48.dp, height = 48.dp)
+            .size(48.dp)
             .then(
                 if (addBorder) Modifier.colorFullBorder(cornerShape)
                 else Modifier

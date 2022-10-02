@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -27,6 +31,7 @@ import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.composables.AppBar
 import az.zero.azaudioplayer.ui.composables.BottomPlayer
+import az.zero.azaudioplayer.ui.composables.CustomDropdown
 import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
@@ -44,7 +49,7 @@ class HomeFragment : BaseFragment() {
     private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         return setFragmentContent {
             val allAudios = viewModel.allAudio.observeAsState().value ?: emptyList()
@@ -76,8 +81,9 @@ fun EmptyHomeScreen() {
 fun HomeScreen(
     tabNames: List<String>,
     viewModel: HomeViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
+    var isDropDownExpanded by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         backgroundColor = MaterialTheme.colors.primary,
@@ -87,7 +93,21 @@ fun HomeScreen(
                 val searchDirections = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
                 navController.navigate(searchDirections)
             }, onMoreClick = {
-
+                isDropDownExpanded = true
+            }, customDropDownContent = {
+                CustomDropdown(
+                    isDropDownExpanded = isDropDownExpanded,
+                    onDismissDropDown = { isDropDownExpanded = false },
+                    dropDownItems = getDropdownActions(),
+                    onActionClick = { action ->
+                        isDropDownExpanded = false
+                        when (action) {
+                            X.AddAudio -> {}
+                            X.Delete -> {}
+                            X.Rename -> {}
+                        }
+                    }
+                )
             })
         }
     ) {
@@ -128,8 +148,17 @@ fun HomeScreen(
             }
         }
 
+
     }
 }
+
+
+sealed class X {
+    object AddAudio : X()
+    object Rename : X()
+    object Delete : X()
+}
+
 
 @Composable
 fun getTabsName(): List<String> {
@@ -140,3 +169,9 @@ fun getTabsName(): List<String> {
         stringResource(id = R.string.playlists)
     )
 }
+
+fun getDropdownActions(): List<Pair<String, X>> = listOf(
+    Pair("Add", X.AddAudio),
+    Pair("Rename", X.Rename),
+    Pair("Delete", X.Delete)
+)
