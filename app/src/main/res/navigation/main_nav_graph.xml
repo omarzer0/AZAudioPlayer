@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_homeFragment_to_playlistDetailsFragment"
             app:destination="@id/playlistDetailsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_scanLocalFragment"
+            app:destination="@id/scanLocalFragment" />
     </fragment>
     <fragment
         android:id="@+id/albumDetailsFragment"
@@ -56,4 +59,8 @@
             android:name="playlistName"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/scanLocalFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.scan_local_files.ScanLocalFragment"
+        android:label="ScanLocalFragment" />
 </navigation>
