@@ -1,5 +1,6 @@
 package az.zero.azaudioplayer.ui.composables
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -44,7 +45,7 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp),
-            color = MaterialTheme.colors.background
+            color = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
         )
 
         Row(
@@ -57,8 +58,8 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
                 modifier = Modifier
                     .weight(0.6f)
                     .padding(start = 16.dp, end = 24.dp),
-                topTextName = audio.title,
-                bottomTextName = audio.artist
+                topTextString = audio.title,
+                bottomTextString = audio.artist
             )
 
             IconButton(

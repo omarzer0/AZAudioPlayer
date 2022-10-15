@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -78,6 +79,7 @@ fun PlaylistDetailsScreen(
     }
 
     PlaylistDetailsScreen(
+        modifier = Modifier.background(MaterialTheme.colors.background),
         playlist = playlist,
         selectedId = selectedId,
         isDropDownExpanded = isDropDownExpanded,
@@ -148,6 +150,7 @@ private fun navigateToAddAudioScreen(navController: NavController, playlistName:
 
 @Composable
 fun PlaylistDetailsScreen(
+    modifier: Modifier = Modifier,
     playlist: DBPlaylist,
     selectedId: String,
     isDropDownExpanded: Boolean,
@@ -161,7 +164,7 @@ fun PlaylistDetailsScreen(
     onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
     ) {
         PlaylistDetailsHeader(
             modifier = Modifier.fillMaxWidth(),
@@ -215,13 +218,13 @@ fun EmptyPlaylistDetails(
 
         TopWithBottomText(
             modifier = Modifier.fillMaxWidth(),
-            topTextName = stringResource(id = R.string.no_result),
+            topTextString = stringResource(id = R.string.no_result),
             topTextColor = SecondaryTextColor,
-            bottomTextName = bottomText,
+            bottomTextString = bottomText,
             bottomTextColor = SelectedColor,
             topTextAlign = TextAlign.Center,
             bottomTextAlign = TextAlign.Center,
-            onBottomTextModifier = Modifier
+            bottomTextModifier = Modifier
                 .clickableSafeClick {
                     onBottomTextClick()
                 }
@@ -272,7 +275,7 @@ fun PlaylistDetailsHeader(
                 color = MaterialTheme.colors.onPrimary
             )
         },
-        backgroundColor = MaterialTheme.colors.primary,
+        backgroundColor = MaterialTheme.colors.background,
         elevation = 0.dp,
         actions = {
 
@@ -418,8 +421,8 @@ fun PlaylistDetails(
         )
 
         TopWithBottomText(
-            topTextName = playlist.name,
-            bottomTextName = "${playlist.DBAudioList.size} ${stringResource(id = R.string.audios)}"
+            topTextString = playlist.name,
+            bottomTextString = "${playlist.DBAudioList.size} ${stringResource(id = R.string.audios)}"
         )
 
     }

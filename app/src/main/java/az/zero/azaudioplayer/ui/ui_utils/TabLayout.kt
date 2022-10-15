@@ -1,6 +1,9 @@
 package az.zero.azaudioplayer.ui.ui_utils
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.IndicatorHeight
 import androidx.compose.runtime.Composable
@@ -31,10 +34,11 @@ fun TextWithIconTab(
     tabSelectorHeight: Dp = IndicatorHeight,
     tabHostBackgroundColor: Color = MaterialTheme.colors.primarySurface,
     animateScrollToPage: Boolean = false,
+    onTapChanged: ((Int) -> Unit)? = null,
     textContent: @Composable ((text: String) -> Unit)? = null,
     iconContent: @Composable ((icon: ImageVector) -> Unit)? = null,
     indicatorContent: @Composable (() -> Unit)? = null,
-    content: @Composable (index: Int) -> Unit
+    content: @Composable (index: Int) -> Unit,
 ) {
     BottomNavOrTabLayout(
         isBottomNav = isBottomNav,
@@ -49,6 +53,7 @@ fun TextWithIconTab(
         tabHostBackgroundColor = tabHostBackgroundColor,
         animateScrollToPage = animateScrollToPage,
         textContent = textContent,
+        onTapChanged = onTapChanged,
         iconContent = iconContent,
         content = content,
         indicatorContent = indicatorContent
@@ -69,9 +74,10 @@ fun IconTab(
     tabSelectorHeight: Dp = IndicatorHeight,
     tabHostBackgroundColor: Color = MaterialTheme.colors.primarySurface,
     animateScrollToPage: Boolean = false,
+    onTapChanged: ((Int) -> Unit)? = null,
     iconContent: @Composable ((icon: ImageVector) -> Unit)? = null,
     indicatorContent: @Composable (() -> Unit)? = null,
-    content: @Composable (index: Int) -> Unit
+    content: @Composable (index: Int) -> Unit,
 ) {
     val listOfPairOfTabNamesWithIcons: List<Pair<String?, ImageVector?>> = listOfIcons.map {
         Pair(null, it)
@@ -90,6 +96,7 @@ fun IconTab(
         tabHostBackgroundColor = tabHostBackgroundColor,
         animateScrollToPage = animateScrollToPage,
         iconContent = iconContent,
+        onTapChanged = onTapChanged,
         content = content,
         indicatorContent = indicatorContent
     )
@@ -109,10 +116,11 @@ fun TextTab(
     tabSelectorHeight: Dp = IndicatorHeight,
     tabHostBackgroundColor: Color = MaterialTheme.colors.primarySurface,
     animateScrollToPage: Boolean = false,
+    onTapChanged: ((Int) -> Unit)? = null,
     textContent: @Composable ((text: String) -> Unit)? = null,
     iconContent: @Composable ((icon: ImageVector) -> Unit)? = null,
     indicatorContent: @Composable (() -> Unit)? = null,
-    content: @Composable (index: Int) -> Unit
+    content: @Composable (index: Int) -> Unit,
 ) {
     val listOfPairOfTabNamesWithIcons: List<Pair<String?, ImageVector?>> = listOfTabNames.map {
         Pair(it, null)
@@ -133,6 +141,7 @@ fun TextTab(
         textContent = textContent,
         iconContent = iconContent,
         content = content,
+        onTapChanged = onTapChanged,
         indicatorContent = indicatorContent
     )
 }
@@ -151,13 +160,16 @@ private fun AZTabPager(
     tabSelectorHeight: Dp,
     tabHostBackgroundColor: Color = MaterialTheme.colors.primarySurface,
     animateScrollToPage: Boolean,
+    onTapChanged: ((Int) -> Unit)? = null,
     textContent: @Composable ((text: String) -> Unit)? = null,
     iconContent: @Composable ((icon: ImageVector) -> Unit)? = null,
     indicatorContent: @Composable (() -> Unit)? = null,
-    content: @Composable (index: Int) -> Unit
+    content: @Composable (index: Int) -> Unit,
 ) {
     val pagerState = rememberPagerState()
-    val tabIndex = pagerState.currentPage
+    val tabIndex = pagerState.currentPage.also {
+        onTapChanged?.invoke(it)
+    }
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -240,12 +252,15 @@ private fun AZBottomTabPager(
     unSelectedContentColor: Color = Color.LightGray,
     tabHostBackgroundColor: Color = MaterialTheme.colors.primarySurface,
     animateScrollToPage: Boolean,
+    onTapChanged: ((Int) -> Unit)? = null,
     textContent: @Composable ((text: String) -> Unit)? = null,
     iconContent: @Composable ((icon: ImageVector) -> Unit)? = null,
-    content: @Composable (index: Int) -> Unit
+    content: @Composable (index: Int) -> Unit,
 ) {
     val pagerState = rememberPagerState()
-    val tabIndex = pagerState.currentPage
+    val tabIndex = pagerState.currentPage.also {
+        onTapChanged?.invoke(it)
+    }
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -322,6 +337,7 @@ private fun BottomNavOrTabLayout(
     unSelectedContentColor: Color = Color.LightGray,
     tabHostBackgroundColor: Color = MaterialTheme.colors.primarySurface,
     animateScrollToPage: Boolean = true,
+    onTapChanged: ((Int) -> Unit)? = null,
     textContent: @Composable() ((text: String) -> Unit)? = null,
     iconContent: @Composable() ((icon: ImageVector) -> Unit)? = null,
     content: @Composable (index: Int) -> Unit,
@@ -339,6 +355,7 @@ private fun BottomNavOrTabLayout(
             unSelectedContentColor = unSelectedContentColor,
             tabHostBackgroundColor = tabHostBackgroundColor,
             animateScrollToPage = animateScrollToPage,
+            onTapChanged = onTapChanged,
             textContent = textContent,
             iconContent = iconContent,
             content = content
@@ -355,6 +372,7 @@ private fun BottomNavOrTabLayout(
             tabSelectorColor = tabSelectorColor,
             tabSelectorHeight = tabSelectorHeight,
             animateScrollToPage = animateScrollToPage,
+            onTapChanged = onTapChanged,
             textContent = textContent,
             iconContent = iconContent,
             content = content,

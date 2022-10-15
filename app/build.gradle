@@ -143,6 +143,9 @@ dependencies {
     // More Icons
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
 
+    // Holi colors
+    implementation "com.siddroid:holi:1.0.1"
+
     api project(path: ':base')
     api project(path: ':db')
     api project(path: ':datastore')

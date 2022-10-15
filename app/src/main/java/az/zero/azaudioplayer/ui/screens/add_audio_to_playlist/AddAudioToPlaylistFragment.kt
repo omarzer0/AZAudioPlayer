@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,7 +31,6 @@ import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.composables.CustomImage
-import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.composables.TextWithClearIcon
 import az.zero.azaudioplayer.ui.composables.TopWithBottomTextWithAnnotatedText
 import az.zero.azaudioplayer.ui.theme.SelectedColor
@@ -43,7 +43,7 @@ class AddAudioToPlaylistFragment : BaseFragment() {
     private val viewModel: AddAudioToPlaylistViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         return setFragmentContent {
             AddAudioToPlaylistScreen(viewModel = viewModel, navController = findNavController())
@@ -62,6 +62,7 @@ fun AddAudioToPlaylistScreen(
     var text by rememberSaveable { mutableStateOf("") }
 
     AddAudioToPlaylistScreen(
+        modifier = Modifier.background(MaterialTheme.colors.background),
         audioList = audioList,
         selectedId = selectedId,
         text = text,
@@ -86,6 +87,7 @@ fun AddAudioToPlaylistScreen(
 
 @Composable
 fun AddAudioToPlaylistScreen(
+    modifier: Modifier = Modifier,
     audioList: List<AudioWithSelected>,
     selectedId: String,
     text: String,
@@ -93,10 +95,10 @@ fun AddAudioToPlaylistScreen(
     onSearch: (query: String) -> Unit,
     onClearClick: () -> Unit,
     onDone: () -> Unit,
-    onAudioSelectionChange: (audioId: String) -> Unit
+    onAudioSelectionChange: (audioId: String) -> Unit,
 ) {
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
 
         AddAudioToPlaylistHeader(
             hint = stringResource(id = R.string.search),
@@ -143,7 +145,7 @@ fun AddAudioToPlaylistHeader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .height(TextFieldDefaults.MinHeight)
                 .padding(start = 4.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -186,7 +188,7 @@ fun AddAudioToPlaylistHeader(
 fun SelectableAudiItem(
     audioWithSelected: AudioWithSelected,
     onAudioSelectionChange: (audioId: String) -> Unit,
-    currentlyPlaying: Boolean
+    currentlyPlaying: Boolean,
 ) {
     val textColor = if (currentlyPlaying) SelectedColor
     else MaterialTheme.colors.onPrimary
@@ -219,6 +221,7 @@ fun SelectableAudiItem(
             },
             colors = CheckboxDefaults.colors(
                 checkedColor = SelectedColor,
+                checkmarkColor = Color.White
             ),
         )
     }

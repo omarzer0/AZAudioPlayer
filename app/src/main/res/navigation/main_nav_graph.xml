@@ -20,6 +20,21 @@
         <action
             android:id="@+id/action_homeFragment_to_scanLocalFragment"
             app:destination="@id/scanLocalFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_playlistManageFragment"
+            app:destination="@id/playlistManageFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_audioManageFragment"
+            app:destination="@id/audioManageFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_artistManageFragment"
+            app:destination="@id/artistManageFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_albumManageFragment"
+            app:destination="@id/albumManageFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/albumDetailsFragment"
@@ -63,4 +78,24 @@
         android:id="@+id/scanLocalFragment"
         android:name="az.zero.azaudioplayer.ui.screens.scan_local_files.ScanLocalFragment"
         android:label="ScanLocalFragment" />
+    <fragment
+        android:id="@+id/albumManageFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.manage.album_manage.AlbumManageFragment"
+        android:label="AlbumManageFragment" />
+    <fragment
+        android:id="@+id/artistManageFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.manage.artist_manage.ArtistManageFragment"
+        android:label="ArtistManageFragment" />
+    <fragment
+        android:id="@+id/audioManageFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.manage.audio_manage.AudioManageFragment"
+        android:label="AudioManageFragment" />
+    <fragment
+        android:id="@+id/playlistManageFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.manage.playlist_manage.PlaylistManageFragment"
+        android:label="PlaylistManageFragment" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.settings.SettingsFragment"
+        android:label="SettingsFragment" />
 </navigation>

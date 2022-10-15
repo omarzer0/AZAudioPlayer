@@ -1,5 +1,6 @@
 package az.zero.azaudioplayer.ui.screens.home
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,14 +12,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,9 +28,10 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.ui.composables.AppBar
+import az.zero.azaudioplayer.ui.composables.AppBarWithSearch
 import az.zero.azaudioplayer.ui.composables.BottomPlayer
 import az.zero.azaudioplayer.ui.composables.CustomDropdown
+import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections.*
 import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
@@ -84,13 +84,13 @@ fun HomeScreen(
     navController: NavController,
 ) {
     var isDropDownExpanded by rememberSaveable { mutableStateOf(false) }
-
+    var tabNumber by remember { mutableStateOf(0) }
     Scaffold(
-        backgroundColor = MaterialTheme.colors.primary,
+        backgroundColor = MaterialTheme.colors.background,
         scaffoldState = rememberScaffoldState(),
         topBar = {
-            AppBar(onSearchClick = {
-                val searchDirections = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
+            AppBarWithSearch(onSearchClick = {
+                val searchDirections = actionHomeFragmentToSearchFragment()
                 navController.navigate(searchDirections)
             }, onMoreClick = {
                 isDropDownExpanded = true
@@ -98,13 +98,34 @@ fun HomeScreen(
                 CustomDropdown(
                     isDropDownExpanded = isDropDownExpanded,
                     onDismissDropDown = { isDropDownExpanded = false },
-                    dropDownItems = getDropdownActions(),
+                    dropDownItems = getDropdownActions(LocalContext.current, tabNumber),
                     onActionClick = { action ->
                         isDropDownExpanded = false
                         when (action) {
-                            X.AddAudio -> {}
-                            X.Delete -> {}
-                            X.Rename -> {}
+                            HomeDropdownActions.ManageAudios -> {
+                                navController.navigate(actionHomeFragmentToScanLocalFragment())
+                            }
+                            HomeDropdownActions.Settings -> {
+                                navController.navigate(actionHomeFragmentToSettingsFragment())
+                            }
+                            HomeDropdownActions.ManageAlbums -> {
+                                navController.navigate(actionHomeFragmentToAlbumManageFragment())
+                            }
+                            HomeDropdownActions.ManageArtists -> {
+                                navController.navigate(actionHomeFragmentToArtistManageFragment())
+                            }
+                            HomeDropdownActions.ManagePlaylists -> {
+                                navController.navigate(actionHomeFragmentToPlaylistManageFragment())
+                            }
+                            HomeDropdownActions.SearchLocalAudio -> {
+                                actionHomeFragmentToScanLocalFragment()
+                            }
+                            HomeDropdownActions.SortAlbumsBy -> {
+                                // TODO add bottom sheet
+                            }
+                            HomeDropdownActions.SortAudiosBy -> {
+                                // TODO add bottom sheet
+                            }
                         }
                     }
                 )
@@ -117,10 +138,15 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .weight(0.8f),
                 listOfTabNames = tabNames,
-                tabHostBackgroundColor = MaterialTheme.colors.primary,
+                tabHostBackgroundColor = MaterialTheme.colors.background,
                 tabSelectorColor = SelectedColor,
                 selectedContentColor = SelectedColor,
                 unSelectedContentColor = MaterialTheme.colors.onPrimary,
+                onTapChanged = {
+                    tabNumber = it
+                    Log.d("HomeScreen", "$it")
+
+                },
                 textContent = { text ->
                     Text(
                         text = text,
@@ -144,21 +170,13 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 viewModel = viewModel
             ) {
-                navController.navigate(HomeFragmentDirections.actionGlobalPlayerBottomSheetFragment())
+                navController.navigate(actionGlobalPlayerBottomSheetFragment())
             }
         }
 
 
     }
 }
-
-
-sealed class X {
-    object AddAudio : X()
-    object Rename : X()
-    object Delete : X()
-}
-
 
 @Composable
 fun getTabsName(): List<String> {
@@ -170,8 +188,52 @@ fun getTabsName(): List<String> {
     )
 }
 
-fun getDropdownActions(): List<Pair<String, X>> = listOf(
-    Pair("Add", X.AddAudio),
-    Pair("Rename", X.Rename),
-    Pair("Delete", X.Delete)
-)
+sealed class HomeDropdownActions {
+    object SearchLocalAudio : HomeDropdownActions()
+    object Settings : HomeDropdownActions()
+    object SortAudiosBy : HomeDropdownActions()
+    object ManageAudios : HomeDropdownActions()
+    object ManageArtists : HomeDropdownActions()
+    object SortAlbumsBy : HomeDropdownActions()
+    object ManageAlbums : HomeDropdownActions()
+    object ManagePlaylists : HomeDropdownActions()
+}
+
+fun getDropdownActions(context: Context, tabNumber: Int): List<Pair<String, HomeDropdownActions>> {
+    val list: MutableList<Pair<String, HomeDropdownActions>> = mutableListOf()
+    when (tabNumber) {
+        0 -> {
+            list.add(Pair(context.getString(R.string.search_local_audio),
+                HomeDropdownActions.SearchLocalAudio))
+            list.add(Pair(context.getString(R.string.sort_audios_by),
+                HomeDropdownActions.SortAudiosBy))
+            list.add(Pair(context.getString(R.string.manage_audios),
+                HomeDropdownActions.ManageAudios))
+            list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
+        }
+        1 -> {
+            list.add(Pair(context.getString(R.string.search_local_audio),
+                HomeDropdownActions.SearchLocalAudio))
+            list.add(Pair(context.getString(R.string.manage_artists),
+                HomeDropdownActions.ManageArtists))
+            list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
+        }
+        2 -> {
+            list.add(Pair(context.getString(R.string.search_local_audio),
+                HomeDropdownActions.SearchLocalAudio))
+            list.add(Pair(context.getString(R.string.sort_albums_by),
+                HomeDropdownActions.SortAlbumsBy))
+            list.add(Pair(context.getString(R.string.manage_albums),
+                HomeDropdownActions.ManageAlbums))
+            list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
+        }
+        3 -> {
+            list.add(Pair(context.getString(R.string.search_local_audio),
+                HomeDropdownActions.SearchLocalAudio))
+            list.add(Pair(context.getString(R.string.manage_playlists),
+                HomeDropdownActions.ManagePlaylists))
+            list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
+        }
+    }
+    return list
+}

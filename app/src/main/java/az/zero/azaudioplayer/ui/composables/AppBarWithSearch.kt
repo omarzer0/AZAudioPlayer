@@ -5,14 +5,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
 
 @Composable
-fun AppBar(
+fun AppBarWithSearch(
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
+    background: Color = MaterialTheme.colors.background,
     customDropDownContent: (@Composable () -> Unit)? = null,
 ) {
     TopAppBar(
@@ -22,7 +24,7 @@ fun AppBar(
                 color = MaterialTheme.colors.onPrimary
             )
         },
-        backgroundColor = MaterialTheme.colors.primary,
+        backgroundColor = background,
         elevation = 0.dp,
         actions = {
             customDropDownContent?.invoke()

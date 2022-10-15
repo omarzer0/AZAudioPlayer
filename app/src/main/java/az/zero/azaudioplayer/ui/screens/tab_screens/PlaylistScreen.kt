@@ -135,8 +135,8 @@ fun PlaylistItem(
 
         TopWithBottomText(
             modifier = Modifier.weight(1f),
-            topTextName = playlist.name,
-            bottomTextName = "${playlist.DBAudioList.size} ${stringResource(id = R.string.audios)}"
+            topTextString = playlist.name,
+            bottomTextString = "${playlist.DBAudioList.size} ${stringResource(id = R.string.audios)}"
         )
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -171,13 +171,14 @@ fun CustomDialog(
                 CustomEditText(
                     text = text,
                     hint = "PlayListName",
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    text = it
-                }
-
+                    modifier = Modifier.fillMaxWidth(),
+                    onTextChanged = {text = it}
+                )
             },
             buttons = {
+                val textBtnColor =
+                    if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -185,7 +186,7 @@ fun CustomDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
+                    TextButton(
                         onClick = {
                             if (text.isEmpty()) {
                                 toast?.cancel()
@@ -202,18 +203,18 @@ fun CustomDialog(
                             }
                         }
                     ) {
-                        Text("Create", color = MaterialTheme.colors.onPrimary)
+                        Text("Create", color = textBtnColor)
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Button(
+                    TextButton(
                         onClick = {
                             onOpenDialogChanged()
                             text = ""
                         }
                     ) {
-                        Text("Cancel", color = MaterialTheme.colors.onPrimary)
+                        Text("Cancel", color = textBtnColor)
                     }
                 }
             }
@@ -238,7 +239,7 @@ fun AddPlayList(
             localImageUrl = Icons.Filled.Add,
             addBorder = false,
             iconTint = SecondaryTextColor,
-            imageBackgroundColor = MaterialTheme.colors.primary,
+            imageBackgroundColor = MaterialTheme.colors.background,
             modifier = Modifier.border(width = 1.dp, SecondaryTextColor, RoundedCornerShape(12.dp)),
             innerImagePadding = 12.dp
         )

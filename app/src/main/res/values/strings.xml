@@ -48,8 +48,14 @@
     <string name="manage_artists">Manage artists</string>
     <string name="manage_albums">Manage albums</string>
     <string name="manage_playlists">Manage playlist</string>
-    <string name="sort_by">Sort by</string>
+    <string name="sort_audios_by">Sort audio files by</string>
+    <string name="sort_albums_by">Sort albums by</string>
 
     <string name="recently_played">Recently played</string>
 
+    <string name="scan_again">Scan Again</string>
+    <string name="scan_completed">Scan Completed</string>
+    <string name="scan_local_audio_files">Scan local audio files</string>
+    <string name="was_found">was found</string>
+    <string name="create_new_playlist">Create a new playlist</string>
 </resources>

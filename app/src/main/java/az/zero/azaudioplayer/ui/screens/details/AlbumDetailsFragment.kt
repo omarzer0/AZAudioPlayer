@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.Modifier
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import az.zero.azaudioplayer.core.BaseFragment
@@ -19,11 +22,13 @@ class AlbumDetailsFragment : BaseFragment() {
     private val viewModel: AlbumDetailsViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         val audioList = args.audioList.toList()
         return setFragmentContent {
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.background(MaterialTheme.colors.background)
+            ) {
                 items(audioList, key = { it.data }) { audio ->
                     AudioItem(dbAudio = audio, isSelected = false, onClick = {
                         viewModel.audioAction(AudioActions.Toggle(audio.data), audioList)

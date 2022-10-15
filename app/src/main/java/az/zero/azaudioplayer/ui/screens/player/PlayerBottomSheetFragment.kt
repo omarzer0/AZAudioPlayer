@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -33,7 +34,6 @@ import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.setCompContent
 import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
-import az.zero.player.extensions.isPlaying
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
@@ -44,6 +44,7 @@ import az.zero.azaudioplayer.utils.createTimeLabel
 import az.zero.azaudioplayer.utils.largeIconSize
 import az.zero.azaudioplayer.utils.midIconsSize
 import az.zero.azaudioplayer.utils.smallIconsSize
+import az.zero.player.extensions.isPlaying
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -56,7 +57,7 @@ class PlayerBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val modalBottomSheetBehavior = (this.dialog as BottomSheetDialog).behavior
         modalBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -72,7 +73,7 @@ class PlayerBottomSheetFragment : BottomSheetDialogFragment() {
 @Composable
 fun PlayerScreen(
     viewModel: PlayerBottomSheetViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
 
     val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
@@ -86,7 +87,7 @@ fun PlayerScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.background)
             .verticalScroll(rememberScrollState())
     ) {
 
@@ -98,9 +99,9 @@ fun PlayerScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            topTextName = audio.title,
+            topTextString = audio.title,
             topTextColor = MaterialTheme.colors.onPrimary,
-            bottomTextName = audio.artist,
+            bottomTextString = audio.artist,
             bottomTextColor = SecondaryTextColor,
             topTextStyle = MaterialTheme.typography.h1
         )
@@ -221,7 +222,7 @@ fun AudioSeekbar(
             colors = SliderDefaults.colors(
                 thumbColor = SelectedColor,
                 activeTrackColor = SelectedColor,
-                inactiveTrackColor = MaterialTheme.colors.background
+                inactiveTrackColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
             ),
         )
 

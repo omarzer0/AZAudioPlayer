@@ -1,6 +1,7 @@
 package az.zero.azaudioplayer.ui.composables
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.ui_utils.clickableSafeClick
@@ -31,7 +33,7 @@ import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 fun ItemsHeader(
     text: String,
     bottomDividerVisible: Boolean = false,
-    content: (@Composable () -> Unit)? = null
+    content: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier
@@ -73,7 +75,7 @@ fun LocalImageIcon(
     iconTint: Color = MaterialTheme.colors.onPrimary,
     imageBackgroundColor: Color = Color.White,
     addBorder: Boolean = true,
-    innerImagePadding: Dp = 8.dp
+    innerImagePadding: Dp = 8.dp,
 ) {
     Icon(
         imageVector = localImageUrl,
@@ -95,11 +97,11 @@ fun LocalImageIcon(
 @Composable
 fun TopWithBottomText(
     modifier: Modifier = Modifier,
-    onTopTextModifier: Modifier = Modifier,
-    onBottomTextModifier: Modifier = Modifier,
-    topTextName: String,
+    topTextModifier: Modifier = Modifier,
+    bottomTextModifier: Modifier = Modifier,
+    topTextString: String,
     topTextColor: Color = MaterialTheme.colors.onPrimary,
-    bottomTextName: String,
+    bottomTextString: String,
     bottomTextColor: Color = SecondaryTextColor,
     topTextStyle: TextStyle = MaterialTheme.typography.h2,
     bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
@@ -108,22 +110,23 @@ fun TopWithBottomText(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            modifier = onTopTextModifier.fillMaxWidth(),
-            text = topTextName,
+            modifier = topTextModifier.fillMaxWidth(),
+            text = topTextString,
             color = topTextColor,
             style = topTextStyle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = topTextAlign
         )
-        if (bottomTextName.isNotEmpty()) {
+        if (bottomTextString.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                modifier = onBottomTextModifier.fillMaxWidth(),
-                text = bottomTextName,
+                modifier = bottomTextModifier.fillMaxWidth(),
+                text = bottomTextString,
                 color = bottomTextColor,
                 style = bottomTextStyle,
                 maxLines = 1,
@@ -144,7 +147,7 @@ fun TopWithBottomTextWithAnnotatedText(
     bottomTextColor: Color = SecondaryTextColor,
     topTextStyle: TextStyle = MaterialTheme.typography.h2,
     bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
-    annotatedTextQuery: String = ""
+    annotatedTextQuery: String = "",
 ) {
     Column(
         modifier = modifier,
@@ -214,7 +217,7 @@ fun BasicAudioItem(
     iconText: String,
     iconColor: Color,
     onTailItemClick: ((MenuActionType) -> Unit)? = null,
-    menuItemList: List<DropDownItemWithAction> = emptyList()
+    menuItemList: List<DropDownItemWithAction> = emptyList(),
 ) {
     Row(
         modifier = modifier
@@ -246,8 +249,8 @@ fun BasicAudioItem(
             bottomTexts.isEmpty() -> {
                 TopWithBottomText(
                     modifier = Modifier.weight(1f),
-                    topTextName = topText,
-                    bottomTextName = bottomText,
+                    topTextString = topText,
+                    bottomTextString = bottomText,
                     topTextColor = topTextColor,
                     bottomTextColor = bottomTextColor,
                     topTextStyle = topTextStyle,
@@ -335,7 +338,7 @@ fun IconWithMenu(
 
 data class DropDownItemWithAction(
     val stringID: Int,
-    val menuActionType: MenuActionType
+    val menuActionType: MenuActionType,
 )
 
 interface MenuActionType
@@ -346,6 +349,7 @@ fun CustomEditText(
     text: String,
     hint: String = "",
     maxLines: Int = 1,
+    textColor: Color = if (isSystemInDarkTheme()) Color.White else Color.Black,
     singleLine: Boolean = true,
     onTextChanged: (String) -> Unit = {},
 ) {
@@ -353,13 +357,14 @@ fun CustomEditText(
     Column(modifier = modifier) {
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Create a new playlist", style = MaterialTheme.typography.h2)
+        Text(text = stringResource(id = R.string.create_new_playlist),
+            style = MaterialTheme.typography.h2)
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = text,
             onValueChange = {
-                onTextChanged(it.trim())
+                onTextChanged(it)
             },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = SecondaryTextColor,
@@ -371,7 +376,7 @@ fun CustomEditText(
             label = { Text(text = hint) },
             maxLines = maxLines,
             singleLine = singleLine,
-            textStyle = TextStyle(color = SecondaryTextColor),
+            textStyle = TextStyle(color = textColor),
             modifier = Modifier.fillMaxWidth()
         )
     }

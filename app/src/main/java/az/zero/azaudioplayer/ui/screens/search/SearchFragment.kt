@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,7 +45,7 @@ class SearchFragment : BaseFragment() {
     private val viewModel: SearchViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         return setFragmentContent {
             SearchScreen(viewModel = viewModel, navController = findNavController())
@@ -55,7 +56,7 @@ class SearchFragment : BaseFragment() {
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
 
     var text by rememberSaveable {
@@ -63,6 +64,7 @@ fun SearchScreen(
     }
 
     SearchScreen(
+        modifier = Modifier.background(MaterialTheme.colors.background),
         text = text,
         allAudios = viewModel.allDBAudio.observeAsState().value ?: emptyList(),
         selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: "",
@@ -89,6 +91,7 @@ fun SearchScreen(
 
 @Composable
 private fun SearchScreen(
+    modifier: Modifier = Modifier,
     allAudios: List<DBAudio>,
     selectedId: String,
     text: String,
@@ -96,10 +99,10 @@ private fun SearchScreen(
     onBackIconClick: () -> Unit,
     onClearClick: () -> Unit,
     onAudioItemClick: (DBAudio) -> Unit,
-    onAudioIconClick: (DBAudio, MenuActionType) -> Unit
+    onAudioIconClick: (DBAudio, MenuActionType) -> Unit,
 
-) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         SearchFragmentHeader(
             text = text,
             hint = stringResource(id = R.string.search),

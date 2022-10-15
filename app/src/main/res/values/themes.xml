@@ -16,6 +16,14 @@
 
     <style name="MainActivityTheme" parent="Theme.AZAudioPlayer">
         <item name="android:navigationBarColor">@color/onPrimary</item>
-        <item name="android:backgroundTint">@color/onPrimary</item>
+<!--        <item name="android:backgroundTint">@color/onPrimary</item>-->
     </style>
+
+    <style name="SplashScreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_bg</item>
+        <item name="colorPrimaryDark">@color/onPrimary</item>
+        <item name="android:navigationBarColor">@color/onPrimary</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
 </resources>
