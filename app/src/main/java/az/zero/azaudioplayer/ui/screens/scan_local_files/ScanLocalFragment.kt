@@ -114,14 +114,14 @@ fun ScanLocalHeader(
                 color = MaterialTheme.colors.onPrimary
             )
         },
-        backgroundColor = MaterialTheme.colors.primary,
+        backgroundColor = MaterialTheme.colors.background,
         elevation = 0.dp,
         actions = {
             IconButton(onClick = { onScanSettingsClick() }) {
                 Icon(
                     Icons.Filled.Settings,
                     stringResource(id = R.string.settings),
-                    tint = MaterialTheme.colors.onPrimary
+                    tint = MaterialTheme.colors.onBackground
                 )
             }
         },
@@ -131,7 +131,7 @@ fun ScanLocalHeader(
                 Icon(
                     Icons.Filled.ArrowBack,
                     stringResource(id = R.string.back),
-                    tint = MaterialTheme.colors.onPrimary,
+                    tint = MaterialTheme.colors.onBackground,
                     modifier = Modifier.mirror()
                 )
             }
