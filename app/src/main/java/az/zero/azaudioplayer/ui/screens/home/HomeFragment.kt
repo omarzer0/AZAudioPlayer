@@ -1,5 +1,6 @@
 package az.zero.azaudioplayer.ui.screens.home
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -75,6 +76,7 @@ fun EmptyHomeScreen() {
     )
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
 @Composable

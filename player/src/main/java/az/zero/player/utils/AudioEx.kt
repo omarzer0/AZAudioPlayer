@@ -57,7 +57,6 @@ fun DBAudio.toExoMediaItem(): MediaItem {
         .setUri(data.toUri())
         .setMediaMetadata(
             MediaMetadata.Builder()
-                .setMediaUri(data.toUri())
                 .setTitle(title)
                 .setSubtitle(displayName)
                 .setArtist(artist)
