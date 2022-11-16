@@ -26,13 +26,13 @@ import az.zero.db.entities.DBArtistWithAudios
 @Composable
 fun ArtistScreen(
     viewModel: HomeViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val allArtists = viewModel.allArtists.observeAsState().value ?: emptyList()
     ArtistScreen(artistList = allArtists) { artist ->
         navController.navigate(
-            HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                artist.DBAudioList.toTypedArray()
+            HomeFragmentDirections.actionHomeFragmentToArtistDetailsFragment(
+                artist
             )
         )
     }
@@ -45,7 +45,7 @@ fun ArtistScreen(
 @Composable
 private fun ArtistScreen(
     artistList: List<DBArtistWithAudios>,
-    onArtistClick: (DBArtistWithAudios) -> Unit
+    onArtistClick: (DBArtistWithAudios) -> Unit,
 ) {
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {

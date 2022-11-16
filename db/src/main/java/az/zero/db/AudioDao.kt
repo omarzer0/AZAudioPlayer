@@ -49,7 +49,7 @@ interface AudioDao {
 
     suspend fun addOrRemoveFromFavouritePlayList(dbAudio: DBAudio) {
         val favPlaylist = getFavouritePlaylist().firstOrNull() ?: return
-        val favPlaylistAudios = favPlaylist.DBAudioList.toMutableList()
+        val favPlaylistAudios = favPlaylist.dbAudioList.toMutableList()
         if (dbAudio.isFavourite) {
             val audioToRemove = favPlaylistAudios.firstOrNull { it.data == dbAudio.data }
             favPlaylistAudios.remove(audioToRemove)
@@ -58,7 +58,7 @@ interface AudioDao {
         updateAudio(dbAudio.copy(isFavourite = !dbAudio.isFavourite))
         addPlayList(
             favPlaylist.copy(
-                DBAudioList = favPlaylistAudios,
+                dbAudioList = favPlaylistAudios,
             )
         )
     }
@@ -106,7 +106,7 @@ interface AudioDao {
         addPlayList(
             DBPlaylist(
                 name = context.getString(az.zero.base.R.string.favourites),
-                DBAudioList = emptyList(),
+                dbAudioList = emptyList(),
                 isFavouritePlaylist = true
             )
         )

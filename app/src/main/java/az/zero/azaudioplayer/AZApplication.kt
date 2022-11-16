@@ -7,6 +7,7 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class AZApplication : Application() {
+    var checkedForPermission = false
 
     override fun onCreate() {
         super.onCreate()

@@ -29,7 +29,7 @@ import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.ui_utils.clickableSafeClick
+import az.zero.azaudioplayer.ui.composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 import az.zero.db.entities.DBPlaylist
 
@@ -114,8 +114,8 @@ fun PlaylistItem(
             .padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val image = if (playlist.DBAudioList.isEmpty()) ""
-        else playlist.DBAudioList[0].cover
+        val image = if (playlist.dbAudioList.isEmpty()) ""
+        else playlist.dbAudioList[0].cover
 
 
         if (playlist.isFavouritePlaylist) {
@@ -136,7 +136,7 @@ fun PlaylistItem(
         TopWithBottomText(
             modifier = Modifier.weight(1f),
             topTextString = playlist.name,
-            bottomTextString = "${playlist.DBAudioList.size} ${stringResource(id = R.string.audios)}"
+            bottomTextString = "${playlist.dbAudioList.size} ${stringResource(id = R.string.audios)}"
         )
 
         Spacer(modifier = Modifier.width(16.dp))

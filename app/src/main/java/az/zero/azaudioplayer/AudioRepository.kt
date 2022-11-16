@@ -12,7 +12,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDeepLinkBuilder
 import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
@@ -45,7 +44,7 @@ class AudioRepository @Inject constructor(
     private val audioDao: AudioDao,
     @ApplicationScope private val scope: CoroutineScope,
     private val dataStoreManager: DataStoreManager,
-    private val audioDataSource: AudioDataSource
+    private val audioDataSource: AudioDataSource,
 ) {
 
     @OptIn(ExperimentalPagerApi::class)
@@ -128,7 +127,7 @@ class AudioRepository @Inject constructor(
 
     private fun newAudioChosen(newAudioList: List<DBAudio>, mediaItem: String) {
         audioDataSource.updateAudioList(newAudioList)
-        dataStoreManager.saveLastPlayedAudio(mediaItem)
+//        dataStoreManager.saveLastPlayedAudio(mediaItem)
         transportControls.playFromMediaId(mediaItem, null)
     }
 
@@ -244,7 +243,8 @@ class AudioRepository @Inject constructor(
             scope.launch {
 //                val audio = metadata?.id?.let { audioDao.getAudioById(it) } ?: EMPTY_AUDIO
 //                _nowPlayingAudio.postValue(audio)
-                getUpdatedCurrentlyPlaying(metadata?.id ?: "")
+                val id = metadata?.id ?: return@launch
+                getUpdatedCurrentlyPlaying(id)
             }
         }
 
@@ -264,7 +264,10 @@ class AudioRepository @Inject constructor(
     suspend fun getUpdatedCurrentlyPlaying(audioId: String) {
         val audio = audioDao.getAudioById(audioId) ?: EMPTY_AUDIO
         val existingAudio = _nowPlayingAudio.value ?: return
-        if (audio != existingAudio) _nowPlayingAudio.postValue(audio)
+        if (audio != existingAudio) {
+            _nowPlayingAudio.postValue(audio)
+            dataStoreManager.saveLastPlayedAudio(audio.data)
+        }
     }
 
     init {
@@ -276,12 +279,3 @@ class AudioRepository @Inject constructor(
         }
     }
 }
-
-fun <T> LiveData<T>.toMutableLiveData(): MutableLiveData<T> {
-    val mediatorLiveData = MediatorLiveData<T>()
-    mediatorLiveData.addSource(this) {
-        mediatorLiveData.value = it
-    }
-    return mediatorLiveData
-}
-

@@ -21,25 +21,25 @@ import javax.inject.Inject
 class AudioDbHelper @Inject constructor(
     @ApplicationContext private val context: Context,
     @ApplicationScope private val applicationScope: CoroutineScope,
+    private val dao: AudioDao,
 ) {
 
-    fun compareWithLocalList(dao: AudioDao) {
+    fun compareWithLocalList() {
         applicationScope.launch {
             val databaseList = dao.getAllDbAudioSingleList()
             val localList = getMusic()
-            computeItemsToAdd(databaseList, localList, dao)
-            computeItemsToDelete(databaseList, localList, dao)
+            computeItemsToAdd(databaseList, localList)
+            computeItemsToDelete(databaseList, localList)
             // TODO get all new audios and use them instead of localList
-            computeAlbumItems(localList, dao)
-            computeArtistItems(localList, dao)
-            computeFavouritePlaylist(dao)
+            computeAlbumItems(localList)
+            computeArtistItems(localList)
+            computeFavouritePlaylist()
         }
     }
 
     private fun computeItemsToAdd(
         databaseList: List<DBAudio>,
         localList: List<DBAudio>,
-        dao: AudioDao
     ) {
         applicationScope.launch {
             val listToAdd: MutableList<DBAudio> = mutableListOf()
@@ -52,7 +52,7 @@ class AudioDbHelper @Inject constructor(
         }
     }
 
-    private fun computeFavouritePlaylist(dao: AudioDao) {
+    private fun computeFavouritePlaylist() {
         applicationScope.launch {
             val favouriteList = dao.getAllDbAudioSingleList().filter { it.isFavourite }
             dao.deleteFavouritePlaylist()
@@ -60,7 +60,7 @@ class AudioDbHelper @Inject constructor(
                 // TODO y
                 DBPlaylist(
                     name = context.getString(az.zero.base.R.string.favourites),
-                    DBAudioList = favouriteList,
+                    dbAudioList = favouriteList,
                     isFavouritePlaylist = true
                 )
             )
@@ -70,7 +70,6 @@ class AudioDbHelper @Inject constructor(
     private fun computeItemsToDelete(
         databaseList: List<DBAudio>,
         localList: List<DBAudio>,
-        dao: AudioDao
     ) {
         applicationScope.launch {
             val listToDelete: MutableList<DBAudio> = mutableListOf()
@@ -79,17 +78,17 @@ class AudioDbHelper @Inject constructor(
                 if (!exist) listToDelete.add(oldAudio)
             }.also {
                 listToDelete.forEach { audio -> dao.delete(audio) }
-                removeDeletedAudioFromPlaylists(dao, listToDelete)
+                removeDeletedAudioFromPlaylists(listToDelete)
             }
         }
     }
 
-    private fun removeDeletedAudioFromPlaylists(dao: AudioDao, listToDelete: List<DBAudio>) {
+    private fun removeDeletedAudioFromPlaylists(listToDelete: List<DBAudio>) {
         val playlistsToAdd: MutableList<DBPlaylist> = mutableListOf()
         applicationScope.launch {
             val playlists = dao.getAllPlayListsWithoutFavouritePlaylist()
             playlists.forEach {
-                val newAudioList = it.DBAudioList.filter { audio -> !listToDelete.contains(audio) }
+                val newAudioList = it.dbAudioList.filter { audio -> !listToDelete.contains(audio) }
                 playlistsToAdd.add(DBPlaylist(it.name, newAudioList, it.isFavouritePlaylist))
             }
             dao.deleteAllPlaylistsWithoutFavourite()
@@ -99,7 +98,6 @@ class AudioDbHelper @Inject constructor(
 
     private fun computeAlbumItems(
         localList: List<DBAudio>,
-        dao: AudioDao
     ) {
         applicationScope.launch {
             val albums: MutableList<DBAlbum> = mutableListOf()
@@ -115,7 +113,6 @@ class AudioDbHelper @Inject constructor(
 
     private fun computeArtistItems(
         localList: List<DBAudio>,
-        dao: AudioDao
     ) {
         applicationScope.launch {
             val artists: MutableList<DBArtist> = mutableListOf()

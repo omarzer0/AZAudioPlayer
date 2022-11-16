@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.screens.playlist_details
+package az.zero.azaudioplayer.ui.screens.details.playlist
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

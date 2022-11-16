@@ -58,4 +58,6 @@
     <string name="scan_local_audio_files">Scan local audio files</string>
     <string name="was_found">was found</string>
     <string name="create_new_playlist">Create a new playlist</string>
+
+    <string name="click_here_to_search_audio_files">Click here to search audio files</string>
 </resources>

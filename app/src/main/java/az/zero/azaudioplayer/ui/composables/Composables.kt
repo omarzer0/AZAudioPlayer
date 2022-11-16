@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.ui_utils.clickableSafeClick
 import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.colorFullBorder
 import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 
@@ -65,34 +64,6 @@ fun ItemsHeader(
         }
     }
 }
-
-
-@Composable
-fun LocalImageIcon(
-    localImageUrl: ImageVector,
-    modifier: Modifier = Modifier,
-    cornerShape: Shape = RoundedCornerShape(12.dp),
-    iconTint: Color = MaterialTheme.colors.onPrimary,
-    imageBackgroundColor: Color = Color.White,
-    addBorder: Boolean = true,
-    innerImagePadding: Dp = 8.dp,
-) {
-    Icon(
-        imageVector = localImageUrl,
-        contentDescription = null,
-        tint = iconTint,
-        modifier = modifier
-            .size(width = 48.dp, height = 48.dp)
-            .then(
-                if (addBorder) Modifier.colorFullBorder(cornerShape)
-                else Modifier
-            )
-            .clip(cornerShape)
-            .background(imageBackgroundColor)
-            .padding(innerImagePadding)
-    )
-}
-
 
 @Composable
 fun TopWithBottomText(

@@ -22,7 +22,6 @@ import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
 import az.zero.player.extensions.isPlaying
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
-import az.zero.azaudioplayer.ui.ui_utils.clickableSafeClick
 import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 
 @Composable

@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.screens.details
+package az.zero.azaudioplayer.ui.screens.details.artist
 
 import androidx.lifecycle.ViewModel
 import az.zero.azaudioplayer.AudioRepository
@@ -8,8 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class AlbumDetailsViewModel @Inject constructor(
-    private val audioRepository: AudioRepository
+class ArtistDetailsViewModel @Inject constructor(
+    private val audioRepository: AudioRepository,
 ) : ViewModel() {
     fun audioAction(action: AudioActions, newAudioList: List<DBAudio>?) {
         audioRepository.audioAction(action, newAudioList = newAudioList)

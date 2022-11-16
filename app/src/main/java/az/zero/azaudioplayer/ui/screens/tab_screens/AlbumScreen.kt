@@ -24,7 +24,7 @@ import az.zero.db.entities.DBAlbumWithAudioList
 @Composable
 fun AlbumScreen(
     viewModel: HomeViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val albumList = viewModel.allAlbums.observeAsState().value ?: emptyList()
 
@@ -35,10 +35,10 @@ fun AlbumScreen(
         }
 
         items(items = albumList, key = { it.album.name }) { album ->
-            AlbumItem(DBAlbumWithAudioList = album) {
+            AlbumItem(dbAlbumWithAudioList = album) {
                 navController.navigate(
                     HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                        album.DBAudioList.toTypedArray()
+                        album
                     )
                 )
             }
@@ -48,17 +48,17 @@ fun AlbumScreen(
 }
 
 @Composable
-fun AlbumItem(DBAlbumWithAudioList: DBAlbumWithAudioList, onClick: () -> Unit) {
+fun AlbumItem(dbAlbumWithAudioList: DBAlbumWithAudioList, onClick: () -> Unit) {
 
     val image = remember {
-        if (DBAlbumWithAudioList.DBAudioList.isEmpty()) ""
-        else DBAlbumWithAudioList.DBAudioList[0].cover
+        if (dbAlbumWithAudioList.dbAudioList.isEmpty()) ""
+        else dbAlbumWithAudioList.dbAudioList[0].cover
     }
 
     BasicAudioItem(
         imageUrl = image,
-        topText = DBAlbumWithAudioList.album.name,
-        bottomText = DBAlbumWithAudioList.DBAudioList[0].artist,
+        topText = dbAlbumWithAudioList.album.name,
+        bottomText = dbAlbumWithAudioList.dbAudioList[0].artist,
         topTextColor = MaterialTheme.colors.onPrimary,
         iconVector = Icons.Filled.KeyboardArrowRight,
         iconColor = SecondaryTextColor,

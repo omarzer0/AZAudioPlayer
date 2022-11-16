@@ -1,15 +1,13 @@
 package az.zero.azaudioplayer.ui.screens.home
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import az.zero.azaudioplayer.AudioRepository
+import az.zero.azaudioplayer.utils.fakeAudio
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

@@ -7,22 +7,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -32,13 +29,16 @@ import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.composables.AppBarWithSearch
 import az.zero.azaudioplayer.ui.composables.BottomPlayer
 import az.zero.azaudioplayer.ui.composables.CustomDropdown
+import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections.*
 import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.PlaylistScreen
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.ui_utils.TextTab
+import az.zero.azaudioplayer.ui.composables.TextTab
+import az.zero.azaudioplayer.ui.composables.clickableSafeClick
+import az.zero.azaudioplayer.utils.fakeAudio
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -53,27 +53,50 @@ class HomeFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         return setFragmentContent {
-            val allAudios = viewModel.allAudio.observeAsState().value ?: emptyList()
+            // adding fakeAudio to differentiate between real empty list and getting data from DB
+            val allAudios = viewModel.allAudio.observeAsState().value ?: listOf(fakeAudio)
             Log.e("allAudios", "onCreateView: ${allAudios.size}")
+
             if (allAudios.isNotEmpty()) {
                 val tabNames = getTabsName()
                 HomeScreen(tabNames, viewModel, findNavController())
-                Log.e("allAudios", "if: ${allAudios.size}")
             } else {
-                Log.e("allAudios", "else: ${allAudios.size}")
-                EmptyHomeScreen()
+                EmptyHomeScreen(
+                    onBottomTextClick = {
+                        findNavController().navigate(
+                            actionHomeFragmentToScanLocalFragment()
+                        )
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun EmptyHomeScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red)
-    )
+fun EmptyHomeScreen(
+    onBottomTextClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        TopWithBottomText(
+            modifier = Modifier.fillMaxWidth(),
+            topTextString = stringResource(id = R.string.no_result),
+            bottomTextString = stringResource(id = R.string.click_here_to_search_audio_files),
+            bottomTextColor = SelectedColor,
+            topTextAlign = TextAlign.Center,
+            bottomTextAlign = TextAlign.Center,
+            bottomTextModifier = Modifier
+                .clickableSafeClick {
+                    onBottomTextClick()
+                }
+                .padding(8.dp)
+        )
+    }
 }
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")

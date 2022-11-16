@@ -35,14 +35,17 @@
         <action
             android:id="@+id/action_homeFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_artistDetailsFragment"
+            app:destination="@id/artistDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/albumDetailsFragment"
-        android:name="az.zero.azaudioplayer.ui.screens.details.AlbumDetailsFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.details.album.AlbumDetailsFragment"
         android:label="AlbumDetailsFragment" >
         <argument
-            android:name="audioList"
-            app:argType="az.zero.db.entities.DBAudio[]" />
+            android:name="dbAlbumWithAudioList"
+            app:argType="az.zero.db.entities.DBAlbumWithAudioList" />
     </fragment>
     <dialog
         android:id="@+id/playerBottomSheetFragment"
@@ -57,7 +60,7 @@
         android:label="SearchFragment" />
     <fragment
         android:id="@+id/playlistDetailsFragment"
-        android:name="az.zero.azaudioplayer.ui.screens.playlist_details.PlaylistDetailsFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.details.playlist.PlaylistDetailsFragment"
         android:label="PlaylistDetailsFragment" >
         <argument
             android:name="playlistName"
@@ -98,4 +101,12 @@
         android:id="@+id/settingsFragment"
         android:name="az.zero.azaudioplayer.ui.screens.settings.SettingsFragment"
         android:label="SettingsFragment" />
+    <fragment
+        android:id="@+id/artistDetailsFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.details.artist.ArtistDetailsFragment"
+        android:label="ArtistDetailsFragment" >
+        <argument
+            android:name="dbArtistWithAudios"
+            app:argType="az.zero.db.entities.DBArtistWithAudios" />
+    </fragment>
 </navigation>

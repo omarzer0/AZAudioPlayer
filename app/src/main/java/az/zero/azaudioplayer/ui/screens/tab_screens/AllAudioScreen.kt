@@ -21,6 +21,7 @@ import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.D
 import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.EDIT
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
+import az.zero.azaudioplayer.utils.fakeAudio
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 
@@ -53,7 +54,7 @@ private fun AllAudioScreen(
     dbAudioList: List<DBAudio>,
     selectedId: String,
     onAudioItemClick: (DBAudio) -> Unit,
-    onAudioIconClick: (DBAudio, MenuActionType) -> Unit
+    onAudioIconClick: (DBAudio, MenuActionType) -> Unit,
 ) {
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -92,9 +93,9 @@ fun AudioItem(
     annotatedTextQuery: String = "",
     onClick: () -> Unit,
     onIconClick: (MenuActionType) -> Unit,
-    menuItemList: List<DropDownItemWithAction> = emptyList()
+    menuItemList: List<DropDownItemWithAction> = emptyList(),
 
-) {
+    ) {
     val textColor = if (isSelected) SelectedColor
     else MaterialTheme.colors.onPrimary
 

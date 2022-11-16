@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 data class DBPlaylist(
     @PrimaryKey
     val name: String,
-    val DBAudioList: List<DBAudio>,
+    val dbAudioList: List<DBAudio>,
     val isFavouritePlaylist: Boolean = false,
 ) : Parcelable
 

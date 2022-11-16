@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.ui_utils
+package az.zero.azaudioplayer.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

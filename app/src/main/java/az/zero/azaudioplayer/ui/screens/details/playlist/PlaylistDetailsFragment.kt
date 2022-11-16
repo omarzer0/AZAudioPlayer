@@ -1,4 +1,4 @@
-package az.zero.azaudioplayer.ui.screens.playlist_details
+package az.zero.azaudioplayer.ui.screens.details.playlist
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,12 +12,9 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,31 +26,30 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.ui.composables.CustomImage
-import az.zero.azaudioplayer.ui.composables.LocalImage
-import az.zero.azaudioplayer.ui.composables.MenuActionType
-import az.zero.azaudioplayer.ui.composables.TopWithBottomText
-import az.zero.azaudioplayer.ui.screens.playlist_details.PlayListFavMoreActions.ClearFavList
-import az.zero.azaudioplayer.ui.screens.playlist_details.PlayListMoreClickActions.*
+import az.zero.azaudioplayer.ui.composables.*
+import az.zero.azaudioplayer.ui.screens.details.playlist.PlayListFavMoreActions.ClearFavList
+import az.zero.azaudioplayer.ui.screens.details.playlist.PlayListMoreClickActions.*
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.ui_utils.clickableSafeClick
 import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
+import az.zero.azaudioplayer.utils.fakeAudio
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class PlaylistDetailsFragment : BaseFragment() {
     private val viewModel: PlaylistDetailsViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         return setFragmentContent {
-            val playlist = viewModel.playlist.observeAsState().value ?: DBPlaylist("", emptyList())
+            val playlist =
+                viewModel.playlist.observeAsState().value ?: DBPlaylist("", listOf(fakeAudio))
 
             PlaylistDetailsScreen(
                 playlist = playlist,
@@ -68,7 +64,7 @@ class PlaylistDetailsFragment : BaseFragment() {
 fun PlaylistDetailsScreen(
     playlist: DBPlaylist,
     viewModel: PlaylistDetailsViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: ""
 
@@ -89,7 +85,7 @@ fun PlaylistDetailsScreen(
         onAudioItemClick = { audio ->
             viewModel.audioAction(
                 action = AudioActions.Toggle(audio.data),
-                newAudioList = playlist.DBAudioList
+                newAudioList = playlist.dbAudioList
             )
         },
         onAudioIconClick = { dbAudio, menuActionType ->
@@ -161,35 +157,37 @@ fun PlaylistDetailsScreen(
     onBackIconClick: () -> Unit,
     onDismissDropDown: () -> Unit,
     onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit,
-    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit
+    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
-        PlaylistDetailsHeader(
-            modifier = Modifier.fillMaxWidth(),
-            playlist = playlist,
-            onMoreClick = onMoreClick,
-            onBackIconClick = onBackIconClick,
-            isDropDownExpanded = isDropDownExpanded,
-            onDismissDropDown = onDismissDropDown,
-            onPlayListMoreClickActions = onPlayListMoreClickActions,
-            onFavMoreClickActions = onFavMoreClickActions
-        )
 
-        if (playlist.DBAudioList.isEmpty()) {
+        if (playlist.dbAudioList.isEmpty()) {
             EmptyPlaylistDetails(
                 isFavPlaylist = playlist.isFavouritePlaylist,
                 onBottomTextClick = onBottomTextClick
             )
         } else {
-            AudioList(
-                modifier = Modifier
-                    .fillMaxSize(),
-                audioList = playlist.DBAudioList,
+            val realPlaylist by remember(playlist) {
+                mutableStateOf(
+                    playlist.copy(
+                        dbAudioList = playlist.dbAudioList.filter { it.id != fakeAudio.id }
+                    )
+                )
+            }
+
+            PlaylistDetails(
+                playlist = realPlaylist,
                 selectedId = selectedId,
                 onAudioItemClick = onAudioItemClick,
-                onAudioIconClick = onAudioIconClick
+                onAudioIconClick = onAudioIconClick,
+                isDropDownExpanded = isDropDownExpanded,
+                onBackIconClick = onBackIconClick,
+                onDismissDropDown = onDismissDropDown,
+                onFavMoreClickActions = onFavMoreClickActions,
+                onPlayListMoreClickActions = onPlayListMoreClickActions,
+                onMoreClick = onMoreClick
             )
         }
     }
@@ -198,7 +196,7 @@ fun PlaylistDetailsScreen(
 @Composable
 fun EmptyPlaylistDetails(
     isFavPlaylist: Boolean,
-    onBottomTextClick: () -> Unit
+    onBottomTextClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -234,15 +232,37 @@ fun EmptyPlaylistDetails(
 }
 
 @Composable
-fun AudioList(
-    modifier: Modifier = Modifier,
-    audioList: List<DBAudio>,
+fun PlaylistDetails(
     selectedId: String,
+    playlist: DBPlaylist,
+    isDropDownExpanded: Boolean,
     onAudioItemClick: (DBAudio) -> Unit,
-    onAudioIconClick: (DBAudio, MenuActionType) -> Unit
+    onAudioIconClick: (DBAudio, MenuActionType) -> Unit,
+    onMoreClick: () -> Unit,
+    onBackIconClick: () -> Unit,
+    onDismissDropDown: () -> Unit,
+    onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit,
+    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit,
 ) {
-    LazyColumn(modifier = modifier) {
-        items(audioList, key = { it.data }) { audio ->
+    Column {
+        PlaylistDetailsHeader(
+            modifier = Modifier.fillMaxWidth(),
+            playlist = playlist,
+            onMoreClick = onMoreClick,
+            onBackIconClick = onBackIconClick,
+            isDropDownExpanded = isDropDownExpanded,
+            onDismissDropDown = onDismissDropDown,
+            onPlayListMoreClickActions = onPlayListMoreClickActions,
+            onFavMoreClickActions = onFavMoreClickActions
+        )
+
+    }
+    LazyColumn {
+        item {
+            PlaylistDetailsSubHeader(playlist = playlist)
+        }
+
+        items(playlist.dbAudioList, key = { it.data }) { audio ->
             AudioItem(
                 dbAudio = audio,
                 isSelected = audio.data == selectedId,
@@ -265,13 +285,13 @@ fun PlaylistDetailsHeader(
     onBackIconClick: () -> Unit,
     onDismissDropDown: () -> Unit,
     onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit,
-    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit
+    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit,
 ) {
     TopAppBar(
         modifier = modifier,
         title = {
             Text(
-                text = "",
+                text = playlist.name,
                 color = MaterialTheme.colors.onPrimary
             )
         },
@@ -313,8 +333,6 @@ fun PlaylistDetailsHeader(
         }
     )
 
-    PlaylistDetails(playlist = playlist)
-
 }
 
 sealed class PlayListMoreClickActions {
@@ -331,7 +349,7 @@ sealed class PlayListFavMoreActions {
 fun MoreDropDown(
     isDropDownExpanded: Boolean,
     onDismissDropDown: () -> Unit,
-    onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit
+    onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit,
 ) {
     DropdownMenu(
         expanded = isDropDownExpanded,
@@ -373,7 +391,7 @@ fun MoreDropDown(
 fun FavMoreDropDown(
     isDropDownExpanded: Boolean,
     onDismissDropDown: () -> Unit,
-    onPlayListMoreClickActions: (actions: PlayListFavMoreActions) -> Unit
+    onPlayListMoreClickActions: (actions: PlayListFavMoreActions) -> Unit,
 ) {
     DropdownMenu(
         expanded = isDropDownExpanded,
@@ -392,11 +410,11 @@ fun FavMoreDropDown(
 }
 
 @Composable
-fun PlaylistDetails(
+fun PlaylistDetailsSubHeader(
     playlist: DBPlaylist,
 ) {
-    val image = if (playlist.DBAudioList.isEmpty()) ""
-    else playlist.DBAudioList[0].cover
+    val image = if (playlist.dbAudioList.isEmpty()) ""
+    else playlist.dbAudioList[0].cover
 
     Row(
         modifier = Modifier
@@ -422,7 +440,7 @@ fun PlaylistDetails(
 
         TopWithBottomText(
             topTextString = playlist.name,
-            bottomTextString = "${playlist.DBAudioList.size} ${stringResource(id = R.string.audios)}"
+            bottomTextString = "${playlist.dbAudioList.size} ${stringResource(id = R.string.audios)}"
         )
 
     }
@@ -433,7 +451,7 @@ fun PlaylistDetails(
 fun CustomDialog(
     openDialog: Boolean,
     onDismiss: () -> Unit,
-    onConfirmClick: () -> Unit
+    onConfirmClick: () -> Unit,
 ) {
 
     if (openDialog) {
