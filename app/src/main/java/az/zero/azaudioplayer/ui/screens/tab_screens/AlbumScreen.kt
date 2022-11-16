@@ -13,21 +13,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.domain.models.Album
 import az.zero.azaudioplayer.ui.composables.BasicAudioItem
 import az.zero.azaudioplayer.ui.composables.ItemsHeader
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
+import az.zero.db.entities.DBAlbumWithAudioList
 
 
 @Composable
 fun AlbumScreen(
     viewModel: HomeViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
-    val albumList = viewModel.allAlbums.observeAsState().value
-    if (albumList.isNullOrEmpty()) return
+    val albumList = viewModel.allAlbums.observeAsState().value ?: emptyList()
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
@@ -36,10 +35,10 @@ fun AlbumScreen(
         }
 
         items(items = albumList, key = { it.album.name }) { album ->
-            AlbumItem(album = album) {
+            AlbumItem(dbAlbumWithAudioList = album) {
                 navController.navigate(
                     HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                        album.audioList.toTypedArray()
+                        album
                     )
                 )
             }
@@ -49,17 +48,17 @@ fun AlbumScreen(
 }
 
 @Composable
-fun AlbumItem(album: Album, onClick: () -> Unit) {
+fun AlbumItem(dbAlbumWithAudioList: DBAlbumWithAudioList, onClick: () -> Unit) {
 
     val image = remember {
-        if (album.audioList.isNullOrEmpty()) ""
-        else album.audioList[0].cover
+        if (dbAlbumWithAudioList.dbAudioList.isEmpty()) ""
+        else dbAlbumWithAudioList.dbAudioList[0].cover
     }
 
     BasicAudioItem(
         imageUrl = image,
-        topText = album.album.name,
-        bottomText = album.audioList[0].artist,
+        topText = dbAlbumWithAudioList.album.name,
+        bottomText = dbAlbumWithAudioList.dbAudioList[0].artist,
         topTextColor = MaterialTheme.colors.onPrimary,
         iconVector = Icons.Filled.KeyboardArrowRight,
         iconColor = SecondaryTextColor,

@@ -3,58 +3,55 @@ package az.zero.azaudioplayer.ui.screens.player
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.*
-import az.zero.azaudioplayer.data.db.AudioDao
-import az.zero.azaudioplayer.domain.models.Audio
-import az.zero.azaudioplayer.media.player.AudioServiceConnection
-import az.zero.azaudioplayer.media.player.currentPlayBackPosition
-import az.zero.azaudioplayer.ui.utils.POSITION_UPDATE_INTERVAL_MILLIS
+import az.zero.azaudioplayer.AudioRepository
+import az.zero.player.extensions.currentPlayBackPosition
+import az.zero.azaudioplayer.utils.POSITION_UPDATE_INTERVAL_MILLIS
+import az.zero.db.entities.DBAudio
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PlayerBottomSheetViewModel @Inject constructor(
-    private val audioServiceConnection: AudioServiceConnection,
-    private val dao: AudioDao
+    private val audioRepository: AudioRepository,
 ) : ViewModel() {
 
     private var updatePosition = true
-    val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
-    val playbackState = audioServiceConnection.playbackState.distinctUntilChanged()
-    val repeatMode = audioServiceConnection.repeatMode
+    val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
+    val playbackState = audioRepository.playbackState.distinctUntilChanged()
+    val repeatMode = audioRepository.repeatMode
 
     fun seekToPosition(position: Long) {
-        audioServiceConnection.seekTo(position)
+        audioRepository.seekTo(position)
     }
 
     fun playPrevious() {
-        audioServiceConnection.skipToPrevious()
+        audioRepository.skipToPrevious()
     }
 
     fun playOrPause() {
-        audioServiceConnection.playOrPause()
+        audioRepository.playOrPause()
     }
 
     fun playNext() {
-        audioServiceConnection.skipToNext()
+        audioRepository.skipToNext()
     }
 
     fun changeRepeatMode() {
-        audioServiceConnection.changeRepeatMode()
+        audioRepository.changeRepeatMode()
     }
 
     private val handler = Handler(Looper.getMainLooper())
 
     private val _currentPosition = MutableLiveData<Long>().apply {
-        postValue(audioServiceConnection.getPlayBackState().currentPlayBackPosition)
+        postValue(audioRepository.getPlayBackState().currentPlayBackPosition)
     }
     val currentPosition: LiveData<Long> = _currentPosition
 
     private fun checkPlaybackPosition() {
         handler.postDelayed({
-            val currPosition = audioServiceConnection.getPlayBackState().currentPlayBackPosition
-            if (_currentPosition.value != currPosition)
-                _currentPosition.postValue(currPosition)
+            val currPosition = audioRepository.getPlayBackState().currentPlayBackPosition
+            if (_currentPosition.value != currPosition) _currentPosition.postValue(currPosition)
             if (updatePosition) checkPlaybackPosition()
         }, POSITION_UPDATE_INTERVAL_MILLIS)
     }
@@ -69,9 +66,9 @@ class PlayerBottomSheetViewModel @Inject constructor(
         updatePosition = false
     }
 
-    fun addOrRemoveFromFavourite(audio: Audio) {
+    fun addOrRemoveFromFavourite(DBAudio: DBAudio) {
         viewModelScope.launch {
-            dao.addOrRemoveFromFavouritePlayList(audio)
+            audioRepository.addOrRemoveFromFavouritePlayList(DBAudio)
         }
     }
 }

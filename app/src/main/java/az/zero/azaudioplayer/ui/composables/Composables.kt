@@ -1,6 +1,7 @@
 package az.zero.azaudioplayer.ui.composables
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -21,17 +22,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
-import az.zero.azaudioplayer.ui.utils.ui_extensions.colorFullBorder
-import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.colorFullBorder
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 
 @Composable
 fun ItemsHeader(
     text: String,
     bottomDividerVisible: Boolean = false,
-    content: (@Composable () -> Unit)? = null
+    content: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier
@@ -64,63 +65,44 @@ fun ItemsHeader(
     }
 }
 
-
-@Composable
-fun LocalImageIcon(
-    localImageUrl: ImageVector,
-    modifier: Modifier = Modifier,
-    cornerShape: Shape = RoundedCornerShape(12.dp),
-    iconTint: Color = MaterialTheme.colors.onPrimary,
-    imageBackgroundColor: Color = Color.White,
-    addBorder: Boolean = true,
-    innerImagePadding: Dp = 8.dp
-) {
-    Icon(
-        imageVector = localImageUrl,
-        contentDescription = null,
-        tint = iconTint,
-        modifier = modifier
-            .size(width = 48.dp, height = 48.dp)
-            .then(
-                if (addBorder) Modifier.colorFullBorder(cornerShape)
-                else Modifier
-            )
-            .clip(cornerShape)
-            .background(imageBackgroundColor)
-            .padding(innerImagePadding)
-    )
-}
-
-
 @Composable
 fun TopWithBottomText(
     modifier: Modifier = Modifier,
-    topTextName: String,
+    topTextModifier: Modifier = Modifier,
+    bottomTextModifier: Modifier = Modifier,
+    topTextString: String,
     topTextColor: Color = MaterialTheme.colors.onPrimary,
-    bottomTextName: String,
+    bottomTextString: String,
     bottomTextColor: Color = SecondaryTextColor,
     topTextStyle: TextStyle = MaterialTheme.typography.h2,
     bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
+    topTextAlign: TextAlign = TextAlign.Start,
+    bottomTextAlign: TextAlign = TextAlign.Start,
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = topTextName,
+            modifier = topTextModifier.fillMaxWidth(),
+            text = topTextString,
             color = topTextColor,
             style = topTextStyle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            textAlign = topTextAlign
         )
-        if (bottomTextName.isNotEmpty()) {
+        if (bottomTextString.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = bottomTextName,
+                modifier = bottomTextModifier.fillMaxWidth(),
+                text = bottomTextString,
                 color = bottomTextColor,
                 style = bottomTextStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                textAlign = bottomTextAlign
             )
         }
     }
@@ -136,14 +118,14 @@ fun TopWithBottomTextWithAnnotatedText(
     bottomTextColor: Color = SecondaryTextColor,
     topTextStyle: TextStyle = MaterialTheme.typography.h2,
     bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
-    annotatedTextQuery: String = ""
+    annotatedTextQuery: String = "",
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Text(
-            text = getAnnotatedText(annotatedTextQuery, topTextName),
+            text = getAnnotatedText(annotatedTextQuery.trim(), topTextName),
             color = topTextColor,
             style = topTextStyle,
             maxLines = 1,
@@ -156,7 +138,7 @@ fun TopWithBottomTextWithAnnotatedText(
                 val addDelimiter = index != bottomTextNames.size - 1
                 val splitText = remember(annotatedTextQuery) {
                     getAnnotatedText(
-                        annotatedTextQuery,
+                        annotatedTextQuery.trim(),
                         text + if (addDelimiter) " - " else ""
                     )
                 }
@@ -206,7 +188,7 @@ fun BasicAudioItem(
     iconText: String,
     iconColor: Color,
     onTailItemClick: ((MenuActionType) -> Unit)? = null,
-    menuItemList: List<DropDownItemWithAction> = emptyList()
+    menuItemList: List<DropDownItemWithAction> = emptyList(),
 ) {
     Row(
         modifier = modifier
@@ -238,8 +220,8 @@ fun BasicAudioItem(
             bottomTexts.isEmpty() -> {
                 TopWithBottomText(
                     modifier = Modifier.weight(1f),
-                    topTextName = topText,
-                    bottomTextName = bottomText,
+                    topTextString = topText,
+                    bottomTextString = bottomText,
                     topTextColor = topTextColor,
                     bottomTextColor = bottomTextColor,
                     topTextStyle = topTextStyle,
@@ -327,7 +309,7 @@ fun IconWithMenu(
 
 data class DropDownItemWithAction(
     val stringID: Int,
-    val menuActionType: MenuActionType
+    val menuActionType: MenuActionType,
 )
 
 interface MenuActionType
@@ -338,6 +320,7 @@ fun CustomEditText(
     text: String,
     hint: String = "",
     maxLines: Int = 1,
+    textColor: Color = if (isSystemInDarkTheme()) Color.White else Color.Black,
     singleLine: Boolean = true,
     onTextChanged: (String) -> Unit = {},
 ) {
@@ -345,13 +328,14 @@ fun CustomEditText(
     Column(modifier = modifier) {
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Create a new playlist", style = MaterialTheme.typography.h2)
+        Text(text = stringResource(id = R.string.create_new_playlist),
+            style = MaterialTheme.typography.h2)
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = text,
             onValueChange = {
-                onTextChanged(it.trim())
+                onTextChanged(it)
             },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = SecondaryTextColor,
@@ -363,7 +347,7 @@ fun CustomEditText(
             label = { Text(text = hint) },
             maxLines = maxLines,
             singleLine = singleLine,
-            textStyle = TextStyle(color = SecondaryTextColor),
+            textStyle = TextStyle(color = textColor),
             modifier = Modifier.fillMaxWidth()
         )
     }

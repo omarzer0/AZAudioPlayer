@@ -35,4 +35,29 @@
     <string name="back">Back</string>
     <string name="clear">Clear</string>
     <string name="delete">Delete</string>
+
+    <string name="no_result">No Results</string>
+    <string name="add_audio">Add Audio</string>
+    <string name="done">Done</string>
+    <string name="playlist_already_exists">Playlist already exists</string>
+    <string name="rename">Rename</string>
+
+    <string name="search_local_audio">Search for local audio</string>
+    <string name="settings">Settings</string>
+    <string name="manage_audios">Manage audio files</string>
+    <string name="manage_artists">Manage artists</string>
+    <string name="manage_albums">Manage albums</string>
+    <string name="manage_playlists">Manage playlist</string>
+    <string name="sort_audios_by">Sort audio files by</string>
+    <string name="sort_albums_by">Sort albums by</string>
+
+    <string name="recently_played">Recently played</string>
+
+    <string name="scan_again">Scan Again</string>
+    <string name="scan_completed">Scan Completed</string>
+    <string name="scan_local_audio_files">Scan local audio files</string>
+    <string name="was_found">was found</string>
+    <string name="create_new_playlist">Create a new playlist</string>
+
+    <string name="click_here_to_search_audio_files">Click here to search audio files</string>
 </resources>

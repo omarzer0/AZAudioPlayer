@@ -5,40 +5,38 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.ui.composables.ItemsHeader
+import az.zero.azaudioplayer.ui.composables.MenuActionType
+import az.zero.azaudioplayer.ui.composables.TextWithClearIcon
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
-import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
-import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
-import az.zero.azaudioplayer.utils.AudioActions
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
+import az.zero.base.utils.AudioActions
+import az.zero.db.entities.DBAudio
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -47,184 +45,142 @@ class SearchFragment : BaseFragment() {
     private val viewModel: SearchViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         return setFragmentContent {
-            var selectedId = -1
+            SearchScreen(viewModel = viewModel, navController = findNavController())
+        }
+    }
+}
 
-            val allAudios = viewModel.allAudio.observeAsState().value ?: emptyList()
+@Composable
+fun SearchScreen(
+    viewModel: SearchViewModel,
+    navController: NavController,
+) {
 
-            var text by rememberSaveable {
-                mutableStateOf("")
+    var text by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    SearchScreen(
+        modifier = Modifier.background(MaterialTheme.colors.background),
+        text = text,
+        allAudios = viewModel.allDBAudio.observeAsState().value ?: emptyList(),
+        selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: "",
+        onSearch = {
+            text = it
+            viewModel.searchAudios(it)
+        },
+        onBackIconClick = { navController.navigateUp() },
+        onClearClick = {
+            text = ""
+            viewModel.searchAudios("")
+        },
+        onAudioItemClick = { audio ->
+            viewModel.audioAction(
+                AudioActions.Toggle(audioDataId = audio.data),
+                null
+            )
+        },
+        onAudioIconClick = { dbAudio, menuActionType ->
+            // TODO on audio more icon click impl
+        }
+    )
+}
+
+@Composable
+private fun SearchScreen(
+    modifier: Modifier = Modifier,
+    allAudios: List<DBAudio>,
+    selectedId: String,
+    text: String,
+    onSearch: (String) -> Unit,
+    onBackIconClick: () -> Unit,
+    onClearClick: () -> Unit,
+    onAudioItemClick: (DBAudio) -> Unit,
+    onAudioIconClick: (DBAudio, MenuActionType) -> Unit,
+
+    ) {
+    Column(modifier = modifier.fillMaxSize()) {
+        SearchFragmentHeader(
+            text = text,
+            hint = stringResource(id = R.string.search),
+            onClearClick = onClearClick,
+            onBackIconClick = onBackIconClick,
+            onSearch = { query ->
+                onSearch(query)
             }
+        )
 
-            Column(modifier = Modifier.fillMaxSize()) {
-                SearchBar(
-                    text = text,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    hint = stringResource(id = R.string.search),
-                    onSearch = { query ->
-                        text = query
-                        viewModel.searchAudios(query)
-                    }, onBackBtnClick = {
-                        findNavController().navigateUp()
-                    }, onClearClick = {
-                        text = ""
-                        viewModel.searchAudios("")
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+//            item {
+//                val headerText =
+//                    "${allAudios.size} ${stringResource(id = R.string.of_audios)}"
+//                ItemsHeader(text = headerText)
+//            }
+
+            items(allAudios) { audio ->
+                AudioItem(
+                    audio,
+                    isSelected = audio.data == selectedId,
+                    annotatedTextQuery = text,
+                    onClick = {
+                        onAudioItemClick(audio)
+                    },
+                    onIconClick = {
+                        onAudioIconClick(audio, it)
                     })
-
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    item {
-                        val headerText =
-                            "${allAudios.size} ${stringResource(id = R.string.of_audios)}"
-                        ItemsHeader(text = headerText)
-                    }
-
-                    itemsIndexed(allAudios) { index, audio ->
-                        AudioItem(
-                            audio,
-                            isSelected = selectedId == index,
-                            annotatedTextQuery = text,
-                            onClick = {
-                                selectedId = index
-                                viewModel.audioAction(AudioActions.Toggle(audioDataId = audio.data))
-                            },
-                            onIconClick = {
-                                // TODO on audio more icon click impl
-                            })
-                    }
-                }
             }
         }
     }
 }
 
 @Composable
-fun SearchBar(
+fun SearchFragmentHeader(
     modifier: Modifier = Modifier,
     text: String,
     hint: String = "",
     onSearch: (String) -> Unit = {},
-    onBackBtnClick: () -> Unit = {},
     onClearClick: () -> Unit,
+    onBackIconClick: () -> Unit,
 ) {
     Column(
-        modifier = modifier.background(MaterialTheme.colors.primary),
-        verticalArrangement = Arrangement.SpaceBetween
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(48.dp)
                 .padding(start = 4.dp, end = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            IconButton(onClick = { onBackBtnClick() }) {
+            IconButton(
+                onClick = { onBackIconClick() }) {
                 Icon(
-                    modifier = Modifier.mirror(),
-                    imageVector = Icons.Filled.ArrowBack,
+                    Icons.Filled.ArrowBack,
+                    stringResource(id = R.string.back),
                     tint = MaterialTheme.colors.onPrimary,
-                    contentDescription = stringResource(id = R.string.back)
+                    modifier = Modifier.mirror()
                 )
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colors.primary)
-            ) {
-                var isHintDisplayed by remember {
-                    mutableStateOf(hint != "")
-                }
 
-                TextWithClearIcon(
-                    text = text,
-                    isClearIconVisible = !isHintDisplayed,
-                    onShouldShowHint = { isHintDisplayed = it },
-                    onSearch = { onSearch(it) },
-                    onClearClick = { onClearClick() }
-                )
+            TextWithClearIcon(
+                modifier = Modifier.weight(1f),
+                text = text,
+                hint = hint,
+                onTextValueChanged = {
+                    onSearch(it)
+                },
+                onClearClick = { onClearClick() }
+            )
 
-                if (isHintDisplayed) {
-                    Text(
-                        modifier = Modifier,
-                        text = hint,
-                        style = MaterialTheme.typography.h2.copy(
-                            color = SecondaryTextColor
-                        ),
-                    )
-                }
-            }
         }
 
         Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp) ,
-            color = MaterialTheme.colors.background
+            modifier = Modifier.padding(top = 4.dp),
+            color = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray,
         )
-    }
-}
-
-@Composable
-fun TextWithClearIcon(
-    text: String,
-    isClearIconVisible: Boolean = true,
-    onShouldShowHint: (Boolean) -> Unit,
-    onSearch: (String) -> Unit,
-    onClearClick: () -> Unit,
-) {
-    val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
-    var shouldRequestFocus by remember { mutableStateOf(true) }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = CenterVertically
-    ) {
-        BasicTextField(
-            value = text,
-            onValueChange = {
-                onSearch(it)
-            },
-            maxLines = 1,
-            singleLine = true,
-            textStyle = MaterialTheme.typography.h2.copy(
-                color = MaterialTheme.colors.onPrimary
-            ),
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .weight(8f)
-                .onFocusChanged {
-                    onShouldShowHint(!it.isFocused && text.isEmpty())
-                },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Search,
-                keyboardType = KeyboardType.Text
-            ), keyboardActions = KeyboardActions(onSearch = {
-                focusManager.clearFocus()
-                shouldRequestFocus = false
-            })
-        )
-
-        if (shouldRequestFocus) {
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
-            }
-        }
-
-        if (isClearIconVisible && text.isNotEmpty()) {
-            IconButton(
-                modifier = Modifier.weight(1f),
-                onClick = { onClearClick() }) {
-                Icon(
-                    imageVector = Icons.Filled.Clear,
-                    tint = MaterialTheme.colors.onPrimary,
-                    contentDescription = stringResource(id = R.string.clear)
-                )
-            }
-        }
     }
 }

@@ -2,14 +2,12 @@ package az.zero.azaudioplayer.ui.screens.tab_screens
 
 import android.widget.Toast
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -26,43 +24,65 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.domain.models.Playlist
-import az.zero.azaudioplayer.ui.composables.BasicAudioItem
-import az.zero.azaudioplayer.ui.composables.CustomEditText
-import az.zero.azaudioplayer.ui.composables.LocalImageIcon
+import az.zero.azaudioplayer.ui.composables.*
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
-import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
+import az.zero.azaudioplayer.ui.theme.SelectedColor
+import az.zero.azaudioplayer.ui.composables.clickableSafeClick
+import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
+import az.zero.db.entities.DBPlaylist
 
 @Composable
 fun PlaylistScreen(
     viewModel: HomeViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
 
-    val allPlaylist = viewModel.allPlaylists.observeAsState().value
-    if (allPlaylist.isNullOrEmpty()) return
+    val allPlaylist = viewModel.allPlaylists.observeAsState().value ?: emptyList()
+    val errorAddingDuplicatePlaylistName by viewModel.errorFlow.collectAsState(initial = false)
 
+    if (errorAddingDuplicatePlaylistName) {
+        Toast.makeText(
+            LocalContext.current,
+            stringResource(id = R.string.playlist_already_exists),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    PlaylistScreen(
+        allPlaylist = allPlaylist,
+        errorAddingDuplicatePlaylistName = errorAddingDuplicatePlaylistName,
+        onPlayListClick = {
+            navController.navigate(
+                HomeFragmentDirections.actionHomeFragmentToPlaylistDetailsFragment(it.name)
+            )
+        }, onCreateClickNewPlaylist = { playlistName ->
+            // TODO check if name already exists
+            viewModel.createANewPlayListIfNotExist(playlistName)
+        }
+    )
+
+}
+
+@Composable
+fun PlaylistScreen(
+    allPlaylist: List<DBPlaylist>,
+    errorAddingDuplicatePlaylistName: Boolean,
+    onPlayListClick: (DBPlaylist) -> Unit,
+    onCreateClickNewPlaylist: (String) -> Unit,
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         var openDialog by rememberSaveable { mutableStateOf(false) }
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(items = allPlaylist, key = { it.name }) { playlist ->
-                PlaylistItem(playlist = playlist) {
-                    navController.navigate(
-                        HomeFragmentDirections.actionHomeFragmentToAlbumDetailsFragment(
-                            playlist.audioList.toTypedArray()
-                        )
-                    )
-                }
+            items(items = allPlaylist) { playlist ->
+                PlaylistItem(playlist = playlist) { onPlayListClick(playlist) }
             }
 
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-                AddPlayList {
-                    openDialog = true
-                }
+                Divider(modifier = Modifier.padding(top = 16.dp))
+                AddPlayList { openDialog = true }
             }
         }
 
@@ -72,8 +92,7 @@ fun PlaylistScreen(
                 openDialog = !openDialog
             },
             onCreateClick = { playlistName ->
-                // TODO check if name already exists
-                viewModel.createANewPlayList(playlistName)
+                onCreateClickNewPlaylist(playlistName)
             }
         )
 
@@ -81,10 +100,61 @@ fun PlaylistScreen(
 }
 
 @Composable
+fun PlaylistItem(
+    modifier: Modifier = Modifier,
+    playlist: DBPlaylist,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickableSafeClick {
+                onClick()
+            }
+            .padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val image = if (playlist.dbAudioList.isEmpty()) ""
+        else playlist.dbAudioList[0].cover
+
+
+        if (playlist.isFavouritePlaylist) {
+            LocalImage(
+                modifier = Modifier.size(48.dp),
+                localImageUrl = R.drawable.ic_fav,
+                imageBackgroundColor = SelectedColor
+            )
+        } else {
+            CustomImage(
+                modifier = Modifier.size(48.dp),
+                image = image
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        TopWithBottomText(
+            modifier = Modifier.weight(1f),
+            topTextString = playlist.name,
+            bottomTextString = "${playlist.dbAudioList.size} ${stringResource(id = R.string.audios)}"
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Icon(
+            Icons.Filled.KeyboardArrowRight,
+            stringResource(id = R.string.more),
+            tint = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray,
+            modifier = Modifier.mirror()
+        )
+    }
+}
+
+@Composable
 fun CustomDialog(
     openDialog: Boolean,
     onOpenDialogChanged: () -> Unit,
-    onCreateClick: (playlistName: String) -> Unit
+    onCreateClick: (playlistName: String) -> Unit,
 ) {
     var text by rememberSaveable { mutableStateOf("") }
 
@@ -101,13 +171,14 @@ fun CustomDialog(
                 CustomEditText(
                     text = text,
                     hint = "PlayListName",
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    text = it
-                }
-
+                    modifier = Modifier.fillMaxWidth(),
+                    onTextChanged = {text = it}
+                )
             },
             buttons = {
+                val textBtnColor =
+                    if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -115,7 +186,7 @@ fun CustomDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
+                    TextButton(
                         onClick = {
                             if (text.isEmpty()) {
                                 toast?.cancel()
@@ -132,18 +203,18 @@ fun CustomDialog(
                             }
                         }
                     ) {
-                        Text("Create", color = MaterialTheme.colors.onPrimary)
+                        Text("Create", color = textBtnColor)
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Button(
+                    TextButton(
                         onClick = {
                             onOpenDialogChanged()
                             text = ""
                         }
                     ) {
-                        Text("Cancel", color = MaterialTheme.colors.onPrimary)
+                        Text("Cancel", color = textBtnColor)
                     }
                 }
             }
@@ -154,7 +225,7 @@ fun CustomDialog(
 @Composable
 fun AddPlayList(
     modifier: Modifier = Modifier,
-    onAddPlayListClick: () -> Unit
+    onAddPlayListClick: () -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -168,7 +239,7 @@ fun AddPlayList(
             localImageUrl = Icons.Filled.Add,
             addBorder = false,
             iconTint = SecondaryTextColor,
-            imageBackgroundColor = MaterialTheme.colors.primary,
+            imageBackgroundColor = MaterialTheme.colors.background,
             modifier = Modifier.border(width = 1.dp, SecondaryTextColor, RoundedCornerShape(12.dp)),
             innerImagePadding = 12.dp
         )
@@ -187,23 +258,4 @@ fun AddPlayList(
                 .weight(0.6f),
         )
     }
-}
-
-@Composable
-fun PlaylistItem(playlist: Playlist, onClick: () -> Unit) {
-    val image = if (playlist.isFavouritePlaylist) R.drawable.ic_fav else R.drawable.ic_music
-    val backgroundColor = if (playlist.isFavouritePlaylist) Color.Red else null
-
-    BasicAudioItem(
-        imageUrl = null,
-        localImageUrl = image,
-        onItemClick = onClick,
-        topText = playlist.name,
-        bottomText = "${playlist.audioList.size} ${stringResource(id = R.string.audios)}",
-        iconVector = Icons.Filled.KeyboardArrowRight,
-        iconColor = SecondaryTextColor,
-        iconText = stringResource(id = R.string.more),
-        imageBackgroundColor = backgroundColor,
-        addBorder = false
-    )
 }

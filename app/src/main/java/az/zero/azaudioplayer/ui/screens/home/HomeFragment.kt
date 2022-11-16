@@ -1,20 +1,20 @@
 package az.zero.azaudioplayer.ui.screens.home
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,16 +26,19 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.media.player.EMPTY_AUDIO
-import az.zero.azaudioplayer.media.player.extensions.isPlaying
-import az.zero.azaudioplayer.ui.composables.CustomImage
+import az.zero.azaudioplayer.ui.composables.AppBarWithSearch
+import az.zero.azaudioplayer.ui.composables.BottomPlayer
+import az.zero.azaudioplayer.ui.composables.CustomDropdown
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
-import az.zero.azaudioplayer.ui.screens.tab_screens.*
+import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections.*
+import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen
+import az.zero.azaudioplayer.ui.screens.tab_screens.AllAudioScreen
+import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
+import az.zero.azaudioplayer.ui.screens.tab_screens.PlaylistScreen
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.utils.common_composables.TextTab
-import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
-import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
-import az.zero.azaudioplayer.utils.AudioActions
+import az.zero.azaudioplayer.ui.composables.TextTab
+import az.zero.azaudioplayer.ui.composables.clickableSafeClick
+import az.zero.azaudioplayer.utils.fakeAudio
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -47,47 +50,111 @@ class HomeFragment : BaseFragment() {
     private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         return setFragmentContent {
-            val tabNames = getTabsName()
-            HomeFragmentContent(tabNames, viewModel, findNavController())
+            // adding fakeAudio to differentiate between real empty list and getting data from DB
+            val allAudios = viewModel.allAudio.observeAsState().value ?: listOf(fakeAudio)
+            Log.e("allAudios", "onCreateView: ${allAudios.size}")
+
+            if (allAudios.isNotEmpty()) {
+                val tabNames = getTabsName()
+                HomeScreen(tabNames, viewModel, findNavController())
+            } else {
+                EmptyHomeScreen(
+                    onBottomTextClick = {
+                        findNavController().navigate(
+                            actionHomeFragmentToScanLocalFragment()
+                        )
+                    }
+                )
+            }
         }
     }
 }
 
+@Composable
+fun EmptyHomeScreen(
+    onBottomTextClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        TopWithBottomText(
+            modifier = Modifier.fillMaxWidth(),
+            topTextString = stringResource(id = R.string.no_result),
+            bottomTextString = stringResource(id = R.string.click_here_to_search_audio_files),
+            bottomTextColor = SelectedColor,
+            topTextAlign = TextAlign.Center,
+            bottomTextAlign = TextAlign.Center,
+            bottomTextModifier = Modifier
+                .clickableSafeClick {
+                    onBottomTextClick()
+                }
+                .padding(8.dp)
+        )
+    }
+}
+
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
 @Composable
-fun HomeFragmentContent(
+fun HomeScreen(
     tabNames: List<String>,
     viewModel: HomeViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
-    )
-
-    BottomSheetScaffold(
-        backgroundColor = MaterialTheme.colors.primary,
-        scaffoldState = bottomSheetScaffoldState,
-        sheetPeekHeight = 0.dp,
+    var isDropDownExpanded by rememberSaveable { mutableStateOf(false) }
+    var tabNumber by remember { mutableStateOf(0) }
+    Scaffold(
+        backgroundColor = MaterialTheme.colors.background,
+        scaffoldState = rememberScaffoldState(),
         topBar = {
-            AppBar(onSearchClick = {
-                val searchDirections = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
+            AppBarWithSearch(onSearchClick = {
+                val searchDirections = actionHomeFragmentToSearchFragment()
                 navController.navigate(searchDirections)
             }, onMoreClick = {
-
+                isDropDownExpanded = true
+            }, customDropDownContent = {
+                CustomDropdown(
+                    isDropDownExpanded = isDropDownExpanded,
+                    onDismissDropDown = { isDropDownExpanded = false },
+                    dropDownItems = getDropdownActions(LocalContext.current, tabNumber),
+                    onActionClick = { action ->
+                        isDropDownExpanded = false
+                        when (action) {
+                            HomeDropdownActions.ManageAudios -> {
+                                navController.navigate(actionHomeFragmentToScanLocalFragment())
+                            }
+                            HomeDropdownActions.Settings -> {
+                                navController.navigate(actionHomeFragmentToSettingsFragment())
+                            }
+                            HomeDropdownActions.ManageAlbums -> {
+                                navController.navigate(actionHomeFragmentToAlbumManageFragment())
+                            }
+                            HomeDropdownActions.ManageArtists -> {
+                                navController.navigate(actionHomeFragmentToArtistManageFragment())
+                            }
+                            HomeDropdownActions.ManagePlaylists -> {
+                                navController.navigate(actionHomeFragmentToPlaylistManageFragment())
+                            }
+                            HomeDropdownActions.SearchLocalAudio -> {
+                                actionHomeFragmentToScanLocalFragment()
+                            }
+                            HomeDropdownActions.SortAlbumsBy -> {
+                                // TODO add bottom sheet
+                            }
+                            HomeDropdownActions.SortAudiosBy -> {
+                                // TODO add bottom sheet
+                            }
+                        }
+                    }
+                )
             })
-        }, sheetContent = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.Blue)
-            ) {
-
-            }
         }
     ) {
         Column {
@@ -96,10 +163,15 @@ fun HomeFragmentContent(
                     .fillMaxWidth()
                     .weight(0.8f),
                 listOfTabNames = tabNames,
-                tabHostBackgroundColor = MaterialTheme.colors.primary,
+                tabHostBackgroundColor = MaterialTheme.colors.background,
                 tabSelectorColor = SelectedColor,
                 selectedContentColor = SelectedColor,
                 unSelectedContentColor = MaterialTheme.colors.onPrimary,
+                onTapChanged = {
+                    tabNumber = it
+                    Log.d("HomeScreen", "$it")
+
+                },
                 textContent = { text ->
                     Text(
                         text = text,
@@ -112,25 +184,7 @@ fun HomeFragmentContent(
                 }
             ) {
                 when (it) {
-                    0 -> {
-                        val audioList = viewModel.allAudio.observeAsState().value
-                        val currentPlayingID =
-                            viewModel.currentPlayingAudio.observeAsState().value?.data ?: ""
-                        AllAudioScreen(audioList, currentPlayingID,
-                            onAudioItemClick = { audio ->
-                                viewModel.audioAction(AudioActions.Toggle(audio.data))
-                            },
-                            onAudioIconClick = { audio, menuAction ->
-                                when (menuAction) {
-                                    MenuActionTypeForAllScreen.DELETE -> {
-
-                                    }
-                                    MenuActionTypeForAllScreen.EDIT -> {
-
-                                    }
-                                }
-                            })
-                    }
+                    0 -> AllAudioScreen(viewModel)
                     1 -> ArtistScreen(viewModel, navController)
                     2 -> AlbumScreen(viewModel, navController)
                     3 -> PlaylistScreen(viewModel, navController)
@@ -141,114 +195,12 @@ fun HomeFragmentContent(
                 modifier = Modifier.fillMaxWidth(),
                 viewModel = viewModel
             ) {
-                navController.navigate(HomeFragmentDirections.actionGlobalPlayerBottomSheetFragment())
+                navController.navigate(actionGlobalPlayerBottomSheetFragment())
             }
         }
 
+
     }
-}
-
-@Composable
-fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBodyClick: () -> Unit) {
-    val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
-    val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
-    val playingState = viewModel.playbackState.observeAsState()
-    val isPlaying = playingState.value?.isPlaying ?: false
-    val enabled = audio.data.isNotEmpty()
-
-    Column(
-        modifier = modifier.clickableSafeClick {
-            if (enabled) onBodyClick()
-        },
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp),
-            color = MaterialTheme.colors.background
-        )
-
-        Row(
-            modifier = Modifier.padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CustomImage(image = audio.cover)
-
-            TopWithBottomText(
-                modifier = Modifier
-                    .weight(0.6f)
-                    .padding(start = 16.dp, end = 24.dp),
-                topTextName = audio.title,
-                bottomTextName = audio.artist
-            )
-
-            IconButton(
-                enabled = enabled,
-                modifier = Modifier
-                    .weight(0.1f)
-                    .mirror(), onClick = { viewModel.addOrRemoveFromFavourite(audio) }
-            ) {
-                Icon(
-                    if (audio.isFavourite) Icons.Filled.Favorite
-                    else Icons.Outlined.FavoriteBorder,
-                    stringResource(id = R.string.add_or_remove_from_favourites),
-                    tint = if (audio.isFavourite) Color.Red else MaterialTheme.colors.onPrimary
-                )
-            }
-
-            IconButton(
-                enabled = enabled,
-                modifier = Modifier
-                    .weight(0.1f)
-                    .mirror(), onClick = {
-                    viewModel.playOrPause()
-                }
-            ) {
-                Icon(
-                    if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                    stringResource(id = R.string.play),
-                    tint = MaterialTheme.colors.onPrimary
-                )
-            }
-        }
-    }
-
-}
-
-@Composable
-fun AppBar(
-    onSearchClick: () -> Unit,
-    onMoreClick: () -> Unit,
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                color = MaterialTheme.colors.onPrimary
-            )
-        },
-        backgroundColor = MaterialTheme.colors.primary,
-        elevation = 0.dp,
-        actions = {
-            IconButton(onClick = { onSearchClick() }) {
-                Icon(
-                    Icons.Filled.Search,
-                    stringResource(id = R.string.search),
-                    tint = MaterialTheme.colors.onPrimary
-                )
-            }
-            IconButton(onClick = { onMoreClick() }) {
-                Icon(
-                    Icons.Filled.MoreVert,
-                    stringResource(id = R.string.more),
-                    tint = MaterialTheme.colors.onPrimary
-                )
-            }
-        },
-    )
 }
 
 @Composable
@@ -259,4 +211,54 @@ fun getTabsName(): List<String> {
         stringResource(id = R.string.albums),
         stringResource(id = R.string.playlists)
     )
+}
+
+sealed class HomeDropdownActions {
+    object SearchLocalAudio : HomeDropdownActions()
+    object Settings : HomeDropdownActions()
+    object SortAudiosBy : HomeDropdownActions()
+    object ManageAudios : HomeDropdownActions()
+    object ManageArtists : HomeDropdownActions()
+    object SortAlbumsBy : HomeDropdownActions()
+    object ManageAlbums : HomeDropdownActions()
+    object ManagePlaylists : HomeDropdownActions()
+}
+
+fun getDropdownActions(context: Context, tabNumber: Int): List<Pair<String, HomeDropdownActions>> {
+    val list: MutableList<Pair<String, HomeDropdownActions>> = mutableListOf()
+    when (tabNumber) {
+        0 -> {
+            list.add(Pair(context.getString(R.string.search_local_audio),
+                HomeDropdownActions.SearchLocalAudio))
+            list.add(Pair(context.getString(R.string.sort_audios_by),
+                HomeDropdownActions.SortAudiosBy))
+            list.add(Pair(context.getString(R.string.manage_audios),
+                HomeDropdownActions.ManageAudios))
+            list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
+        }
+        1 -> {
+            list.add(Pair(context.getString(R.string.search_local_audio),
+                HomeDropdownActions.SearchLocalAudio))
+            list.add(Pair(context.getString(R.string.manage_artists),
+                HomeDropdownActions.ManageArtists))
+            list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
+        }
+        2 -> {
+            list.add(Pair(context.getString(R.string.search_local_audio),
+                HomeDropdownActions.SearchLocalAudio))
+            list.add(Pair(context.getString(R.string.sort_albums_by),
+                HomeDropdownActions.SortAlbumsBy))
+            list.add(Pair(context.getString(R.string.manage_albums),
+                HomeDropdownActions.ManageAlbums))
+            list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
+        }
+        3 -> {
+            list.add(Pair(context.getString(R.string.search_local_audio),
+                HomeDropdownActions.SearchLocalAudio))
+            list.add(Pair(context.getString(R.string.manage_playlists),
+                HomeDropdownActions.ManagePlaylists))
+            list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
+        }
+    }
+    return list
 }
