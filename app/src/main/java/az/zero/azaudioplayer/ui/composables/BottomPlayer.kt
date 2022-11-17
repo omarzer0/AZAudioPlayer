@@ -12,26 +12,25 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
-import az.zero.player.extensions.isPlaying
-import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
-import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
+import az.zero.db.entities.DBAudio
 
 @Composable
-fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBodyClick: () -> Unit) {
-    val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
-    val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
-    val playingState = viewModel.playbackState.observeAsState()
-    val isPlaying = playingState.value?.isPlaying ?: false
-    val enabled = audio.data.isNotEmpty()
-
+fun BottomPlayer(
+    modifier: Modifier = Modifier,
+    audio: DBAudio,
+    isPlaying: Boolean,
+    enabled: Boolean,
+    onBodyClick: () -> Unit,
+    onFavouriteClick: (Boolean) -> Unit,
+    onPlayOrPauseClick: () -> Unit,
+) {
     Column(
         modifier = modifier.clickableSafeClick {
             if (enabled) onBodyClick()
@@ -51,7 +50,10 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
             modifier = Modifier.padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CustomImage(image = audio.cover)
+            CustomImage(
+                image = audio.cover,
+                modifier = Modifier.size(48.dp),
+            )
 
             TopWithBottomText(
                 modifier = Modifier
@@ -65,7 +67,7 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
                 enabled = enabled,
                 modifier = Modifier
                     .weight(0.1f)
-                    .mirror(), onClick = { viewModel.addOrRemoveFromFavourite(audio) }
+                    .mirror(), onClick = { onFavouriteClick(audio.isFavourite) }
             ) {
                 Icon(
                     if (audio.isFavourite) Icons.Filled.Favorite
@@ -79,9 +81,8 @@ fun BottomPlayer(modifier: Modifier = Modifier, viewModel: HomeViewModel, onBody
                 enabled = enabled,
                 modifier = Modifier
                     .weight(0.1f)
-                    .mirror(), onClick = {
-                    viewModel.playOrPause()
-                }
+                    .mirror(),
+                onClick = onPlayOrPauseClick
             ) {
                 Icon(
                     if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,

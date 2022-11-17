@@ -34,7 +34,7 @@ import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TextWithClearIcon
 import az.zero.azaudioplayer.ui.composables.TopWithBottomTextWithAnnotatedText
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -207,9 +207,9 @@ fun SelectableAudiItem(
 
         TopWithBottomTextWithAnnotatedText(
             modifier = Modifier.weight(1f),
-            topTextName = audioWithSelected.audio.displayName,
+            topTextString = audioWithSelected.audio.displayName,
             topTextColor = textColor,
-            bottomTextNames = listOf(audioWithSelected.audio.artist, audioWithSelected.audio.album)
+            bottomTextStrings = listOf(audioWithSelected.audio.artist, audioWithSelected.audio.album)
         )
 
         Spacer(modifier = Modifier.width(16.dp))

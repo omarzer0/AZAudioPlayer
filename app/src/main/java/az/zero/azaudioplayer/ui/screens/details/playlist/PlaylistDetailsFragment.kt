@@ -32,7 +32,7 @@ import az.zero.azaudioplayer.ui.screens.details.playlist.PlayListMoreClickAction
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.utils.fakeAudio
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio

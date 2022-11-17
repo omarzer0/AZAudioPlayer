@@ -26,7 +26,7 @@ import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.MenuActionType
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
-import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.utils.singleLineValue
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAlbumWithAudioList
