@@ -1,14 +1,14 @@
 package az.zero.base.utils
 
 enum class AudioSortBy {
-    ARTIST_DATE_OF_UPDATE,
-    ARTIST_BY_AUDIO_NAME,
-    ARTIST_BY_ARTIST_NAME
+    DATE_OF_UPDATE,
+    AUDIO_NAME,
+    ARTIST_NAME
 }
 
 fun String.toAudioSortBy() = when (this) {
-    AudioSortBy.ARTIST_BY_AUDIO_NAME.name -> AudioSortBy.ARTIST_BY_AUDIO_NAME
-    AudioSortBy.ARTIST_BY_ARTIST_NAME.name -> AudioSortBy.ARTIST_BY_ARTIST_NAME
-    else -> AudioSortBy.ARTIST_DATE_OF_UPDATE
+    AudioSortBy.AUDIO_NAME.name -> AudioSortBy.AUDIO_NAME
+    AudioSortBy.ARTIST_NAME.name -> AudioSortBy.ARTIST_NAME
+    else -> AudioSortBy.DATE_OF_UPDATE
 //    else -> throw Exception("AudioSortBy: No field found correspond to this string")
 }

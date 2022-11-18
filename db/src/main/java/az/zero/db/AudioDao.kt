@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import az.zero.base.utils.AlbumSortBy
-import az.zero.base.utils.AlbumSortBy.ALBUM_SORT_ASC
-import az.zero.base.utils.AlbumSortBy.ALBUM_SORT_DESC
+import az.zero.base.utils.AlbumSortBy.ASCENDING
+import az.zero.base.utils.AlbumSortBy.DESCENDING
 import az.zero.base.utils.AudioSortBy
 import az.zero.base.utils.AudioSortBy.*
 import az.zero.db.entities.*
@@ -19,9 +19,9 @@ interface AudioDao {
         sortBy: AudioSortBy,
     ): Flow<List<DBAudio>> =
         when (sortBy) {
-            ARTIST_DATE_OF_UPDATE -> getAllAudioSortedByDateOfUpdate()
-            ARTIST_BY_AUDIO_NAME -> getAllAudioSortedByAudioName()
-            ARTIST_BY_ARTIST_NAME -> getAllAudioSortedByArtistName()
+            DATE_OF_UPDATE -> getAllAudioSortedByDateOfUpdate()
+            AUDIO_NAME -> getAllAudioSortedByAudioName()
+            ARTIST_NAME -> getAllAudioSortedByArtistName()
         }
 
     @Query("SELECT * FROM DBAudio ORDER BY lastDateModified DESC")
@@ -36,8 +36,8 @@ interface AudioDao {
 
     fun getAlbumWithAudio(albumSortOrder: AlbumSortBy): Flow<List<DBAlbumWithAudioList>> =
         when (albumSortOrder) {
-            ALBUM_SORT_ASC -> getAlbumWithAudioSortedASC()
-            ALBUM_SORT_DESC -> getAlbumWithAudioSortedDESC()
+            ASCENDING -> getAlbumWithAudioSortedASC()
+            DESCENDING -> getAlbumWithAudioSortedDESC()
         }
 
     @Transaction

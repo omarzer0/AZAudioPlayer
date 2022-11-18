@@ -28,18 +28,17 @@ import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.composables.*
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.ui.screens.details.playlist.PlayListFavMoreActions.ClearFavList
 import az.zero.azaudioplayer.ui.screens.details.playlist.PlayListMoreClickActions.*
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.utils.fakeAudio
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class PlaylistDetailsFragment : BaseFragment() {
@@ -137,14 +136,6 @@ fun PlaylistDetailsScreen(
     )
 }
 
-private fun navigateToAddAudioScreen(navController: NavController, playlistName: String) {
-    navController.navigate(
-        PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToAddAudioToPlaylistFragment(
-            playlistName
-        )
-    )
-}
-
 @Composable
 fun PlaylistDetailsScreen(
     modifier: Modifier = Modifier,
@@ -163,6 +154,19 @@ fun PlaylistDetailsScreen(
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
+
+        PlaylistDetailsHeader(
+            modifier = Modifier.fillMaxWidth(),
+            playlist = playlist,
+            onMoreClick = onMoreClick,
+            onBackIconClick = onBackIconClick,
+            isDropDownExpanded = isDropDownExpanded,
+            onDismissDropDown = onDismissDropDown,
+            onPlayListMoreClickActions = onPlayListMoreClickActions,
+            onFavMoreClickActions = onFavMoreClickActions
+        )
+
+        PlaylistDetailsSubHeader(playlist = playlist)
 
         if (playlist.dbAudioList.isEmpty()) {
             EmptyPlaylistDetails(
@@ -183,12 +187,6 @@ fun PlaylistDetailsScreen(
                 selectedId = selectedId,
                 onAudioItemClick = onAudioItemClick,
                 onAudioIconClick = onAudioIconClick,
-                isDropDownExpanded = isDropDownExpanded,
-                onBackIconClick = onBackIconClick,
-                onDismissDropDown = onDismissDropDown,
-                onFavMoreClickActions = onFavMoreClickActions,
-                onPlayListMoreClickActions = onPlayListMoreClickActions,
-                onMoreClick = onMoreClick
             )
         }
     }
@@ -236,33 +234,10 @@ fun EmptyPlaylistDetails(
 fun PlaylistDetails(
     selectedId: String,
     playlist: DBPlaylist,
-    isDropDownExpanded: Boolean,
     onAudioItemClick: (DBAudio) -> Unit,
     onAudioIconClick: (DBAudio, MenuActionType) -> Unit,
-    onMoreClick: () -> Unit,
-    onBackIconClick: () -> Unit,
-    onDismissDropDown: () -> Unit,
-    onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit,
-    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit,
 ) {
-    Column {
-        PlaylistDetailsHeader(
-            modifier = Modifier.fillMaxWidth(),
-            playlist = playlist,
-            onMoreClick = onMoreClick,
-            onBackIconClick = onBackIconClick,
-            isDropDownExpanded = isDropDownExpanded,
-            onDismissDropDown = onDismissDropDown,
-            onPlayListMoreClickActions = onPlayListMoreClickActions,
-            onFavMoreClickActions = onFavMoreClickActions
-        )
-
-    }
     LazyColumn {
-        item {
-            PlaylistDetailsSubHeader(playlist = playlist)
-        }
-
         items(playlist.dbAudioList, key = { it.data }) { audio ->
             AudioItem(
                 dbAudio = audio,
@@ -272,7 +247,6 @@ fun PlaylistDetails(
                     onAudioIconClick(audio, menuAction)
                 }
             )
-
         }
     }
 }
@@ -476,7 +450,6 @@ fun CustomDialog(
                 ) {
                     TextButton(
                         onClick = onConfirmClick,
-//                        colors = ButtonDefaults.buttonColors(backgroundColor = SelectedColor)
                     ) {
                         Text(stringResource(id = R.string.delete), color = SelectedColor)
                     }
@@ -492,4 +465,12 @@ fun CustomDialog(
             }
         )
     }
+}
+
+private fun navigateToAddAudioScreen(navController: NavController, playlistName: String) {
+    navController.navigate(
+        PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToAddAudioToPlaylistFragment(
+            playlistName
+        )
+    )
 }

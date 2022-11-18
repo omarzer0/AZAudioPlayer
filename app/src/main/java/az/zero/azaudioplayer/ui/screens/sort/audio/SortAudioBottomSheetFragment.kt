@@ -123,12 +123,18 @@ fun SortAudioItemBy(
 @Composable
 fun getSortAudioActions(): List<SortAudioAction> {
     return listOf(
-        SortAudioAction(sortOrder = AudioSortBy.ARTIST_DATE_OF_UPDATE,
-            text = stringResource(id = R.string.sort_by_date_of_update)),
-        SortAudioAction(sortOrder = AudioSortBy.ARTIST_BY_AUDIO_NAME,
-            text = stringResource(id = R.string.sort_by_album_asc)),
-        SortAudioAction(sortOrder = AudioSortBy.ARTIST_BY_ARTIST_NAME,
-            text = stringResource(id = R.string.sort_by_album_desc))
+        SortAudioAction(
+            sortOrder = AudioSortBy.DATE_OF_UPDATE,
+            text = stringResource(id = R.string.date_of_update)
+        ),
+        SortAudioAction(
+            sortOrder = AudioSortBy.AUDIO_NAME,
+            text = stringResource(id = R.string.audio_file_name)
+        ),
+        SortAudioAction(
+            sortOrder = AudioSortBy.ARTIST_NAME,
+            text = stringResource(id = R.string.artist_name)
+        )
     )
 }
 

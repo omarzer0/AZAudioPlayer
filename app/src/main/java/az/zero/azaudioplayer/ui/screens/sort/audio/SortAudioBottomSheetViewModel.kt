@@ -18,13 +18,13 @@ class SortAudioBottomSheetViewModel @Inject constructor(
 ) : ViewModel() {
 
     val sortBy = repository.sortAudioBy.asLiveData()
-    var sortBySingleValue = AudioSortBy.ARTIST_DATE_OF_UPDATE
+    var sortBySingleValue = AudioSortBy.DATE_OF_UPDATE
         private set
 
     init {
         viewModelScope.launch {
             val readData =
-                dataStoreManager.read(DataStoreManager.SORT_AUDIO_BY, AudioSortBy.ARTIST_DATE_OF_UPDATE.name)
+                dataStoreManager.read(DataStoreManager.SORT_AUDIO_BY, AudioSortBy.DATE_OF_UPDATE.name)
 
             sortBySingleValue = readData.toAudioSortBy()
         }

@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -53,7 +52,10 @@ class HomeFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         return setFragmentContent {
-            // adding fakeAudio to differentiate between real empty list and getting data from DB
+            /*
+             * Adding fakeAudio to differentiate between real empty list coming from Room
+             * and getting data from DB
+            */
             val allAudios = viewModel.allAudio.observeAsState().value ?: listOf(fakeAudio)
             Log.e("allAudios", "onCreateView: ${allAudios.size}")
 
@@ -167,7 +169,7 @@ fun HomeScreen(
                 viewModel = viewModel,
                 navController = navController,
                 onTapChange = {
-                    Log.e("BackHandler", "TabChanged: $it" )
+                    Log.e("BackHandler", "TabChanged: $it")
                     tabNumber = it
                 }
             )
@@ -273,35 +275,75 @@ fun getDropdownActions(context: Context, tabNumber: Int): List<Pair<String, Home
     val list: MutableList<Pair<String, HomeDropdownActions>> = mutableListOf()
     when (tabNumber) {
         0 -> {
-            list.add(Pair(context.getString(R.string.search_local_audio),
-                HomeDropdownActions.SearchLocalAudio))
-            list.add(Pair(context.getString(R.string.sort_audios_by),
-                HomeDropdownActions.SortAudiosBy))
-            list.add(Pair(context.getString(R.string.manage_audios),
-                HomeDropdownActions.ManageAudios))
+            list.add(
+                Pair(
+                    context.getString(R.string.search_local_audio),
+                    HomeDropdownActions.SearchLocalAudio
+                )
+            )
+            list.add(
+                Pair(
+                    context.getString(R.string.sort_audios_by),
+                    HomeDropdownActions.SortAudiosBy
+                )
+            )
+            list.add(
+                Pair(
+                    context.getString(R.string.manage_audios),
+                    HomeDropdownActions.ManageAudios
+                )
+            )
             list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
         }
         1 -> {
-            list.add(Pair(context.getString(R.string.search_local_audio),
-                HomeDropdownActions.SearchLocalAudio))
-            list.add(Pair(context.getString(R.string.manage_artists),
-                HomeDropdownActions.ManageArtists))
+            list.add(
+                Pair(
+                    context.getString(R.string.search_local_audio),
+                    HomeDropdownActions.SearchLocalAudio
+                )
+            )
+            list.add(
+                Pair(
+                    context.getString(R.string.manage_artists),
+                    HomeDropdownActions.ManageArtists
+                )
+            )
             list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
         }
         2 -> {
-            list.add(Pair(context.getString(R.string.search_local_audio),
-                HomeDropdownActions.SearchLocalAudio))
-            list.add(Pair(context.getString(R.string.sort_albums_by),
-                HomeDropdownActions.SortAlbumsBy))
-            list.add(Pair(context.getString(R.string.manage_albums),
-                HomeDropdownActions.ManageAlbums))
+            list.add(
+                Pair(
+                    context.getString(R.string.search_local_audio),
+                    HomeDropdownActions.SearchLocalAudio
+                )
+            )
+            list.add(
+                Pair(
+                    context.getString(R.string.sort_albums_by),
+                    HomeDropdownActions.SortAlbumsBy
+                )
+            )
+            list.add(
+                Pair(
+                    context.getString(R.string.manage_albums),
+                    HomeDropdownActions.ManageAlbums
+                )
+            )
             list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
         }
         3 -> {
-            list.add(Pair(context.getString(R.string.search_local_audio),
-                HomeDropdownActions.SearchLocalAudio))
-            list.add(Pair(context.getString(R.string.manage_playlists),
-                HomeDropdownActions.ManagePlaylists))
+            list.add(
+                Pair(
+                    context.getString(R.string.search_local_audio),
+                    HomeDropdownActions.SearchLocalAudio
+                )
+            )
+            list.add(
+                Pair(
+                    context.getString(R.string.manage_playlists),
+                    HomeDropdownActions.ManagePlaylists
+                )
+            )
             list.add(Pair(context.getString(R.string.settings), HomeDropdownActions.Settings))
         }
     }
