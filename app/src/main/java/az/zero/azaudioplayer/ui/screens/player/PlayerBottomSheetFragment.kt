@@ -301,7 +301,7 @@ fun CustomActionsRow(
             Icon(
                 imageVector = if (isFavourite) Icons.Filled.Favorite
                 else Icons.Outlined.FavoriteBorder,
-                stringResource(id = R.string.add_or_remove_from_favourites),
+                contentDescription = stringResource(id = R.string.add_or_remove_from_favourites),
                 tint = if (isFavourite) SelectedColor
                 else MaterialTheme.colors.onPrimary,
                 modifier = Modifier.size(smallIconsSize)

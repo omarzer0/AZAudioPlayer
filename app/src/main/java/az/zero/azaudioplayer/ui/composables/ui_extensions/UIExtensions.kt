@@ -16,12 +16,22 @@ import androidx.core.text.layoutDirection
 import java.util.*
 
 @Stable
-fun Modifier.mirror(): Modifier {
-    return if (Locale.getDefault().layoutDirection == LayoutDirection.RTL)
+fun Modifier.mirror(
+    direction: Int = LayoutDirection.RTL,
+): Modifier {
+    return if (Locale.getDefault().layoutDirection == direction)
         this.scale(scaleX = -1f, scaleY = 1f)
     else
         this
 }
+
+
+@Stable
+fun Modifier.mirrorAnyways(
+): Modifier {
+    return this.scale(scaleX = -1f, scaleY = 1f)
+}
+
 
 @Stable
 fun Color.isColorDark(): Boolean {

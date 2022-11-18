@@ -9,7 +9,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,17 +30,16 @@ fun AllAudioScreen(viewModel: HomeViewModel) {
 
     val allAudios = viewModel.allAudio.observeAsState().value ?: emptyList()
     val selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: ""
-//    Log.e("flowList", "${allAudios.size}\n\n\n$allAudios")
-
-    LaunchedEffect(key1 = allAudios) {
-        Log.e("flowList", "${allAudios.size}\n\n\n$allAudios")
-    }
 
     AllAudioScreen(
         dbAudioList = allAudios,
         selectedId = selectedId,
+        playAllHeaderEnabled = allAudios.isNotEmpty(),
         onAudioItemClick = { audio ->
             viewModel.audioAction(AudioActions.Toggle(audio.data), allAudios)
+        },
+        onPlayAllClick = {
+            viewModel.audioAction(action = AudioActions.PlayAll, newAudioList = allAudios)
         },
         onAudioIconClick = { audio, menuAction ->
             Log.e("menuAction", "$menuAction")
@@ -60,14 +58,20 @@ fun AllAudioScreen(viewModel: HomeViewModel) {
 private fun AllAudioScreen(
     dbAudioList: List<DBAudio>,
     selectedId: String,
+    playAllHeaderEnabled: Boolean = true,
     onAudioItemClick: (DBAudio) -> Unit,
     onAudioIconClick: (DBAudio, MenuActionType) -> Unit,
+    onPlayAllClick: () -> Unit,
 ) {
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             val headerText = "${dbAudioList.size} ${stringResource(id = R.string.of_audios)}"
-            PlayAllHeader(text = headerText)
+            PlayAllHeader(
+                text = headerText,
+                playAllHeaderEnabled = playAllHeaderEnabled,
+                onClick = onPlayAllClick
+            )
         }
 
         items(dbAudioList, key = { it.data }) { audio ->

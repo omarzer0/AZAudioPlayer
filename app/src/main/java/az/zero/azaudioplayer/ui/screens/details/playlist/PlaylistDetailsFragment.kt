@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -453,6 +454,8 @@ fun CustomDialog(
     onDismiss: () -> Unit,
     onConfirmClick: () -> Unit,
 ) {
+    val textBtnColor =
+        if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
 
     if (openDialog) {
         AlertDialog(
@@ -471,19 +474,19 @@ fun CustomDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
+                    TextButton(
                         onClick = onConfirmClick,
-                        colors = ButtonDefaults.buttonColors(backgroundColor = SelectedColor)
+//                        colors = ButtonDefaults.buttonColors(backgroundColor = SelectedColor)
                     ) {
-                        Text(stringResource(id = R.string.delete), color = Color.White)
+                        Text(stringResource(id = R.string.delete), color = SelectedColor)
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Button(
+                    TextButton(
                         onClick = onDismiss
                     ) {
-                        Text("Cancel", color = MaterialTheme.colors.onPrimary)
+                        Text("Cancel", color = textBtnColor)
                     }
                 }
             }

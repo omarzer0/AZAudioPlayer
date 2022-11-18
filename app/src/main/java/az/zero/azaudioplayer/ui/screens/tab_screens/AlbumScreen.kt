@@ -18,13 +18,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.composables.CustomImage
-import az.zero.azaudioplayer.ui.composables.PlayAllHeader
+import az.zero.azaudioplayer.ui.composables.TextHeader
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.composables.clickableSafeClick
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
-import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.db.entities.DBAlbumWithAudioList
 
 
@@ -42,7 +42,7 @@ fun AlbumScreen(
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             val headerText = "${albumList.size} ${stringResource(id = R.string.of_albums)}"
-            PlayAllHeader(text = headerText)
+            TextHeader(text = headerText)
         }
 
         items(items = albumList, key = { it.album.name }) { album ->

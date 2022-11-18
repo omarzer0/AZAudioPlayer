@@ -10,7 +10,6 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDeepLinkBuilder
@@ -18,6 +17,7 @@ import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
 import az.zero.azaudioplayer.media.player.extensions.EMPTY_PLAYBACK_STATE
 import az.zero.azaudioplayer.media.player.extensions.id
 import az.zero.azaudioplayer.ui.MainActivity
+import az.zero.azaudioplayer.utils.tryWithHandledCatch
 import az.zero.base.di.ApplicationScope
 import az.zero.base.utils.AudioActions
 import az.zero.base.utils.toAlbumSortBy
@@ -133,7 +133,6 @@ class AudioRepository @Inject constructor(
 
     private fun playNewAudio(newAudioList: List<DBAudio>?, mediaItem: String) {
         if (newAudioList != null) {
-            Log.e("playPauseOrToggle", "${newAudioList.size}")
             newAudioChosen(newAudioList, mediaItem)
         } else {
             // if the passed list is null play from all audio list
@@ -145,9 +144,10 @@ class AudioRepository @Inject constructor(
     }
 
     private fun newAudioChosen(newAudioList: List<DBAudio>, mediaItem: String) {
-        audioDataSource.updateAudioList(newAudioList)
-//        dataStoreManager.saveLastPlayedAudio(mediaItem)
-        transportControls.playFromMediaId(mediaItem, null)
+        tryWithHandledCatch {
+            audioDataSource.updateAudioList(newAudioList)
+            transportControls.playFromMediaId(mediaItem, null)
+        }
     }
 
     fun playOrPause() {
@@ -190,8 +190,14 @@ class AudioRepository @Inject constructor(
         when (action) {
             AudioActions.Pause -> transportControls.pause()
             AudioActions.Play -> transportControls.play()
+            AudioActions.PlayAll -> {
+                // Don't complete if the list is null or empty
+                if (newAudioList.isNullOrEmpty()) return
+                playPauseOrToggle(newAudioList[0].data, newAudioList)
+            }
             is AudioActions.Toggle -> playPauseOrToggle(action.audioDataId, newAudioList)
         }
+
     }
 
     suspend fun addOrRemoveFromFavouritePlayList(dbAudio: DBAudio) {

@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -146,7 +147,6 @@ fun HomeScreen(
                                 navController.navigate(actionHomeFragmentToScanLocalFragment())
                             }
                             HomeDropdownActions.SortAlbumsBy -> {
-
                                 navController.navigate(
                                     actionHomeFragmentToSortAlbumBottomSheetFragment()
                                 )
@@ -167,6 +167,7 @@ fun HomeScreen(
                 viewModel = viewModel,
                 navController = navController,
                 onTapChange = {
+                    Log.e("BackHandler", "TabChanged: $it" )
                     tabNumber = it
                 }
             )
@@ -180,6 +181,7 @@ fun TabContent(
     tabNames: List<String>,
     viewModel: HomeViewModel,
     navController: NavController,
+    initialTabPosition: Int = 0,
     onTapChange: (Int) -> Unit,
 ) {
     Column {
@@ -188,6 +190,7 @@ fun TabContent(
                 .fillMaxWidth()
                 .weight(0.8f),
             listOfTabNames = tabNames,
+            initialTabPosition = initialTabPosition,
             tabHostBackgroundColor = MaterialTheme.colors.background,
             tabSelectorColor = SelectedColor,
             selectedContentColor = SelectedColor,

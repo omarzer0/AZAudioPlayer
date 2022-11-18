@@ -162,6 +162,9 @@ fun CustomDialog(
     val context = LocalContext.current
     var toast: Toast? by remember { mutableStateOf(null) }
 
+    val textBtnColor =
+        if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
+
     if (openDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -177,9 +180,6 @@ fun CustomDialog(
                 )
             },
             buttons = {
-                val textBtnColor =
-                    if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

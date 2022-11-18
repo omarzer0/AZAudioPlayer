@@ -16,12 +16,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.ui.composables.PlayAllHeader
+import az.zero.azaudioplayer.ui.composables.TextHeader
 import az.zero.azaudioplayer.ui.composables.clickableSafeClick
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
-import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.db.entities.DBArtistWithAudios
 
 /**
@@ -55,7 +55,7 @@ private fun ArtistScreen(
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             val headerText = "${artistList.size} ${stringResource(id = R.string.of_artists)}"
-            PlayAllHeader(text = headerText)
+            TextHeader(text = headerText)
         }
 
         items(artistList, key = { it.artist.name }) { artist ->
