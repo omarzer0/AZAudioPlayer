@@ -20,10 +20,13 @@ import az.zero.azaudioplayer.media.player.extensions.id
 import az.zero.azaudioplayer.ui.MainActivity
 import az.zero.base.di.ApplicationScope
 import az.zero.base.utils.AudioActions
+import az.zero.base.utils.toAlbumSortBy
+import az.zero.base.utils.toAudioSortBy
 import az.zero.datastore.DataStoreManager
 import az.zero.datastore.DataStoreManager.Companion.LAST_PLAYED_AUDIO_ID_KEY
 import az.zero.datastore.DataStoreManager.Companion.REPEAT_MODE
 import az.zero.db.AudioDao
+import az.zero.db.entities.DBAlbumWithAudioList
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import az.zero.player.audio_data_source.AudioDataSource
@@ -34,6 +37,9 @@ import az.zero.player.service.AudioService
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,6 +53,14 @@ class AudioRepository @Inject constructor(
     private val audioDataSource: AudioDataSource,
 ) {
 
+    val sortAudioBy = dataStoreManager.sortAudioByFlow.map {
+        it.toAudioSortBy()
+    }
+
+    val sortAlbumBy = dataStoreManager.sortAlbumByFlow.map {
+        it.toAlbumSortBy()
+    }
+
     @OptIn(ExperimentalPagerApi::class)
     fun pendingIntent(): PendingIntent {
         return NavDeepLinkBuilder(context)
@@ -56,9 +70,14 @@ class AudioRepository @Inject constructor(
             .createPendingIntent()
     }
 
-    fun getAllAudio() = audioDao.getAllDbAudio()
+    val allAudio: Flow<List<DBAudio>> = sortAudioBy.flatMapLatest {
+        audioDao.getAllDbAudio(it)
+    }
 
-    fun getAlbumWithAudio() = audioDao.getAlbumWithAudio()
+    val allAlbumsWithAudio: Flow<List<DBAlbumWithAudioList>> =
+        sortAlbumBy.flatMapLatest { albumSortOrder ->
+            audioDao.getAlbumWithAudio(albumSortOrder)
+        }
 
     fun getArtistWithAudio() = audioDao.getArtistWithAudio()
 

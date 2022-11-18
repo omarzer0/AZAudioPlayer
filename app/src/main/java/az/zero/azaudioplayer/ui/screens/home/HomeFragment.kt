@@ -146,10 +146,15 @@ fun HomeScreen(
                                 navController.navigate(actionHomeFragmentToScanLocalFragment())
                             }
                             HomeDropdownActions.SortAlbumsBy -> {
-                                // TODO add bottom sheet
+
+                                navController.navigate(
+                                    actionHomeFragmentToSortAlbumBottomSheetFragment()
+                                )
                             }
                             HomeDropdownActions.SortAudiosBy -> {
-                                // TODO add bottom sheet
+                                navController.navigate(
+                                    actionHomeFragmentToSortAudioBottomSheetFragment()
+                                )
                             }
                         }
                     }
@@ -169,6 +174,7 @@ fun HomeScreen(
     )
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun TabContent(
     tabNames: List<String>,

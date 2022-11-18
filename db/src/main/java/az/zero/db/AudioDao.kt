@@ -4,23 +4,56 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
+import az.zero.base.utils.AlbumSortBy
+import az.zero.base.utils.AlbumSortBy.ALBUM_SORT_ASC
+import az.zero.base.utils.AlbumSortBy.ALBUM_SORT_DESC
+import az.zero.base.utils.AudioSortBy
+import az.zero.base.utils.AudioSortBy.*
 import az.zero.db.entities.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AudioDao {
 
+    fun getAllDbAudio(
+        sortBy: AudioSortBy,
+    ): Flow<List<DBAudio>> =
+        when (sortBy) {
+            ARTIST_DATE_OF_UPDATE -> getAllAudioSortedByDateOfUpdate()
+            ARTIST_BY_AUDIO_NAME -> getAllAudioSortedByAudioName()
+            ARTIST_BY_ARTIST_NAME -> getAllAudioSortedByArtistName()
+        }
+
     @Query("SELECT * FROM DBAudio ORDER BY lastDateModified DESC")
-    fun getAllDbAudio(): LiveData<List<DBAudio>>
+    fun getAllAudioSortedByDateOfUpdate(): Flow<List<DBAudio>>
+
+    @Query("SELECT * FROM DBAudio ORDER BY title ASC")
+    fun getAllAudioSortedByAudioName(): Flow<List<DBAudio>>
+
+    @Query("SELECT * FROM DBAudio ORDER BY artist ASC")
+    fun getAllAudioSortedByArtistName(): Flow<List<DBAudio>>
+
+
+    fun getAlbumWithAudio(albumSortOrder: AlbumSortBy): Flow<List<DBAlbumWithAudioList>> =
+        when (albumSortOrder) {
+            ALBUM_SORT_ASC -> getAlbumWithAudioSortedASC()
+            ALBUM_SORT_DESC -> getAlbumWithAudioSortedDESC()
+        }
+
+    @Transaction
+    @Query("SELECT * FROM DBAlbum ORDER BY name ASC")
+    fun getAlbumWithAudioSortedASC(): Flow<List<DBAlbumWithAudioList>>
+
+    @Transaction
+    @Query("SELECT * FROM DBAlbum ORDER BY name DESC")
+    fun getAlbumWithAudioSortedDESC(): Flow<List<DBAlbumWithAudioList>>
+
 
     @Query("SELECT * FROM DBAudio ORDER BY lastDateModified DESC")
     suspend fun getAllDbAudioSingleList(): List<DBAudio>
 
     @Query("SELECT * FROM DBAudio WHERE title LIKE '%' || :searchQuery || '%' OR album LIKE '%' || :searchQuery || '%' OR artist LIKE '%' || :searchQuery || '%' ORDER BY lastDateModified DESC ")
     suspend fun getAllDbAudioSingleListByQuery(searchQuery: String): List<DBAudio>?
-
-    @Transaction
-    @Query("SELECT * FROM DBAlbum")
-    fun getAlbumWithAudio(): LiveData<List<DBAlbumWithAudioList>>
 
     @Transaction
     @Query("SELECT * FROM DBArtist")

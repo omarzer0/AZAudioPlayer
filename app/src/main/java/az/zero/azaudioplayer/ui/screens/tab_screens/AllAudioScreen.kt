@@ -9,6 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,12 @@ fun AllAudioScreen(viewModel: HomeViewModel) {
 
     val allAudios = viewModel.allAudio.observeAsState().value ?: emptyList()
     val selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: ""
+//    Log.e("flowList", "${allAudios.size}\n\n\n$allAudios")
+
+    LaunchedEffect(key1 = allAudios) {
+        Log.e("flowList", "${allAudios.size}\n\n\n$allAudios")
+    }
+
     AllAudioScreen(
         dbAudioList = allAudios,
         selectedId = selectedId,

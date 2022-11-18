@@ -51,6 +51,12 @@
     <string name="sort_audios_by">Sort audio files by</string>
     <string name="sort_albums_by">Sort albums by</string>
 
+    <string name="sort_by">Sort by</string>
+
+    <string name="sort_by_date_of_update">Sort by last updated date</string>
+    <string name="sort_by_album_asc">Sort Album Ascending</string>
+    <string name="sort_by_album_desc">Sort Album Descending</string>
+
     <string name="recently_played">Recently played</string>
 
     <string name="scan_again">Scan Again</string>

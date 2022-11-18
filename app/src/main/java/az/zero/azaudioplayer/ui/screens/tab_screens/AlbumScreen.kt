@@ -1,5 +1,6 @@
 package az.zero.azaudioplayer.ui.screens.tab_screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,6 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,10 @@ fun AlbumScreen(
     navController: NavController,
 ) {
     val albumList = viewModel.allAlbums.observeAsState().value ?: emptyList()
+
+    LaunchedEffect(key1 = albumList) {
+        Log.e("flowList", "${albumList.size}\n\n\n$albumList")
+    }
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
