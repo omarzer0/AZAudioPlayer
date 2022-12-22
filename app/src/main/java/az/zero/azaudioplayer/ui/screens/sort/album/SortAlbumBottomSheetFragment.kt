@@ -124,10 +124,10 @@ fun SortAlbumItemBy(
 @Composable
 fun getSortAudioActions(): List<SortAlbumAction> {
     return listOf(
-        SortAlbumAction(sortOrder = AlbumSortBy.ALBUM_SORT_ASC,
-            text = stringResource(id = R.string.sort_by_album_asc)),
-        SortAlbumAction(sortOrder = AlbumSortBy.ALBUM_SORT_DESC,
-            text = stringResource(id = R.string.sort_by_album_desc))
+        SortAlbumAction(sortOrder = AlbumSortBy.ASCENDING,
+            text = stringResource(id = R.string.ascending)),
+        SortAlbumAction(sortOrder = AlbumSortBy.DESCENDING,
+            text = stringResource(id = R.string.descending))
     )
 }
 

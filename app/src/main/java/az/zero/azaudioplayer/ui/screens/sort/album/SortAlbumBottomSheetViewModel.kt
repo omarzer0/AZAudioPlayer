@@ -18,14 +18,14 @@ class SortAlbumBottomSheetViewModel @Inject constructor(
 ) : ViewModel() {
 
     val sortAlbumBy = repository.sortAlbumBy.asLiveData()
-    var sortAlbumBySingleValue = AlbumSortBy.ALBUM_SORT_ASC
+    var sortAlbumBySingleValue = AlbumSortBy.ASCENDING
         private set
 
     init {
         viewModelScope.launch {
             val readData =
                 dataStoreManager.read(DataStoreManager.SORT_ALBUM_BY,
-                    AlbumSortBy.ALBUM_SORT_ASC.name)
+                    AlbumSortBy.ASCENDING.name)
 
             sortAlbumBySingleValue = readData.toAlbumSortBy()
         }

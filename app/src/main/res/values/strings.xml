@@ -54,9 +54,9 @@
 
     <string name="sort_by">Sort by</string>
 
-    <string name="sort_by_date_of_update">Sort by last updated date</string>
-    <string name="sort_by_album_asc">Sort Album Ascending</string>
-    <string name="sort_by_album_desc">Sort Album Descending</string>
+    <string name="date_of_update">Last updated date</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
 
     <string name="recently_played">Recently played</string>
 
@@ -67,4 +67,6 @@
     <string name="create_new_playlist">Create a new playlist</string>
 
     <string name="click_here_to_search_audio_files">Click here to search audio files</string>
+    <string name="audio_file_name">Audio file name</string>
+    <string name="artist_name">Artist name</string>
 </resources>
