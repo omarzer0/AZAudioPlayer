@@ -6,6 +6,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
 import az.zero.azaudioplayer.AudioRepository
 import az.zero.base.utils.AudioActions
+import az.zero.base.utils.PlayingListFrom
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +22,11 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun audioAction(action: AudioActions, newAudioList: List<DBAudio>?) {
-        audioRepository.audioAction(action, newAudioList = newAudioList)
+        audioRepository.audioAction(
+            action = action,
+            newAudioList = newAudioList,
+            playingListFrom = PlayingListFrom.ALL
+        )
     }
 
     val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()

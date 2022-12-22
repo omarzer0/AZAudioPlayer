@@ -20,6 +20,7 @@ import az.zero.azaudioplayer.ui.MainActivity
 import az.zero.azaudioplayer.utils.tryWithHandledCatch
 import az.zero.base.di.ApplicationScope
 import az.zero.base.utils.AudioActions
+import az.zero.base.utils.PlayingListFrom
 import az.zero.base.utils.toAlbumSortBy
 import az.zero.base.utils.toAudioSortBy
 import az.zero.datastore.DataStoreManager
@@ -186,7 +187,11 @@ class AudioRepository @Inject constructor(
      * @param newAudioList if null is passed all audio files will be used and if not null
      * the player will play that list
      * */
-    fun audioAction(action: AudioActions, newAudioList: List<DBAudio>?) {
+    fun audioAction(
+        action: AudioActions,
+        newAudioList: List<DBAudio>?,
+        playingListFrom: PlayingListFrom,
+    ) {
         when (action) {
             AudioActions.Pause -> transportControls.pause()
             AudioActions.Play -> transportControls.play()

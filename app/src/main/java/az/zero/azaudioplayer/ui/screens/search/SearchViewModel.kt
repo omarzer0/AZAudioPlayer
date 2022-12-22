@@ -3,6 +3,7 @@ package az.zero.azaudioplayer.ui.screens.search
 import androidx.lifecycle.*
 import az.zero.azaudioplayer.AudioRepository
 import az.zero.base.utils.AudioActions
+import az.zero.base.utils.PlayingListFrom
 import az.zero.db.entities.DBAudio
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -11,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val audioRepository: AudioRepository
+    private val audioRepository: AudioRepository,
 ) : ViewModel() {
 
     private val _allAudio = MutableLiveData<List<DBAudio>>()
@@ -29,7 +30,11 @@ class SearchViewModel @Inject constructor(
     }
 
     fun audioAction(action: AudioActions, newAudioList: List<DBAudio>?) {
-        audioRepository.audioAction(action, newAudioList = newAudioList)
+        audioRepository.audioAction(
+            action = action,
+            newAudioList = newAudioList,
+            playingListFrom = PlayingListFrom.ALL
+        )
     }
 
     init {
