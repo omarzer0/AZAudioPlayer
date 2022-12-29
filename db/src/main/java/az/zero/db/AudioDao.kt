@@ -63,7 +63,10 @@ interface AudioDao {
     fun getAllPlayLists(): LiveData<List<DBPlaylist>>
 
     @Query("SELECT * FROM DBPlaylist WHERE isFavouritePlaylist = 0")
-    suspend fun getAllPlayListsWithoutFavouritePlaylist(): List<DBPlaylist>
+    suspend fun getAllPlayListsWithoutFavouritePlaylistOnce(): List<DBPlaylist>
+
+    @Query("SELECT * FROM DBPlaylist WHERE isFavouritePlaylist = 0")
+    fun getAllPlayListsWithoutFavouritePlaylist(): LiveData<List<DBPlaylist>>
 
     @Query("SELECT * FROM DBPlaylist WHERE isFavouritePlaylist = 1 ")
     suspend fun getFavouritePlaylist(): List<DBPlaylist>

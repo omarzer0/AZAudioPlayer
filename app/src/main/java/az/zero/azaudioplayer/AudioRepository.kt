@@ -13,9 +13,6 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDeepLinkBuilder
-import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
-import az.zero.azaudioplayer.media.player.extensions.EMPTY_PLAYBACK_STATE
-import az.zero.azaudioplayer.media.player.extensions.id
 import az.zero.azaudioplayer.ui.MainActivity
 import az.zero.azaudioplayer.utils.tryWithHandledCatch
 import az.zero.base.di.ApplicationScope
@@ -31,9 +28,7 @@ import az.zero.db.entities.DBAlbumWithAudioList
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import az.zero.player.audio_data_source.AudioDataSource
-import az.zero.player.extensions.isPlayEnabled
-import az.zero.player.extensions.isPlaying
-import az.zero.player.extensions.isPrepared
+import az.zero.player.extensions.*
 import az.zero.player.service.AudioService
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -83,6 +78,8 @@ class AudioRepository @Inject constructor(
     fun getArtistWithAudio() = audioDao.getArtistWithAudio()
 
     fun getAllPlayLists() = audioDao.getAllPlayLists()
+
+    fun getAllPlayListsWithoutFavouritePlaylist() = audioDao.getAllPlayListsWithoutFavouritePlaylist()
 
     private var _nowPlayingAudio = MutableLiveData(EMPTY_AUDIO)
     val nowPlayingDBAudio: LiveData<DBAudio?> = _nowPlayingAudio

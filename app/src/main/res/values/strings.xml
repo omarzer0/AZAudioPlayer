@@ -69,4 +69,7 @@
     <string name="click_here_to_search_audio_files">Click here to search audio files</string>
     <string name="audio_file_name">Audio file name</string>
     <string name="artist_name">Artist name</string>
+    <string name="cancel">Cancel</string>
+    <string name="are_you_sure_you_want_to_delete_all_selected">Are you sure you want to delete all selected?</string>
+    <string name="are_you_sure_you_want_to_delete_it">Are you sure you want to delete it?</string>
 </resources>

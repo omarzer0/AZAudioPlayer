@@ -33,7 +33,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
+import az.zero.player.extensions.EMPTY_AUDIO
 import az.zero.azaudioplayer.ui.composables.*
 import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor

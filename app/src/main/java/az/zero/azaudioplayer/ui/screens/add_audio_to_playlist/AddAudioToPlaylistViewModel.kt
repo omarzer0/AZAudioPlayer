@@ -3,6 +3,7 @@ package az.zero.azaudioplayer.ui.screens.add_audio_to_playlist
 import android.util.Log
 import androidx.lifecycle.*
 import az.zero.azaudioplayer.AudioRepository
+import az.zero.azaudioplayer.data.local.model.audio.SelectableAudio
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +20,8 @@ class AddAudioToPlaylistViewModel @Inject constructor(
 
     val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
 
-    private val _allAudio = MutableLiveData<List<AudioWithSelected>>()
-    val allDBAudio: LiveData<List<AudioWithSelected>> = _allAudio
+    private val _allAudio = MutableLiveData<List<SelectableAudio>>()
+    val allDBAudio: LiveData<List<SelectableAudio>> = _allAudio
 
     private var searchJob: Job? = null
 
@@ -28,7 +29,7 @@ class AddAudioToPlaylistViewModel @Inject constructor(
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             val filteredList = audioRepository.getAllDbAudioSingleListByQuery(query)?.map { audio ->
-                AudioWithSelected(
+                SelectableAudio(
                     audio = audio,
                     selected = selectedAudioIds.any { it == audio.data }
                 )
@@ -48,9 +49,9 @@ class AddAudioToPlaylistViewModel @Inject constructor(
         notifyListChange(_allAudio.value)
     }
 
-    private fun notifyListChange(audioWithSelectedList: List<AudioWithSelected>?) {
-        val newList = audioWithSelectedList?.map { audioWithSelected ->
-            AudioWithSelected(
+    private fun notifyListChange(selectableAudioList: List<SelectableAudio>?) {
+        val newList = selectableAudioList?.map { audioWithSelected ->
+            SelectableAudio(
                 audio = audioWithSelected.audio,
                 selected = selectedAudioIds.any { it == audioWithSelected.audio.data }
             )
@@ -88,8 +89,4 @@ class AddAudioToPlaylistViewModel @Inject constructor(
     }
 }
 
-data class AudioWithSelected(
-    val audio: DBAudio,
-    val selected: Boolean = false
-)
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package az.zero.azaudioplayer.media.player.extensions
+package az.zero.player.extensions
 
 import android.graphics.Bitmap
 import android.net.Uri

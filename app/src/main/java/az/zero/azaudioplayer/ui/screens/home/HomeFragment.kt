@@ -28,7 +28,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
 import az.zero.azaudioplayer.ui.composables.*
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections.*
 import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen
@@ -37,6 +36,7 @@ import az.zero.azaudioplayer.ui.screens.tab_screens.ArtistScreen
 import az.zero.azaudioplayer.ui.screens.tab_screens.PlaylistScreen
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.utils.fakeAudio
+import az.zero.player.extensions.EMPTY_AUDIO
 import az.zero.player.extensions.isPlaying
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
@@ -381,7 +381,7 @@ fun getDropdownActions(context: Context, tabNumber: Int): List<Pair<String, Home
 //import androidx.navigation.fragment.findNavController
 //import az.zero.azaudioplayer.R
 //import az.zero.azaudioplayer.core.BaseFragment
-//import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
+//import az.zero.player.extensions.getEMPTY_AUDIO
 //import az.zero.azaudioplayer.ui.composables.*
 //import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections.*
 //import az.zero.azaudioplayer.ui.screens.tab_screens.AlbumScreen

@@ -437,7 +437,7 @@ fun CustomDialog(
             text = {
                 Text(
                     style = MaterialTheme.typography.h2,
-                    text = "Are you sure you want to delete it?",
+                    text = stringResource(id = R.string.are_you_sure_you_want_to_delete_it),
                 )
             },
             buttons = {
@@ -459,7 +459,7 @@ fun CustomDialog(
                     TextButton(
                         onClick = onDismiss
                     ) {
-                        Text("Cancel", color = textBtnColor)
+                        Text(stringResource(id = R.string.cancel), color = textBtnColor)
                     }
                 }
             }

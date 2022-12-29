@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
+import az.zero.azaudioplayer.data.local.model.audio.SelectableAudio
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TextWithClearIcon
 import az.zero.azaudioplayer.ui.composables.TopWithBottomTextWithAnnotatedText
@@ -88,7 +89,7 @@ fun AddAudioToPlaylistScreen(
 @Composable
 fun AddAudioToPlaylistScreen(
     modifier: Modifier = Modifier,
-    audioList: List<AudioWithSelected>,
+    audioList: List<SelectableAudio>,
     selectedId: String,
     text: String,
     onBackIconClick: () -> Unit,
@@ -119,7 +120,7 @@ fun AddAudioToPlaylistScreen(
 
             items(items = audioList, key = { it.audio.data }) { audioWithSelected ->
                 SelectableAudiItem(
-                    audioWithSelected = audioWithSelected,
+                    selectableAudio = audioWithSelected,
                     onAudioSelectionChange = onAudioSelectionChange,
                     currentlyPlaying = audioWithSelected.audio.data == selectedId
                 )
@@ -186,7 +187,7 @@ fun AddAudioToPlaylistHeader(
 
 @Composable
 fun SelectableAudiItem(
-    audioWithSelected: AudioWithSelected,
+    selectableAudio: SelectableAudio,
     onAudioSelectionChange: (audioId: String) -> Unit,
     currentlyPlaying: Boolean,
 ) {
@@ -199,7 +200,7 @@ fun SelectableAudiItem(
             .padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 8.dp),
     ) {
         CustomImage(
-            image = audioWithSelected.audio.cover,
+            image = selectableAudio.audio.cover,
             modifier = Modifier.size(48.dp),
             cornerShape = CircleShape
         )
@@ -207,17 +208,17 @@ fun SelectableAudiItem(
 
         TopWithBottomTextWithAnnotatedText(
             modifier = Modifier.weight(1f),
-            topTextString = audioWithSelected.audio.displayName,
+            topTextString = selectableAudio.audio.displayName,
             topTextColor = textColor,
-            bottomTextStrings = listOf(audioWithSelected.audio.artist, audioWithSelected.audio.album)
+            bottomTextStrings = listOf(selectableAudio.audio.artist, selectableAudio.audio.album)
         )
 
         Spacer(modifier = Modifier.width(16.dp))
 
         Checkbox(
-            checked = audioWithSelected.selected,
+            checked = selectableAudio.selected,
             onCheckedChange = {
-                onAudioSelectionChange(audioWithSelected.audio.data)
+                onAudioSelectionChange(selectableAudio.audio.data)
             },
             colors = CheckboxDefaults.colors(
                 checkedColor = SelectedColor,

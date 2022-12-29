@@ -12,7 +12,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
-import az.zero.azaudioplayer.media.player.extensions.NOTHING_DESCRIPTION
+import az.zero.player.extensions.NOTHING_DESCRIPTION
 import az.zero.db.entities.DBAudio
 import az.zero.player.audio_data_source.AudioDataSource
 import az.zero.player.callbacks.AudioNotificationManager

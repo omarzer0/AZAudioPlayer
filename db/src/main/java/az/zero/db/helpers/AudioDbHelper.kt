@@ -86,7 +86,7 @@ class AudioDbHelper @Inject constructor(
     private fun removeDeletedAudioFromPlaylists(listToDelete: List<DBAudio>) {
         val playlistsToAdd: MutableList<DBPlaylist> = mutableListOf()
         applicationScope.launch {
-            val playlists = dao.getAllPlayListsWithoutFavouritePlaylist()
+            val playlists = dao.getAllPlayListsWithoutFavouritePlaylistOnce()
             playlists.forEach {
                 val newAudioList = it.dbAudioList.filter { audio -> !listToDelete.contains(audio) }
                 playlistsToAdd.add(DBPlaylist(it.name, newAudioList, it.isFavouritePlaylist))
