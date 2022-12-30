@@ -72,4 +72,10 @@
     <string name="cancel">Cancel</string>
     <string name="are_you_sure_you_want_to_delete_all_selected">Are you sure you want to delete all selected?</string>
     <string name="are_you_sure_you_want_to_delete_it">Are you sure you want to delete it?</string>
+
+    <string name="copy_rights">Copyright @2022 Omar AZ</string>
+    <string name="privacy_policies">Privacy Policies</string>
+    <string name="open_source_licence">Open source licence</string>
+    <string name="about_app">About app</string>
+    <string name="version">Version</string>
 </resources>

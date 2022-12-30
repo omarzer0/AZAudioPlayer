@@ -155,15 +155,32 @@ fun PlaylistDetailsScreen(
         modifier = modifier.fillMaxSize(),
     ) {
 
-        PlaylistDetailsHeader(
-            modifier = Modifier.fillMaxWidth(),
-            playlist = playlist,
-            onMoreClick = onMoreClick,
-            onBackIconClick = onBackIconClick,
-            isDropDownExpanded = isDropDownExpanded,
-            onDismissDropDown = onDismissDropDown,
-            onPlayListMoreClickActions = onPlayListMoreClickActions,
-            onFavMoreClickActions = onFavMoreClickActions
+        BasicHeaderWithBackBtn(
+            text = playlist.name,
+            onBackPressed = onBackIconClick,
+            actions = {
+                if (playlist.isFavouritePlaylist) {
+                    FavMoreDropDown(
+                        isDropDownExpanded = isDropDownExpanded,
+                        onDismissDropDown = onDismissDropDown,
+                        onPlayListMoreClickActions = onFavMoreClickActions
+                    )
+                } else {
+                    MoreDropDown(
+                        isDropDownExpanded = isDropDownExpanded,
+                        onDismissDropDown = onDismissDropDown,
+                        onPlayListMoreClickActions = onPlayListMoreClickActions
+                    )
+                }
+
+                IconButton(onClick = { onMoreClick() }) {
+                    Icon(
+                        Icons.Filled.MoreVert,
+                        stringResource(id = R.string.more),
+                        tint = MaterialTheme.colors.onPrimary,
+                    )
+                }
+            }
         )
 
         PlaylistDetailsSubHeader(playlist = playlist)
@@ -249,65 +266,6 @@ fun PlaylistDetails(
             )
         }
     }
-}
-
-@Composable
-fun PlaylistDetailsHeader(
-    modifier: Modifier = Modifier,
-    playlist: DBPlaylist,
-    isDropDownExpanded: Boolean,
-    onMoreClick: () -> Unit,
-    onBackIconClick: () -> Unit,
-    onDismissDropDown: () -> Unit,
-    onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit,
-    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit,
-) {
-    TopAppBar(
-        modifier = modifier,
-        title = {
-            Text(
-                text = playlist.name,
-                color = MaterialTheme.colors.onPrimary
-            )
-        },
-        backgroundColor = MaterialTheme.colors.background,
-        elevation = 0.dp,
-        actions = {
-
-            if (playlist.isFavouritePlaylist) {
-                FavMoreDropDown(
-                    isDropDownExpanded = isDropDownExpanded,
-                    onDismissDropDown = onDismissDropDown,
-                    onPlayListMoreClickActions = onFavMoreClickActions
-                )
-            } else {
-                MoreDropDown(
-                    isDropDownExpanded = isDropDownExpanded,
-                    onDismissDropDown = onDismissDropDown,
-                    onPlayListMoreClickActions = onPlayListMoreClickActions
-                )
-            }
-
-            IconButton(onClick = { onMoreClick() }) {
-                Icon(
-                    Icons.Filled.MoreVert,
-                    stringResource(id = R.string.more),
-                    tint = MaterialTheme.colors.onPrimary,
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = { onBackIconClick() }) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    stringResource(id = R.string.back),
-                    tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.mirror()
-                )
-            }
-        }
-    )
-
 }
 
 sealed class PlayListMoreClickActions {

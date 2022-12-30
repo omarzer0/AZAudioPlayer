@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
+import az.zero.azaudioplayer.ui.composables.BasicHeaderWithBackBtn
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
@@ -64,7 +65,20 @@ fun ScanLocalScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        ScanLocalHeader(onBackPressed = onBackPressed, onScanSettingsClick = onScanSettingsClick)
+
+        BasicHeaderWithBackBtn(
+            text = stringResource(id = R.string.scan_local_audio_files),
+            onBackPressed = onBackPressed,
+            actions = {
+                IconButton(onClick = { onScanSettingsClick() }) {
+                    Icon(
+                        Icons.Filled.Settings,
+                        stringResource(id = R.string.settings),
+                        tint = MaterialTheme.colors.onBackground
+                    )
+                }
+            }
+        )
 
         ScanAnimation()
 
@@ -99,43 +113,5 @@ fun ScanAnimation() {
         modifier = Modifier
             .size(300.dp)
             .background(Color.Blue)
-    )
-}
-
-@Composable
-fun ScanLocalHeader(
-    onBackPressed: () -> Unit,
-    onScanSettingsClick: () -> Unit,
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.scan_local_audio_files),
-                color = MaterialTheme.colors.onPrimary
-            )
-        },
-        backgroundColor = MaterialTheme.colors.background,
-        elevation = 0.dp,
-        actions = {
-            IconButton(onClick = { onScanSettingsClick() }) {
-                Icon(
-                    Icons.Filled.Settings,
-                    stringResource(id = R.string.settings),
-                    tint = MaterialTheme.colors.onBackground
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = { onBackPressed() }) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    stringResource(id = R.string.back),
-                    tint = MaterialTheme.colors.onBackground,
-                    modifier = Modifier.mirror()
-                )
-            }
-        }
-
     )
 }

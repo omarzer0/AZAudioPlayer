@@ -14,6 +14,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
@@ -31,6 +32,7 @@ fun TopWithBottomText(
     bottomTextStyle: TextStyle = MaterialTheme.typography.body1,
     topTextAlign: TextAlign = TextAlign.Start,
     bottomTextAlign: TextAlign = TextAlign.Start,
+    verticalSpacingBetweenTexts: Dp = 8.dp,
 ) {
     Column(
         modifier = modifier,
@@ -47,7 +49,7 @@ fun TopWithBottomText(
             textAlign = topTextAlign
         )
         if (bottomTextString.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(verticalSpacingBetweenTexts))
             Text(
                 modifier = bottomTextModifier.fillMaxWidth(),
                 text = bottomTextString,

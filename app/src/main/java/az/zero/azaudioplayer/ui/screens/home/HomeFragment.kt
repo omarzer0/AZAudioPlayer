@@ -110,58 +110,14 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     navController: NavController,
 ) {
-    var isDropDownExpanded by rememberSaveable { mutableStateOf(false) }
     var tabNumber by remember { mutableStateOf(0) }
+
 
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
         scaffoldState = rememberScaffoldState(),
         topBar = {
-            AppBarWithSearch(onSearchClick = {
-                val searchDirections = actionHomeFragmentToSearchFragment()
-                navController.navigate(searchDirections)
-            }, onMoreClick = {
-                isDropDownExpanded = true
-            }, customDropDownContent = {
-                CustomDropdown(
-                    isDropDownExpanded = isDropDownExpanded,
-                    onDismissDropDown = { isDropDownExpanded = false },
-                    dropDownItems = getDropdownActions(LocalContext.current, tabNumber),
-                    onActionClick = { action ->
-                        isDropDownExpanded = false
-                        when (action) {
-                            HomeDropdownActions.ManageAudios -> {
-                                navController.navigate(actionHomeFragmentToAudioManageFragment())
-                            }
-                            HomeDropdownActions.Settings -> {
-                                navController.navigate(actionHomeFragmentToSettingsFragment())
-                            }
-                            HomeDropdownActions.ManageAlbums -> {
-                                navController.navigate(actionHomeFragmentToAlbumManageFragment())
-                            }
-                            HomeDropdownActions.ManageArtists -> {
-                                navController.navigate(actionHomeFragmentToArtistManageFragment())
-                            }
-                            HomeDropdownActions.ManagePlaylists -> {
-                                navController.navigate(actionHomeFragmentToPlaylistManageFragment())
-                            }
-                            HomeDropdownActions.SearchLocalAudio -> {
-                                navController.navigate(actionHomeFragmentToScanLocalFragment())
-                            }
-                            HomeDropdownActions.SortAlbumsBy -> {
-                                navController.navigate(
-                                    actionHomeFragmentToSortAlbumBottomSheetFragment()
-                                )
-                            }
-                            HomeDropdownActions.SortAudiosBy -> {
-                                navController.navigate(
-                                    actionHomeFragmentToSortAudioBottomSheetFragment()
-                                )
-                            }
-                        }
-                    }
-                )
-            })
+            HomeAppBar(navController = navController, tabNumber = tabNumber)
         },
         content = {
             TabContent(
@@ -175,6 +131,61 @@ fun HomeScreen(
             )
         }
     )
+}
+
+@Composable
+fun HomeAppBar(
+    navController: NavController,
+    tabNumber: Int,
+) {
+    var isDropDownExpanded by rememberSaveable { mutableStateOf(false) }
+
+    AppBarWithSearch(
+        onSearchClick = {
+        val searchDirections = actionHomeFragmentToSearchFragment()
+        navController.navigate(searchDirections)
+    }, onMoreClick = {
+        isDropDownExpanded = true
+    }, customDropDownContent = {
+        CustomDropdown(
+            isDropDownExpanded = isDropDownExpanded,
+            onDismissDropDown = { isDropDownExpanded = false },
+            dropDownItems = getDropdownActions(LocalContext.current, tabNumber),
+            onActionClick = { action ->
+                isDropDownExpanded = false
+                when (action) {
+                    HomeDropdownActions.ManageAudios -> {
+                        navController.navigate(actionHomeFragmentToAudioManageFragment())
+                    }
+                    HomeDropdownActions.Settings -> {
+                        navController.navigate(actionHomeFragmentToSettingsFragment())
+                    }
+                    HomeDropdownActions.ManageAlbums -> {
+                        navController.navigate(actionHomeFragmentToAlbumManageFragment())
+                    }
+                    HomeDropdownActions.ManageArtists -> {
+                        navController.navigate(actionHomeFragmentToArtistManageFragment())
+                    }
+                    HomeDropdownActions.ManagePlaylists -> {
+                        navController.navigate(actionHomeFragmentToPlaylistManageFragment())
+                    }
+                    HomeDropdownActions.SearchLocalAudio -> {
+                        navController.navigate(actionHomeFragmentToScanLocalFragment())
+                    }
+                    HomeDropdownActions.SortAlbumsBy -> {
+                        navController.navigate(
+                            actionHomeFragmentToSortAlbumBottomSheetFragment()
+                        )
+                    }
+                    HomeDropdownActions.SortAudiosBy -> {
+                        navController.navigate(
+                            actionHomeFragmentToSortAudioBottomSheetFragment()
+                        )
+                    }
+                }
+            }
+        )
+    })
 }
 
 @OptIn(ExperimentalPagerApi::class)

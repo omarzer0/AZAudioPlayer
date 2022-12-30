@@ -9,12 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -22,12 +19,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
+import az.zero.azaudioplayer.ui.composables.BasicHeaderWithBackBtn
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.MenuActionType
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
-import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
-import az.zero.azaudioplayer.utils.singleLineValue
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAlbumWithAudioList
 import az.zero.db.entities.DBAudio
@@ -82,10 +78,11 @@ fun AlbumDetailsScreen(
     Column(
         modifier = Modifier.background(MaterialTheme.colors.background)
     ) {
-        AlbumDetailsHeader(
-            dbAlbumWithAudioList = dbAlbumWithAudioList,
-            onBackIconClick = onBackIconClick
+        BasicHeaderWithBackBtn(
+            text = dbAlbumWithAudioList.album.name,
+            onBackPressed = onBackIconClick
         )
+
         LazyColumn {
             item {
                 AlbumDetailsSubHeader(dbAlbumWithAudioList = dbAlbumWithAudioList)
@@ -101,39 +98,6 @@ fun AlbumDetailsScreen(
             }
         }
     }
-
-}
-
-@Composable
-fun AlbumDetailsHeader(
-    modifier: Modifier = Modifier,
-    dbAlbumWithAudioList: DBAlbumWithAudioList,
-    onBackIconClick: () -> Unit,
-) {
-    TopAppBar(
-        modifier = modifier,
-        title = {
-            Text(
-                text = dbAlbumWithAudioList.album.name,
-                color = MaterialTheme.colors.onPrimary,
-                maxLines = singleLineValue,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        backgroundColor = MaterialTheme.colors.background,
-        elevation = 0.dp,
-        navigationIcon = {
-            IconButton(onClick = { onBackIconClick() }) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    stringResource(id = R.string.back),
-                    tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.mirror()
-                )
-            }
-        }
-    )
-
 
 }
 

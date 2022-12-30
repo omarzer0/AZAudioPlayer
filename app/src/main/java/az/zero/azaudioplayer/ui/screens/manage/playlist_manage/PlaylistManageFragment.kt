@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,10 +26,10 @@ import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.data.local.model.playlist.SelectablePlaylist
+import az.zero.azaudioplayer.ui.composables.BasicHeaderWithBackBtn
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.composables.clickableSafeClick
-import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import dagger.hilt.android.AndroidEntryPoint
@@ -99,10 +98,19 @@ fun ManagePlaylistsScreen(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        ManagePlaylistsHeader(
+        BasicHeaderWithBackBtn(
+            text = stringResource(id = R.string.manage_playlists),
             onBackPressed = onBackPressed,
-            onSelectAllPressed = onSelectAllPressed,
-            isAllSelected = isAllSelected
+            actions = {
+                Checkbox(
+                    checked = isAllSelected,
+                    onCheckedChange = { onSelectAllPressed(isAllSelected) },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = SelectedColor,
+                        checkmarkColor = Color.White
+                    ),
+                )
+            }
         )
 
         CustomPlaylistDialog(
@@ -214,46 +222,6 @@ fun BottomActionBar(
             )
         )
     }
-}
-
-@Composable
-fun ManagePlaylistsHeader(
-    onBackPressed: () -> Unit,
-    onSelectAllPressed: (isActive: Boolean) -> Unit,
-    isAllSelected: Boolean,
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.manage_playlists),
-                color = MaterialTheme.colors.onPrimary
-            )
-        },
-        backgroundColor = MaterialTheme.colors.background,
-        elevation = 0.dp,
-        actions = {
-            Checkbox(
-                checked = isAllSelected,
-                onCheckedChange = { onSelectAllPressed(isAllSelected) },
-                colors = CheckboxDefaults.colors(
-                    checkedColor = SelectedColor,
-                    checkmarkColor = Color.White
-                ),
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = { onBackPressed() }) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    stringResource(id = R.string.back),
-                    tint = MaterialTheme.colors.onBackground,
-                    modifier = Modifier.mirror()
-                )
-            }
-        }
-
-    )
 }
 
 @Composable
