@@ -11,6 +11,19 @@
     <style name="MyBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
         <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/onPrimary</item>
+        <item name="android:navigationBarColor">@color/onPrimary</item>
     </style>
+
+    <style name="SplashScreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_bg_dark</item>
+        <item name="colorPrimaryDark">@color/onPrimary</item>
+        <item name="android:navigationBarColor">@color/onPrimary</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <style name="CustomBottomSheet" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/CustomShapeAppearanceBottomSheetDialog</item>
+        <item name="backgroundTint">@color/bottom_sheet_color</item>
+    </style>
+
 </resources>

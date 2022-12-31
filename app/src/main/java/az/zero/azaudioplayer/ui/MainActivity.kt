@@ -4,24 +4,23 @@ import android.Manifest
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import az.zero.azaudioplayer.AZApplication
 import az.zero.azaudioplayer.R
+import az.zero.db.helpers.AudioDbHelper
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @ExperimentalPagerApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
+
+    @Inject
+    lateinit var audioDbHelper: AudioDbHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,10 +34,16 @@ class MainActivity : AppCompatActivity() {
 
     private val activityResultLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val azApp = (application as AZApplication)
             val failedToGrant = permissions.entries.any { !it.value }
             if (failedToGrant) {
+                azApp.checkedForPermission = false
                 finish()
                 return@registerForActivityResult
+            }
+            if (!azApp.checkedForPermission) {
+                azApp.checkedForPermission = true
+                audioDbHelper.searchForNewAudios()
             }
 
         }
@@ -48,7 +53,8 @@ class MainActivity : AppCompatActivity() {
 
         activityResultLauncher.launch(
             arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
             )
         )
     }

@@ -1,13 +1,15 @@
 package az.zero.azaudioplayer.ui.screens.player
 
 import android.os.Bundle
+import android.support.v4.media.session.PlaybackStateCompat
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,23 +20,31 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.media.player.EMPTY_AUDIO
-import az.zero.azaudioplayer.media.player.extensions.isPlaying
+import az.zero.azaudioplayer.core.setCompContent
+import az.zero.player.extensions.EMPTY_AUDIO
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
+import az.zero.azaudioplayer.ui.composables.clickableSafeClick
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.utils.*
-import az.zero.azaudioplayer.ui.utils.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
+import az.zero.azaudioplayer.utils.createTimeLabel
+import az.zero.azaudioplayer.utils.largeIconSize
+import az.zero.azaudioplayer.utils.midIconsSize
+import az.zero.azaudioplayer.utils.smallIconsSize
+import az.zero.player.extensions.isPlaying
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -47,7 +57,7 @@ class PlayerBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val modalBottomSheetBehavior = (this.dialog as BottomSheetDialog).behavior
         modalBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -63,7 +73,7 @@ class PlayerBottomSheetFragment : BottomSheetDialogFragment() {
 @Composable
 fun PlayerScreen(
     viewModel: PlayerBottomSheetViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
 
     val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
@@ -71,24 +81,27 @@ fun PlayerScreen(
     val isPlaying = playingState.value?.isPlaying ?: false
     val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
     val currentPosition = viewModel.currentPosition.observeAsState()
-    var position = currentPosition.value ?: 0
+    val repeatMode =
+        viewModel.repeatMode.observeAsState().value ?: PlaybackStateCompat.REPEAT_MODE_ALL
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.background)
             .verticalScroll(rememberScrollState())
     ) {
 
-        TopBar()
+        TopBar {
+            navController.navigateUp()
+        }
 
         TopWithBottomText(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            topTextName = audio.title,
+            topTextString = audio.title,
             topTextColor = MaterialTheme.colors.onPrimary,
-            bottomTextName = audio.artist,
+            bottomTextString = audio.artist,
             bottomTextColor = SecondaryTextColor,
             topTextStyle = MaterialTheme.typography.h1
         )
@@ -101,25 +114,39 @@ fun PlayerScreen(
                 .height(250.dp)
         )
 
-        AudioSeekbar(position,
-            totalTime = audio.duration,
-            isPlaying = isPlaying,
-            viewModel = viewModel,
-            onValueChange = {
-                position = it
+        // TODO need cleaning up!
+        var stopAutoUpdate by remember { mutableStateOf(false) }
+        var autoUpdateValue by remember(currentPosition.value) {
+            mutableStateOf(currentPosition.value ?: 0)
+        }
+        var userDraggedValue by remember { mutableStateOf(0f) }
+
+        AudioSeekbar(
+            sliderValue = when {
+                stopAutoUpdate -> userDraggedValue
+                else -> {
+                    autoUpdateValue.toFloat()
+                }
             },
-            onValueChangeFinished = {
-                viewModel.seekToPosition(it)
-            }
+            totalTime = audio.duration.toFloat(),
+            onValueChanged = {
+                stopAutoUpdate = true
+                userDraggedValue = it
+                autoUpdateValue = it.toLong()
+            },
+            onValueChangeFinished = { userDragPosition ->
+                viewModel.seekToPosition(userDragPosition.toLong())
+                stopAutoUpdate = false
+            },
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        var isFav by remember { mutableStateOf(true) }
-
         CustomActionsRow(
-            isFavourite = isFav,
-            onFavouriteClick = { isFav = !isFav }
+            isFavourite = audio.isFavourite,
+            repeatMode = repeatMode,
+            onFavouriteClick = { viewModel.addOrRemoveFromFavourite(audio) },
+            onChangeRepeatModeClick = { viewModel.changeRepeatMode() }
         )
 
         AudioActionsRow(
@@ -132,16 +159,20 @@ fun PlayerScreen(
 }
 
 @Composable
-fun TopBar() {
-    Row(
+fun TopBar(onDragDownClick: () -> Unit) {
+    Box(
         modifier = Modifier
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        contentAlignment = Center,
     ) {
 
         IconButton(
-            modifier = Modifier.mirror(),
-            onClick = {}
+            modifier = Modifier
+                .mirror()
+                .align(CenterStart),
+            onClick = {
+
+            }
         ) {
             Icon(
                 Icons.Filled.MoreVert,
@@ -152,65 +183,47 @@ fun TopBar() {
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(16.dp)
-                .padding(end = 16.dp)
-                .background(Red)
-        )
+                .fillMaxSize()
+                .clickableSafeClick { onDragDownClick() },
+            contentAlignment = Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                stringResource(id = R.string.drag),
+                tint = Color.Gray,
+                modifier = Modifier.size(midIconsSize)
+            )
+        }
     }
 }
 
 @Composable
 fun AudioSeekbar(
-    sliderPosition: Long,
-    totalTime: Long,
-    isPlaying: Boolean,
-    viewModel: PlayerBottomSheetViewModel,
-    onValueChange: (Long) -> Unit,
-    onValueChangeFinished: (Long) -> Unit
+    sliderValue: Float,
+    totalTime: Float,
+    onValueChanged: (Float) -> Unit,
+    onValueChangeFinished: (userDragPosition: Float) -> Unit,
 ) {
-    var sliderValue by remember(key1 = sliderPosition) { mutableStateOf(sliderPosition) }
-    var manuallyStopped by remember(key1 = true) { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-
-        val interactionSource = remember { MutableInteractionSource() }
-        val isDragged by interactionSource.collectIsDraggedAsState()
-
-
-        val clickable = Modifier.clickable(
-            interactionSource = interactionSource,
-            indication = null
-        ) { }
-
-
         Slider(
-            value = sliderValue.toFloat(),
+            value = sliderValue,
             onValueChange = { newValue ->
-                if (isDragged && isPlaying) {
-                    viewModel.pause()
-                    manuallyStopped = true
-                }
-                sliderValue = newValue.toLong()
+                onValueChanged(newValue)
             },
-            valueRange = 0.toFloat()..totalTime.toFloat(),
+            valueRange = 0f..totalTime,
             onValueChangeFinished = {
-                if (manuallyStopped) {
-                    viewModel.play()
-                    manuallyStopped = false
-                }
                 onValueChangeFinished(sliderValue)
             },
             colors = SliderDefaults.colors(
-                thumbColor = Red,
-                activeTrackColor = MaterialTheme.colors.secondary,
+                thumbColor = SelectedColor,
+                activeTrackColor = SelectedColor,
+                inactiveTrackColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
             ),
-            interactionSource = interactionSource,
-            modifier = Modifier.then(clickable)
         )
 
         Row(
@@ -240,7 +253,9 @@ fun AudioSeekbar(
 fun CustomActionsRow(
     modifier: Modifier = Modifier,
     isFavourite: Boolean,
+    repeatMode: Int,
     onFavouriteClick: () -> Unit,
+    onChangeRepeatModeClick: () -> Unit,
 ) {
 
     Row(
@@ -249,13 +264,27 @@ fun CustomActionsRow(
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        val context = LocalContext.current
+        var toast: Toast? by remember { mutableStateOf(null) }
         IconButton(
-            onClick = {}
+            onClick = {
+                onChangeRepeatModeClick()
+                val message = when (repeatMode) {
+                    // reversed
+                    REPEAT_MODE_ONE -> "Repeat All"
+                    else -> "Repeat Once"
+                }
+                toast?.cancel()
+                toast = Toast.makeText(context, message, Toast.LENGTH_LONG)
+                toast?.show()
+            }
         ) {
 
             Icon(
-                imageVector = if (isFavourite) Icons.Filled.RepeatOne
-                else Icons.Filled.Repeat,
+                imageVector = when (repeatMode) {
+                    REPEAT_MODE_ONE -> Icons.Filled.RepeatOne
+                    else -> Icons.Filled.Repeat
+                },
                 stringResource(id = R.string.more),
                 tint = MaterialTheme.colors.onPrimary,
                 modifier = Modifier.size(smallIconsSize)
@@ -272,7 +301,7 @@ fun CustomActionsRow(
             Icon(
                 imageVector = if (isFavourite) Icons.Filled.Favorite
                 else Icons.Outlined.FavoriteBorder,
-                stringResource(id = R.string.more),
+                contentDescription = stringResource(id = R.string.add_or_remove_from_favourites),
                 tint = if (isFavourite) SelectedColor
                 else MaterialTheme.colors.onPrimary,
                 modifier = Modifier.size(smallIconsSize)
@@ -328,7 +357,12 @@ fun AudioActionsRow(
 
         IconButton(
             modifier = Modifier.mirror(),
-            onClick = { onPlayPauseClick() }
+            onClick = {
+                Log.e("AudioActionsRowBefore", "AudioActionsRow: $isPlaying")
+                onPlayPauseClick()
+                Log.e("AudioActionsRowBefore", "AudioActionsRow: $isPlaying")
+
+            }
         ) {
 
             Icon(

@@ -1,60 +1,111 @@
 package az.zero.azaudioplayer.ui.screens.tab_screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
-import az.zero.azaudioplayer.domain.models.Audio
-import az.zero.azaudioplayer.ui.composables.CustomImage
-import az.zero.azaudioplayer.ui.composables.ItemsHeader
-import az.zero.azaudioplayer.ui.composables.TopWithBottomText
-import az.zero.azaudioplayer.ui.screens.home.AudioActions
+import az.zero.azaudioplayer.ui.composables.*
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
+import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.DELETE
+import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.EDIT
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.utils.common_composables.clickableSafeClick
+import az.zero.base.utils.AudioActions
+import az.zero.db.entities.DBAudio
+
 
 @Composable
-fun AllAudioScreen(viewModel: HomeViewModel, audioList: List<Audio>?, selected: Int = -1) {
-    var selectedId = selected
+fun AllAudioScreen(viewModel: HomeViewModel) {
 
-    if (audioList.isNullOrEmpty()) return
+    val allAudios = viewModel.allAudio.observeAsState().value ?: emptyList()
+    val selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: ""
+
+    AllAudioScreen(
+        dbAudioList = allAudios,
+        selectedId = selectedId,
+        playAllHeaderEnabled = allAudios.isNotEmpty(),
+        onAudioItemClick = { audio ->
+            viewModel.audioAction(AudioActions.Toggle(audio.data), allAudios)
+        },
+        onPlayAllClick = {
+            viewModel.audioAction(action = AudioActions.PlayAll, newAudioList = allAudios)
+        },
+        onAudioIconClick = { audio, menuAction ->
+            Log.e("menuAction", "$menuAction")
+            when (menuAction) {
+                DELETE -> {
+
+                }
+                EDIT -> {
+
+                }
+            }
+        })
+}
+
+@Composable
+private fun AllAudioScreen(
+    dbAudioList: List<DBAudio>,
+    selectedId: String,
+    playAllHeaderEnabled: Boolean = true,
+    onAudioItemClick: (DBAudio) -> Unit,
+    onAudioIconClick: (DBAudio, MenuActionType) -> Unit,
+    onPlayAllClick: () -> Unit,
+) {
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            val headerText = "${audioList.size} ${stringResource(id = R.string.of_audios)}"
-            ItemsHeader(text = headerText)
+            val headerText = "${dbAudioList.size} ${stringResource(id = R.string.of_audios)}"
+            PlayAllHeader(
+                text = headerText,
+                playAllHeaderEnabled = playAllHeaderEnabled,
+                onClick = onPlayAllClick
+            )
         }
 
-        itemsIndexed(audioList) { index, audio ->
+        items(dbAudioList, key = { it.data }) { audio ->
             AudioItem(
-                audio,
-                isSelected = selectedId == index
-            ) {
-                selectedId = index
-                viewModel.audioAction(AudioActions.Toggle(audio.data))
-            }
+                dbAudio = audio,
+                menuItemList = menuActionList,
+                isSelected = audio.data == selectedId,
+                onClick = {
+                    onAudioItemClick(audio)
+                }, onIconClick = { menuAction ->
+                    onAudioIconClick(audio, menuAction)
+                })
         }
     }
 }
 
+val menuActionList = listOf(
+    DropDownItemWithAction(R.string.delete, DELETE),
+)
+
+enum class MenuActionTypeForAllScreen : MenuActionType {
+    DELETE,
+    EDIT
+}
+
 @Composable
 fun AudioItem(
-    audio: Audio,
+    dbAudio: DBAudio,
     isSelected: Boolean,
-    onClick: () -> Unit
-) {
+    onClick: () -> Unit,
+    onIconClick: (MenuActionType) -> Unit,
+    menuItemList: List<DropDownItemWithAction> = emptyList(),
+
+    ) {
     val textColor = if (isSelected) SelectedColor
     else MaterialTheme.colors.onPrimary
 
@@ -63,31 +114,31 @@ fun AudioItem(
             .fillMaxWidth()
             .clickableSafeClick { onClick() }
             .padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        CustomImage(image = audio.cover, cornerShape = CircleShape)
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        TopWithBottomText(
-            modifier = Modifier.weight(0.6f),
-            topTextName = audio.title,
-            bottomTextName = "${audio.artist} - ${audio.album}",
-            topTextColor = textColor
+        CustomImage(
+            modifier = Modifier.size(48.dp),
+            image = dbAudio.cover,
+            cornerShape = CircleShape
         )
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        IconButton(
-            modifier = Modifier.weight(0.1f), onClick = {}) {
-            Icon(
-                Icons.Filled.MoreVert,
-                stringResource(id = R.string.more),
-                tint = SecondaryTextColor
-            )
-        }
-    }
+        TopWithBottomText(
+            modifier = Modifier.weight(1f),
+            topTextString = dbAudio.title,
+            bottomTextString = "${dbAudio.artist} - ${dbAudio.album}",
+            topTextColor = textColor,
+        )
 
+        Spacer(modifier = Modifier.width(16.dp))
+
+        IconWithMenu(
+            iconVector = Icons.Filled.MoreVert,
+            iconColor = SecondaryTextColor,
+            iconText = stringResource(id = R.string.more),
+            items = menuItemList,
+            onIconClick = onIconClick
+        )
+    }
 }

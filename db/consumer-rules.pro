@@ -1,0 +1,1 @@
+-keep class az.zero.db.entities.** {*;}

@@ -1,44 +1,69 @@
 package az.zero.azaudioplayer.ui.screens.home
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
-import az.zero.azaudioplayer.data.db.AudioDao
-import az.zero.azaudioplayer.media.player.AudioServiceConnection
-import az.zero.azaudioplayer.ui.screens.home.AudioActions.*
+import androidx.lifecycle.viewModelScope
+import az.zero.azaudioplayer.AudioRepository
+import az.zero.base.utils.AudioActions
+import az.zero.base.utils.PlayingListFrom
+import az.zero.db.entities.DBAudio
+import az.zero.db.entities.DBPlaylist
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val audioServiceConnection: AudioServiceConnection,
-    private val audioDao: AudioDao
+    private val audioRepository: AudioRepository,
 ) : ViewModel() {
 
-    fun audioAction(action: AudioActions) {
-        when (action) {
-            Pause -> audioServiceConnection.transportControls.pause()
-            Play -> audioServiceConnection.transportControls.play()
-            is Toggle -> audioServiceConnection.playPauseOrToggle(action.audioDataId)
+    fun audioAction(action: AudioActions, newAudioList: List<DBAudio>?) {
+        audioRepository.audioAction(
+            action = action,
+            newAudioList = newAudioList,
+            playingListFrom = PlayingListFrom.ALL
+        )
+    }
+
+    val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
+    val playbackState = audioRepository.playbackState
+
+    val allAudio = audioRepository.allAudio.asLiveData()
+
+    val allAlbums = audioRepository.allAlbumsWithAudio.asLiveData()
+
+    val allArtists by lazy { audioRepository.getArtistWithAudio() }
+
+    val allPlaylists by lazy { audioRepository.getAllPlayLists() }
+
+    fun addOrRemoveFromFavourite(DBAudio: DBAudio) {
+        viewModelScope.launch {
+            audioRepository.addOrRemoveFromFavouritePlayList(DBAudio)
         }
     }
 
-    val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
-    val playbackState = audioServiceConnection.playbackState
+    fun playOrPause() {
+        audioRepository.playOrPause()
+    }
 
-    val allAudio by lazy { audioDao.getAllDbAudio().distinctUntilChanged() }
+    private val _errorFlow = MutableSharedFlow<Boolean>()
+    val errorFlow = _errorFlow.asSharedFlow()
 
-    val allAlbums by lazy { audioDao.getAlbumWithAudio().distinctUntilChanged() }
+    fun createANewPlayListIfNotExist(playlistName: String) {
+        viewModelScope.launch {
+            val exist = audioRepository.getSinglePlayListById(playlistName) != null
+            _errorFlow.emit(false)
+            if (!exist) {
+                audioRepository.addPlayList(DBPlaylist(name = playlistName, emptyList()))
+            } else {
+                _errorFlow.emit(true)
+            }
 
-    val allArtists by lazy { audioDao.getArtistWithAudio().distinctUntilChanged() }
-
-    val allPlaylists by lazy { audioDao.getAllPlayLists().distinctUntilChanged() }
-
-}
-
-sealed class AudioActions {
-    object Play : AudioActions()
-    object Pause : AudioActions()
-    data class Toggle(val audioDataId: String) : AudioActions()
+        }
+    }
 }
 

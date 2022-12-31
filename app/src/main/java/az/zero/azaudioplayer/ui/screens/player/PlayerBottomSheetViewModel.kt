@@ -2,68 +2,60 @@ package az.zero.azaudioplayer.ui.screens.player
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
-import az.zero.azaudioplayer.media.player.AudioServiceConnection
-import az.zero.azaudioplayer.media.player.currentPlayBackPosition
-import az.zero.azaudioplayer.ui.utils.POSITION_UPDATE_INTERVAL_MILLIS
+import androidx.lifecycle.*
+import az.zero.azaudioplayer.AudioRepository
+import az.zero.player.extensions.currentPlayBackPosition
+import az.zero.azaudioplayer.utils.POSITION_UPDATE_INTERVAL_MILLIS
+import az.zero.db.entities.DBAudio
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PlayerBottomSheetViewModel @Inject constructor(
-    private val audioServiceConnection: AudioServiceConnection
+    private val audioRepository: AudioRepository,
 ) : ViewModel() {
 
     private var updatePosition = true
+    val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
+    val playbackState = audioRepository.playbackState.distinctUntilChanged()
+    val repeatMode = audioRepository.repeatMode
 
     fun seekToPosition(position: Long) {
-        audioServiceConnection.seekTo(position)
+        audioRepository.seekTo(position)
     }
 
     fun playPrevious() {
-        audioServiceConnection.skipToPrevious()
+        audioRepository.skipToPrevious()
     }
 
     fun playOrPause() {
-        audioServiceConnection.playOrPause()
+        audioRepository.playOrPause()
     }
 
     fun playNext() {
-        audioServiceConnection.skipToNext()
+        audioRepository.skipToNext()
+    }
+
+    fun changeRepeatMode() {
+        audioRepository.changeRepeatMode()
     }
 
     private val handler = Handler(Looper.getMainLooper())
 
     private val _currentPosition = MutableLiveData<Long>().apply {
-        postValue(audioServiceConnection.getPlayBackState().currentPlayBackPosition)
+        postValue(audioRepository.getPlayBackState().currentPlayBackPosition)
     }
     val currentPosition: LiveData<Long> = _currentPosition
 
     private fun checkPlaybackPosition() {
         handler.postDelayed({
-            val currPosition = audioServiceConnection.getPlayBackState().currentPlayBackPosition
-            if (_currentPosition.value != currPosition)
-                _currentPosition.postValue(currPosition)
+            val currPosition = audioRepository.getPlayBackState().currentPlayBackPosition
+            if (_currentPosition.value != currPosition) _currentPosition.postValue(currPosition)
             if (updatePosition) checkPlaybackPosition()
-
-            Log.e("PlayerScreenIn", "currentPosition: ${currentPosition.value}")
-
         }, POSITION_UPDATE_INTERVAL_MILLIS)
     }
 
-//    val currentPlayingAudio = audioServiceConnection.audioConnectionData.distinctUntilChanged().also { data ->
-//        data.observeForever {
-//            Log.e("imageTestVM", "changed ${it.nowPlayingAudio.displayName}")
-//            Log.e("imageTestVM", "changed ${it.nowPlayingAudio.cover}")
-//        }
-//    }
-
-    val currentPlayingAudio = audioServiceConnection.nowPlayingAudio.distinctUntilChanged()
-    val playbackState = audioServiceConnection.playbackState.distinctUntilChanged()
 
     init {
         checkPlaybackPosition()
@@ -74,11 +66,9 @@ class PlayerBottomSheetViewModel @Inject constructor(
         updatePosition = false
     }
 
-    fun pause() {
-        audioServiceConnection.pause()
-    }
-
-    fun play() {
-        audioServiceConnection.play()
+    fun addOrRemoveFromFavourite(DBAudio: DBAudio) {
+        viewModelScope.launch {
+            audioRepository.addOrRemoveFromFavouritePlayList(DBAudio)
+        }
     }
 }

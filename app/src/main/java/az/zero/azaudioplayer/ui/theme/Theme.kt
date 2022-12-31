@@ -12,19 +12,19 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
-    primary = SurfaceBlack,
+    primary = SelectedColor,
     primaryVariant = Purple700,
     secondary = Teal200,
     onPrimary = Color.White,
-    background = Color.DarkGray
+    background = Color.Black,
 )
 
 private val LightColorPalette = lightColors(
-    primary = Color.White,
+    primary = SelectedColor,
     primaryVariant = Purple700,
     secondary = Teal200,
     onPrimary = Color.Black,
-    background = Color.LightGray
+    background = Color.White,
 
 
     /* Other default colors to override
@@ -58,7 +58,7 @@ private object AZAudioPlayerTheme : RippleTheme {
 @Composable
 fun AZAudioPlayerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colors = if (darkTheme) {
         DarkColorPalette
