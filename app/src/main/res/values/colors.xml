@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="onPrimary">@color/white</color>
+    <color name="bottom_sheet_color">@color/white</color>
+
 </resources>

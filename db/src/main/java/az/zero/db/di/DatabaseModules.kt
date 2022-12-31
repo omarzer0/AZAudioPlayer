@@ -2,6 +2,7 @@ package az.zero.db.di
 
 import android.content.Context
 import androidx.room.Room
+import az.zero.base.BuildConfig
 import az.zero.db.AppDatabase
 import az.zero.db.AudioDao
 import az.zero.db.DatabaseCallback
@@ -24,9 +25,13 @@ object DatabaseModules {
         callback: DatabaseCallback
     ): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
-            .addTypeConverter(AudioTypeConverters())
-            .fallbackToDestructiveMigration()
-            .addCallback(callback)
+            .apply {
+                addTypeConverter(AudioTypeConverters())
+                addCallback(callback)
+                if (BuildConfig.DEBUG) {
+                    fallbackToDestructiveMigration()
+                }
+            }
             .build()
 
     @Singleton

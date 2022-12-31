@@ -8,13 +8,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -22,15 +20,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.ui.composables.CustomImage
-import az.zero.azaudioplayer.ui.composables.MenuActionType
-import az.zero.azaudioplayer.ui.composables.TopWithBottomText
+import az.zero.azaudioplayer.ui.composables.*
+import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
-import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
-import az.zero.azaudioplayer.utils.singleLineValue
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAlbumWithAudioList
 import az.zero.db.entities.DBAudio
+import az.zero.player.extensions.EMPTY_AUDIO
+import az.zero.player.extensions.isPlaying
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -58,82 +55,102 @@ fun AlbumDetailsScreen(
     viewModel: AlbumDetailsViewModel,
     navController: NavController,
 ) {
+    val currentlyPlayingAudio = viewModel.currentPlayingAudio.observeAsState().value ?: EMPTY_AUDIO
+    val isPlaying = viewModel.playbackState.observeAsState().value?.isPlaying ?: false
+    val enabled = currentlyPlayingAudio.data.isNotEmpty()
+
     AlbumDetailsScreen(
+        currentlyPlayingAudio = currentlyPlayingAudio,
+        isPlaying = isPlaying,
+        enabled = enabled,
         dbAlbumWithAudioList = dbAlbumWithAudioList,
+        playAllHeaderEnabled = dbAlbumWithAudioList.dbAudioList.isNotEmpty(),
+        onPlayAllClick = {
+            viewModel.audioAction(
+                action = AudioActions.PlayAll,
+                newAudioList = dbAlbumWithAudioList.dbAudioList
+            )
+        },
+        onBackIconClick = { navController.navigateUp() },
+        onBodyClick = { navController.navigate(HomeFragmentDirections.actionGlobalPlayerBottomSheetFragment()) },
+        onPlayOrPauseClick = { viewModel.playOrPause() },
+        onFavouriteClick = { viewModel.addOrRemoveFromFavourite(currentlyPlayingAudio) },
         onAudioClick = {
             viewModel.audioAction(
                 AudioActions.Toggle(it.data),
                 dbAlbumWithAudioList.dbAudioList,
             )
         },
-        onIconClick = { dbAudio, menuActionType -> },
-        onBackIconClick = { navController.navigateUp() }
+        onIconClick = { dbAudio, menuActionType ->
+
+        },
     )
 }
 
 
 @Composable
 fun AlbumDetailsScreen(
+    modifier: Modifier = Modifier,
+    currentlyPlayingAudio: DBAudio,
+    isPlaying: Boolean,
+    enabled: Boolean,
+    playAllHeaderEnabled: Boolean = true,
+    onPlayAllClick: () -> Unit,
+    onBodyClick: () -> Unit,
+    onPlayOrPauseClick: () -> Unit,
+    onFavouriteClick: (Boolean) -> Unit,
     dbAlbumWithAudioList: DBAlbumWithAudioList,
     onAudioClick: (DBAudio) -> Unit,
     onIconClick: (DBAudio, MenuActionType) -> Unit,
     onBackIconClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.background(MaterialTheme.colors.background)
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
     ) {
-        AlbumDetailsHeader(
-            dbAlbumWithAudioList = dbAlbumWithAudioList,
-            onBackIconClick = onBackIconClick
+        BasicHeaderWithBackBtn(
+            text = dbAlbumWithAudioList.album.name,
+            onBackPressed = onBackIconClick
         )
-        LazyColumn {
+
+        LazyColumn(
+            modifier = Modifier.weight(1f)
+        ) {
+
             item {
                 AlbumDetailsSubHeader(dbAlbumWithAudioList = dbAlbumWithAudioList)
+            }
+
+            item {
+                val headerText =
+                    "${dbAlbumWithAudioList.dbAudioList.size} ${stringResource(id = R.string.of_audios)}"
+                PlayAllHeader(
+                    text = headerText,
+                    playAllHeaderEnabled = playAllHeaderEnabled,
+                    onClick = onPlayAllClick
+                )
             }
 
             items(dbAlbumWithAudioList.dbAudioList, key = { it.data }) { audio ->
                 AudioItem(
                     dbAudio = audio,
-                    isSelected = false,
+                    isSelected = audio.data == currentlyPlayingAudio.data,
                     onClick = { onAudioClick(audio) },
                     onIconClick = { onIconClick(audio, it) }
                 )
             }
         }
+
+        BottomPlayer(
+            currentlyPlayingAudio = currentlyPlayingAudio,
+            enabled = enabled,
+            isPlaying = isPlaying,
+            onBodyClick = onBodyClick,
+            onFavouriteClick = onFavouriteClick,
+            onPlayOrPauseClick = onPlayOrPauseClick
+        )
     }
-
-}
-
-@Composable
-fun AlbumDetailsHeader(
-    modifier: Modifier = Modifier,
-    dbAlbumWithAudioList: DBAlbumWithAudioList,
-    onBackIconClick: () -> Unit,
-) {
-    TopAppBar(
-        modifier = modifier,
-        title = {
-            Text(
-                text = dbAlbumWithAudioList.album.name,
-                color = MaterialTheme.colors.onPrimary,
-                maxLines = singleLineValue,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        backgroundColor = MaterialTheme.colors.background,
-        elevation = 0.dp,
-        navigationIcon = {
-            IconButton(onClick = { onBackIconClick() }) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    stringResource(id = R.string.back),
-                    tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.mirror()
-                )
-            }
-        }
-    )
-
 
 }
 

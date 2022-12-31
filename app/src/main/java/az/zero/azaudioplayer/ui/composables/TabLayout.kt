@@ -105,8 +105,9 @@ fun IconTab(
 @ExperimentalPagerApi
 @Composable
 fun TextTab(
-    listOfTabNames: List<String>,
     modifier: Modifier = Modifier,
+    initialTabPosition: Int = 0,
+    listOfTabNames: List<String>,
     tabHostModifier: Modifier = Modifier,
     tabModifier: Modifier = Modifier,
     isBottomNav: Boolean = false,
@@ -130,6 +131,7 @@ fun TextTab(
         isBottomNav = isBottomNav,
         listOfPairOfTabNamesWithIcons = listOfPairOfTabNamesWithIcons,
         modifier = modifier,
+        initialTabPosition = initialTabPosition,
         tabHostModifier = tabHostModifier,
         tabModifier = tabModifier,
         selectedContentColor = selectedContentColor,
@@ -152,6 +154,7 @@ fun TextTab(
 private fun AZTabPager(
     listOfPairOfTabNamesWithIcons: List<Pair<String?, ImageVector?>>,
     modifier: Modifier = Modifier,
+    initialTabPosition: Int = 0,
     tabHostModifier: Modifier = Modifier,
     tabModifier: Modifier = Modifier,
     selectedContentColor: Color = Color.White,
@@ -166,7 +169,7 @@ private fun AZTabPager(
     indicatorContent: @Composable (() -> Unit)? = null,
     content: @Composable (index: Int) -> Unit,
 ) {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(initialPage = initialTabPosition)
     val tabIndex = pagerState.currentPage.also {
         onTapChanged?.invoke(it)
     }
@@ -246,6 +249,7 @@ private fun AZTabPager(
 private fun AZBottomTabPager(
     listOfPairOfTabNamesWithIcons: List<Pair<String?, ImageVector?>>,
     modifier: Modifier = Modifier,
+    initialTabPosition: Int = 0,
     tabHostModifier: Modifier = Modifier,
     tabModifier: Modifier = Modifier,
     selectedContentColor: Color = Color.White,
@@ -257,7 +261,7 @@ private fun AZBottomTabPager(
     iconContent: @Composable ((icon: ImageVector) -> Unit)? = null,
     content: @Composable (index: Int) -> Unit,
 ) {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(initialPage = initialTabPosition)
     val tabIndex = pagerState.currentPage.also {
         onTapChanged?.invoke(it)
     }
@@ -328,9 +332,10 @@ private fun AZBottomTabPager(
 @ExperimentalPagerApi
 @Composable
 private fun BottomNavOrTabLayout(
-    isBottomNav: Boolean,
-    listOfPairOfTabNamesWithIcons: List<Pair<String?, ImageVector?>>,
     modifier: Modifier = Modifier,
+    listOfPairOfTabNamesWithIcons: List<Pair<String?, ImageVector?>>,
+    initialTabPosition: Int = 0,
+    isBottomNav: Boolean,
     tabHostModifier: Modifier = Modifier,
     tabModifier: Modifier = Modifier,
     selectedContentColor: Color = Color.White,
@@ -364,6 +369,7 @@ private fun BottomNavOrTabLayout(
         AZTabPager(
             listOfPairOfTabNamesWithIcons = listOfPairOfTabNamesWithIcons,
             modifier = modifier,
+            initialTabPosition = initialTabPosition,
             tabHostModifier = tabHostModifier,
             tabModifier = tabModifier,
             selectedContentColor = selectedContentColor,

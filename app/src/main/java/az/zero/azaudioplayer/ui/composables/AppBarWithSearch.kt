@@ -1,31 +1,23 @@
 package az.zero.azaudioplayer.ui.composables
 
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.R
 
 @Composable
 fun AppBarWithSearch(
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
-    background: Color = MaterialTheme.colors.background,
     customDropDownContent: (@Composable () -> Unit)? = null,
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                color = MaterialTheme.colors.onPrimary
-            )
-        },
-        backgroundColor = background,
-        elevation = 0.dp,
+    BasicHeaderWithBackBtn(
+        text = stringResource(id = R.string.app_name),
         actions = {
             customDropDownContent?.invoke()
 

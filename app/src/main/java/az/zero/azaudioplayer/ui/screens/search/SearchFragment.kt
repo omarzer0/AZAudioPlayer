@@ -9,12 +9,14 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -31,10 +33,11 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.BaseFragment
-import az.zero.azaudioplayer.ui.composables.MenuActionType
-import az.zero.azaudioplayer.ui.composables.TextWithClearIcon
-import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
-import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
+import az.zero.player.extensions.EMPTY_AUDIO
+import az.zero.azaudioplayer.ui.composables.*
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
+import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
+import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,12 +65,15 @@ fun SearchScreen(
     var text by rememberSaveable {
         mutableStateOf("")
     }
+    val allAudios = viewModel.allDBAudio.observeAsState().value ?: emptyList()
+    val currentlyPlayingAudio = viewModel.currentPlayingAudio.observeAsState().value ?: EMPTY_AUDIO
+    val selectedId = currentlyPlayingAudio.data
 
     SearchScreen(
         modifier = Modifier.background(MaterialTheme.colors.background),
         text = text,
-        allAudios = viewModel.allDBAudio.observeAsState().value ?: emptyList(),
-        selectedId = viewModel.currentPlayingAudio.observeAsState().value?.data ?: "",
+        allAudios = allAudios,
+        selectedId = selectedId,
         onSearch = {
             text = it
             viewModel.searchAudios(it)
@@ -85,7 +91,7 @@ fun SearchScreen(
         },
         onAudioIconClick = { dbAudio, menuActionType ->
             // TODO on audio more icon click impl
-        }
+        },
     )
 }
 
@@ -121,8 +127,8 @@ private fun SearchScreen(
 //            }
 
             items(allAudios) { audio ->
-                AudioItem(
-                    audio,
+                SearchAudioItem(
+                    dbAudio = audio,
                     isSelected = audio.data == selectedId,
                     annotatedTextQuery = text,
                     onClick = {
@@ -133,6 +139,53 @@ private fun SearchScreen(
                     })
             }
         }
+    }
+}
+
+@Composable
+fun SearchAudioItem(
+    dbAudio: DBAudio,
+    isSelected: Boolean,
+    annotatedTextQuery: String,
+    onClick: () -> Unit,
+    onIconClick: (MenuActionType) -> Unit,
+    menuItemList: List<DropDownItemWithAction> = emptyList(),
+) {
+    val textColor = if (isSelected) SelectedColor
+    else MaterialTheme.colors.onPrimary
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickableSafeClick { onClick() }
+            .padding(start = 12.dp, bottom = 8.dp, top = 8.dp, end = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CustomImage(
+            modifier = Modifier.size(48.dp),
+            image = dbAudio.cover,
+            cornerShape = CircleShape
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        TopWithBottomTextWithAnnotatedText(
+            modifier = Modifier.weight(1f),
+            topTextString = dbAudio.title,
+            bottomTextStrings = listOf(dbAudio.artist, dbAudio.album),
+            topTextColor = textColor,
+            annotatedTextQuery = annotatedTextQuery
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        IconWithMenu(
+            iconVector = Icons.Filled.MoreVert,
+            iconColor = SecondaryTextColor,
+            iconText = stringResource(id = R.string.more),
+            items = menuItemList,
+            onIconClick = onIconClick
+        )
     }
 }
 

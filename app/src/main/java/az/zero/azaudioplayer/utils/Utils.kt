@@ -1,5 +1,6 @@
 package az.zero.azaudioplayer.utils
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,4 +21,15 @@ fun <T> LiveData<T>.toMutableLiveData(): MutableLiveData<T> {
         mediatorLiveData.value = it
     }
     return mediatorLiveData
+}
+
+
+inline fun tryWithHandledCatch(
+    crossinline taskToTry: () -> Unit,
+) {
+    try {
+        taskToTry()
+    } catch (e: Exception) {
+        Log.e("tryWithHandledCatch", e.localizedMessage ?: "Unknown error")
+    }
 }

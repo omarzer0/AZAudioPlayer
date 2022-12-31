@@ -1,6 +1,7 @@
 package az.zero.azaudioplayer.ui.screens.tab_screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -25,12 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.ui.composables.*
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.home.HomeViewModel
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.composables.clickableSafeClick
-import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 import az.zero.db.entities.DBPlaylist
 
 @Composable
@@ -161,6 +162,9 @@ fun CustomDialog(
     val context = LocalContext.current
     var toast: Toast? by remember { mutableStateOf(null) }
 
+    val textBtnColor =
+        if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
+
     if (openDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -172,13 +176,10 @@ fun CustomDialog(
                     text = text,
                     hint = "PlayListName",
                     modifier = Modifier.fillMaxWidth(),
-                    onTextChanged = {text = it}
+                    onTextChanged = { text = it }
                 )
             },
             buttons = {
-                val textBtnColor =
-                    if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -235,14 +236,18 @@ fun AddPlayList(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        LocalImageIcon(
-            localImageUrl = Icons.Filled.Add,
-            addBorder = false,
-            iconTint = SecondaryTextColor,
-            imageBackgroundColor = MaterialTheme.colors.background,
-            modifier = Modifier.border(width = 1.dp, SecondaryTextColor, RoundedCornerShape(12.dp)),
-            innerImagePadding = 12.dp
+        Icon(
+            imageVector = Icons.Filled.Add,
+            contentDescription = null,
+            tint = SecondaryTextColor,
+            modifier = Modifier
+                .border(width = 1.dp, SecondaryTextColor, RoundedCornerShape(12.dp))
+                .size(48.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colors.background)
+                .padding(12.dp)
         )
+
         Spacer(modifier = Modifier.width(16.dp))
 
         Text(

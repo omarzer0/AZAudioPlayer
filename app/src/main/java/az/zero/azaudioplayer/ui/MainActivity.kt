@@ -2,7 +2,6 @@ package az.zero.azaudioplayer.ui
 
 import android.Manifest
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
@@ -44,8 +43,7 @@ class MainActivity : AppCompatActivity() {
             }
             if (!azApp.checkedForPermission) {
                 azApp.checkedForPermission = true
-                audioDbHelper.compareWithLocalList()
-                Log.d("activityResultLauncher", "entered")
+                audioDbHelper.searchForNewAudios()
             }
 
         }
@@ -55,7 +53,8 @@ class MainActivity : AppCompatActivity() {
 
         activityResultLauncher.launch(
             arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
             )
         )
     }

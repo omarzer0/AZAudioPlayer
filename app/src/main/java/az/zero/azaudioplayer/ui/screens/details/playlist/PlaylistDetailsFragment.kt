@@ -5,12 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -29,16 +29,17 @@ import az.zero.azaudioplayer.core.BaseFragment
 import az.zero.azaudioplayer.ui.composables.*
 import az.zero.azaudioplayer.ui.screens.details.playlist.PlayListFavMoreActions.ClearFavList
 import az.zero.azaudioplayer.ui.screens.details.playlist.PlayListMoreClickActions.*
+import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections
 import az.zero.azaudioplayer.ui.screens.tab_screens.AudioItem
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.ui_utils.ui_extensions.mirror
 import az.zero.azaudioplayer.utils.fakeAudio
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
+import az.zero.player.extensions.EMPTY_AUDIO
+import az.zero.player.extensions.isPlaying
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class PlaylistDetailsFragment : BaseFragment() {
@@ -74,14 +75,32 @@ fun PlaylistDetailsScreen(
         mutableStateOf(false)
     }
 
+    val currentlyPlayingAudio = viewModel.currentPlayingAudio.observeAsState().value ?: EMPTY_AUDIO
+    val isPlaying = viewModel.playbackState.observeAsState().value?.isPlaying ?: false
+    val enabled = currentlyPlayingAudio.data.isNotEmpty()
+
+
     PlaylistDetailsScreen(
         modifier = Modifier.background(MaterialTheme.colors.background),
+        currentlyPlayingAudio = currentlyPlayingAudio,
+        isPlaying = isPlaying,
+        enabled = enabled,
         playlist = playlist,
         selectedId = selectedId,
         isDropDownExpanded = isDropDownExpanded,
-        onMoreClick = {
-            isDropDownExpanded = true
+        playAllHeaderEnabled = playlist.dbAudioList.isNotEmpty(),
+        onPlayAllClick = {
+            viewModel.audioAction(
+                action = AudioActions.PlayAll,
+                newAudioList = playlist.dbAudioList
+            )
         },
+        onBackIconClick = { navController.navigateUp() },
+        onBodyClick = { navController.navigate(HomeFragmentDirections.actionGlobalPlayerBottomSheetFragment()) },
+        onPlayOrPauseClick = { viewModel.playOrPause() },
+        onFavouriteClick = { viewModel.addOrRemoveFromFavourite(currentlyPlayingAudio) },
+        onMoreClick = { isDropDownExpanded = true },
+        onDismissDropDown = { isDropDownExpanded = false },
         onAudioItemClick = { audio ->
             viewModel.audioAction(
                 action = AudioActions.Toggle(audio.data),
@@ -94,12 +113,7 @@ fun PlaylistDetailsScreen(
         onBottomTextClick = {
             navigateToAddAudioScreen(navController = navController, playlistName = playlist.name)
         },
-        onBackIconClick = {
-            navController.navigateUp()
-        },
-        onDismissDropDown = {
-            isDropDownExpanded = false
-        }, onPlayListMoreClickActions = { actions ->
+        onPlayListMoreClickActions = { actions ->
             isDropDownExpanded = false
             when (actions) {
                 AddAudio -> {
@@ -136,17 +150,17 @@ fun PlaylistDetailsScreen(
     )
 }
 
-private fun navigateToAddAudioScreen(navController: NavController, playlistName: String) {
-    navController.navigate(
-        PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToAddAudioToPlaylistFragment(
-            playlistName
-        )
-    )
-}
-
 @Composable
 fun PlaylistDetailsScreen(
     modifier: Modifier = Modifier,
+    currentlyPlayingAudio: DBAudio,
+    isPlaying: Boolean,
+    enabled: Boolean,
+    playAllHeaderEnabled: Boolean = true,
+    onPlayAllClick: () -> Unit,
+    onBodyClick: () -> Unit,
+    onPlayOrPauseClick: () -> Unit,
+    onFavouriteClick: (Boolean) -> Unit,
     playlist: DBPlaylist,
     selectedId: String,
     isDropDownExpanded: Boolean,
@@ -162,6 +176,36 @@ fun PlaylistDetailsScreen(
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
+
+        BasicHeaderWithBackBtn(
+            text = playlist.name,
+            onBackPressed = onBackIconClick,
+            actions = {
+                if (playlist.isFavouritePlaylist) {
+                    FavMoreDropDown(
+                        isDropDownExpanded = isDropDownExpanded,
+                        onDismissDropDown = onDismissDropDown,
+                        onPlayListMoreClickActions = onFavMoreClickActions
+                    )
+                } else {
+                    MoreDropDown(
+                        isDropDownExpanded = isDropDownExpanded,
+                        onDismissDropDown = onDismissDropDown,
+                        onPlayListMoreClickActions = onPlayListMoreClickActions
+                    )
+                }
+
+                IconButton(onClick = { onMoreClick() }) {
+                    Icon(
+                        Icons.Filled.MoreVert,
+                        stringResource(id = R.string.more),
+                        tint = MaterialTheme.colors.onPrimary,
+                    )
+                }
+            }
+        )
+
+        PlaylistDetailsSubHeader(playlist = playlist)
 
         if (playlist.dbAudioList.isEmpty()) {
             EmptyPlaylistDetails(
@@ -180,27 +224,32 @@ fun PlaylistDetailsScreen(
             PlaylistDetails(
                 playlist = realPlaylist,
                 selectedId = selectedId,
+                playAllHeaderEnabled = playAllHeaderEnabled,
+                onPlayAllClick = onPlayAllClick,
                 onAudioItemClick = onAudioItemClick,
                 onAudioIconClick = onAudioIconClick,
-                isDropDownExpanded = isDropDownExpanded,
-                onBackIconClick = onBackIconClick,
-                onDismissDropDown = onDismissDropDown,
-                onFavMoreClickActions = onFavMoreClickActions,
-                onPlayListMoreClickActions = onPlayListMoreClickActions,
-                onMoreClick = onMoreClick
             )
         }
+
+        BottomPlayer(
+            currentlyPlayingAudio = currentlyPlayingAudio,
+            enabled = enabled,
+            isPlaying = isPlaying,
+            onBodyClick = onBodyClick,
+            onFavouriteClick = onFavouriteClick,
+            onPlayOrPauseClick = onPlayOrPauseClick
+        )
     }
 }
 
 @Composable
-fun EmptyPlaylistDetails(
+fun ColumnScope.EmptyPlaylistDetails(
     isFavPlaylist: Boolean,
     onBottomTextClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .weight(1f)
             .padding(bottom = 100.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -232,34 +281,25 @@ fun EmptyPlaylistDetails(
 }
 
 @Composable
-fun PlaylistDetails(
+fun ColumnScope.PlaylistDetails(
     selectedId: String,
     playlist: DBPlaylist,
-    isDropDownExpanded: Boolean,
+    playAllHeaderEnabled: Boolean = true,
+    onPlayAllClick: () -> Unit,
     onAudioItemClick: (DBAudio) -> Unit,
     onAudioIconClick: (DBAudio, MenuActionType) -> Unit,
-    onMoreClick: () -> Unit,
-    onBackIconClick: () -> Unit,
-    onDismissDropDown: () -> Unit,
-    onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit,
-    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit,
 ) {
-    Column {
-        PlaylistDetailsHeader(
-            modifier = Modifier.fillMaxWidth(),
-            playlist = playlist,
-            onMoreClick = onMoreClick,
-            onBackIconClick = onBackIconClick,
-            isDropDownExpanded = isDropDownExpanded,
-            onDismissDropDown = onDismissDropDown,
-            onPlayListMoreClickActions = onPlayListMoreClickActions,
-            onFavMoreClickActions = onFavMoreClickActions
-        )
-
-    }
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier.weight(1f)
+    ) {
         item {
-            PlaylistDetailsSubHeader(playlist = playlist)
+            val headerText =
+                "${playlist.dbAudioList.size} ${stringResource(id = R.string.of_audios)}"
+            PlayAllHeader(
+                text = headerText,
+                playAllHeaderEnabled = playAllHeaderEnabled,
+                onClick = onPlayAllClick
+            )
         }
 
         items(playlist.dbAudioList, key = { it.data }) { audio ->
@@ -271,68 +311,8 @@ fun PlaylistDetails(
                     onAudioIconClick(audio, menuAction)
                 }
             )
-
         }
     }
-}
-
-@Composable
-fun PlaylistDetailsHeader(
-    modifier: Modifier = Modifier,
-    playlist: DBPlaylist,
-    isDropDownExpanded: Boolean,
-    onMoreClick: () -> Unit,
-    onBackIconClick: () -> Unit,
-    onDismissDropDown: () -> Unit,
-    onPlayListMoreClickActions: (actions: PlayListMoreClickActions) -> Unit,
-    onFavMoreClickActions: (actions: PlayListFavMoreActions) -> Unit,
-) {
-    TopAppBar(
-        modifier = modifier,
-        title = {
-            Text(
-                text = playlist.name,
-                color = MaterialTheme.colors.onPrimary
-            )
-        },
-        backgroundColor = MaterialTheme.colors.background,
-        elevation = 0.dp,
-        actions = {
-
-            if (playlist.isFavouritePlaylist) {
-                FavMoreDropDown(
-                    isDropDownExpanded = isDropDownExpanded,
-                    onDismissDropDown = onDismissDropDown,
-                    onPlayListMoreClickActions = onFavMoreClickActions
-                )
-            } else {
-                MoreDropDown(
-                    isDropDownExpanded = isDropDownExpanded,
-                    onDismissDropDown = onDismissDropDown,
-                    onPlayListMoreClickActions = onPlayListMoreClickActions
-                )
-            }
-
-            IconButton(onClick = { onMoreClick() }) {
-                Icon(
-                    Icons.Filled.MoreVert,
-                    stringResource(id = R.string.more),
-                    tint = MaterialTheme.colors.onPrimary,
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = { onBackIconClick() }) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    stringResource(id = R.string.back),
-                    tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.mirror()
-                )
-            }
-        }
-    )
-
 }
 
 sealed class PlayListMoreClickActions {
@@ -453,6 +433,8 @@ fun CustomDialog(
     onDismiss: () -> Unit,
     onConfirmClick: () -> Unit,
 ) {
+    val textBtnColor =
+        if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
 
     if (openDialog) {
         AlertDialog(
@@ -460,7 +442,7 @@ fun CustomDialog(
             text = {
                 Text(
                     style = MaterialTheme.typography.h2,
-                    text = "Are you sure you want to delete it?",
+                    text = stringResource(id = R.string.are_you_sure_you_want_to_delete_it),
                 )
             },
             buttons = {
@@ -471,22 +453,29 @@ fun CustomDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
+                    TextButton(
                         onClick = onConfirmClick,
-                        colors = ButtonDefaults.buttonColors(backgroundColor = SelectedColor)
                     ) {
-                        Text(stringResource(id = R.string.delete), color = Color.White)
+                        Text(stringResource(id = R.string.delete), color = SelectedColor)
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Button(
+                    TextButton(
                         onClick = onDismiss
                     ) {
-                        Text("Cancel", color = MaterialTheme.colors.onPrimary)
+                        Text(stringResource(id = R.string.cancel), color = textBtnColor)
                     }
                 }
             }
         )
     }
+}
+
+private fun navigateToAddAudioScreen(navController: NavController, playlistName: String) {
+    navController.navigate(
+        PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToAddAudioToPlaylistFragment(
+            playlistName
+        )
+    )
 }

@@ -10,30 +10,32 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDeepLinkBuilder
-import az.zero.azaudioplayer.media.player.extensions.EMPTY_AUDIO
-import az.zero.azaudioplayer.media.player.extensions.EMPTY_PLAYBACK_STATE
-import az.zero.azaudioplayer.media.player.extensions.id
 import az.zero.azaudioplayer.ui.MainActivity
+import az.zero.azaudioplayer.utils.tryWithHandledCatch
 import az.zero.base.di.ApplicationScope
 import az.zero.base.utils.AudioActions
+import az.zero.base.utils.PlayingListFrom
+import az.zero.base.utils.toAlbumSortBy
+import az.zero.base.utils.toAudioSortBy
 import az.zero.datastore.DataStoreManager
 import az.zero.datastore.DataStoreManager.Companion.LAST_PLAYED_AUDIO_ID_KEY
 import az.zero.datastore.DataStoreManager.Companion.REPEAT_MODE
 import az.zero.db.AudioDao
+import az.zero.db.entities.DBAlbumWithAudioList
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import az.zero.player.audio_data_source.AudioDataSource
-import az.zero.player.extensions.isPlayEnabled
-import az.zero.player.extensions.isPlaying
-import az.zero.player.extensions.isPrepared
+import az.zero.player.extensions.*
 import az.zero.player.service.AudioService
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,6 +49,14 @@ class AudioRepository @Inject constructor(
     private val audioDataSource: AudioDataSource,
 ) {
 
+    val sortAudioBy = dataStoreManager.sortAudioByFlow.map {
+        it.toAudioSortBy()
+    }
+
+    val sortAlbumBy = dataStoreManager.sortAlbumByFlow.map {
+        it.toAlbumSortBy()
+    }
+
     @OptIn(ExperimentalPagerApi::class)
     fun pendingIntent(): PendingIntent {
         return NavDeepLinkBuilder(context)
@@ -56,13 +66,20 @@ class AudioRepository @Inject constructor(
             .createPendingIntent()
     }
 
-    fun getAllAudio() = audioDao.getAllDbAudio()
+    val allAudio: Flow<List<DBAudio>> = sortAudioBy.flatMapLatest {
+        audioDao.getAllDbAudio(it)
+    }
 
-    fun getAlbumWithAudio() = audioDao.getAlbumWithAudio()
+    val allAlbumsWithAudio: Flow<List<DBAlbumWithAudioList>> =
+        sortAlbumBy.flatMapLatest { albumSortOrder ->
+            audioDao.getAlbumWithAudio(albumSortOrder)
+        }
 
     fun getArtistWithAudio() = audioDao.getArtistWithAudio()
 
     fun getAllPlayLists() = audioDao.getAllPlayLists()
+
+    fun getAllPlayListsWithoutFavouritePlaylist() = audioDao.getAllPlayListsWithoutFavouritePlaylist()
 
     private var _nowPlayingAudio = MutableLiveData(EMPTY_AUDIO)
     val nowPlayingDBAudio: LiveData<DBAudio?> = _nowPlayingAudio
@@ -114,7 +131,6 @@ class AudioRepository @Inject constructor(
 
     private fun playNewAudio(newAudioList: List<DBAudio>?, mediaItem: String) {
         if (newAudioList != null) {
-            Log.e("playPauseOrToggle", "${newAudioList.size}")
             newAudioChosen(newAudioList, mediaItem)
         } else {
             // if the passed list is null play from all audio list
@@ -126,9 +142,10 @@ class AudioRepository @Inject constructor(
     }
 
     private fun newAudioChosen(newAudioList: List<DBAudio>, mediaItem: String) {
-        audioDataSource.updateAudioList(newAudioList)
-//        dataStoreManager.saveLastPlayedAudio(mediaItem)
-        transportControls.playFromMediaId(mediaItem, null)
+        tryWithHandledCatch {
+            audioDataSource.updateAudioList(newAudioList)
+            transportControls.playFromMediaId(mediaItem, null)
+        }
     }
 
     fun playOrPause() {
@@ -167,12 +184,22 @@ class AudioRepository @Inject constructor(
      * @param newAudioList if null is passed all audio files will be used and if not null
      * the player will play that list
      * */
-    fun audioAction(action: AudioActions, newAudioList: List<DBAudio>?) {
+    fun audioAction(
+        action: AudioActions,
+        newAudioList: List<DBAudio>?,
+        playingListFrom: PlayingListFrom,
+    ) {
         when (action) {
             AudioActions.Pause -> transportControls.pause()
             AudioActions.Play -> transportControls.play()
+            AudioActions.PlayAll -> {
+                // Don't complete if the list is null or empty
+                if (newAudioList.isNullOrEmpty()) return
+                playPauseOrToggle(newAudioList[0].data, newAudioList)
+            }
             is AudioActions.Toggle -> playPauseOrToggle(action.audioDataId, newAudioList)
         }
+
     }
 
     suspend fun addOrRemoveFromFavouritePlayList(dbAudio: DBAudio) {
@@ -269,6 +296,8 @@ class AudioRepository @Inject constructor(
             dataStoreManager.saveLastPlayedAudio(audio.data)
         }
     }
+
+    suspend fun deleteAudioById(data: String) = audioDao.deleteAudioById(data)
 
     init {
         audioDataSource.setDestinationAndGraphIds(pendingIntent())

@@ -11,12 +11,12 @@
     <style name="MyBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/onPrimary</item>
+        <item name="android:navigationBarColor">@color/onPrimary</item>
     </style>
 
     <style name="MainActivityTheme" parent="Theme.AZAudioPlayer">
         <item name="android:navigationBarColor">@color/onPrimary</item>
-<!--        <item name="android:backgroundTint">@color/onPrimary</item>-->
+        <!--        <item name="android:backgroundTint">@color/onPrimary</item>-->
     </style>
 
     <style name="SplashScreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -24,6 +24,24 @@
         <item name="colorPrimaryDark">@color/onPrimary</item>
         <item name="android:navigationBarColor">@color/onPrimary</item>
         <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+
+    <style name="CustomBottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/CustomBottomSheet</item>
+    </style>
+
+    <style name="CustomBottomSheet" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/CustomShapeAppearanceBottomSheetDialog</item>
+        <item name="backgroundTint">@color/bottom_sheet_color</item>
+    </style>
+
+    <style name="CustomShapeAppearanceBottomSheetDialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">16dp</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
 </resources>

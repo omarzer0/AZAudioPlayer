@@ -38,6 +38,12 @@
         <action
             android:id="@+id/action_homeFragment_to_artistDetailsFragment"
             app:destination="@id/artistDetailsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_sortAudioBottomSheetFragment"
+            app:destination="@id/sortAudioBottomSheetFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_sortAlbumBottomSheetFragment"
+            app:destination="@id/sortAlbumBottomSheetFragment" />
     </fragment>
     <fragment
         android:id="@+id/albumDetailsFragment"
@@ -50,8 +56,7 @@
     <dialog
         android:id="@+id/playerBottomSheetFragment"
         android:name="az.zero.azaudioplayer.ui.screens.player.PlayerBottomSheetFragment"
-        android:label="PlayerBottomSheetFragment" >
-    </dialog>
+        android:label="PlayerBottomSheetFragment" />
 
     <action android:id="@+id/action_global_playerBottomSheetFragment" app:destination="@id/playerBottomSheetFragment"/>
     <fragment
@@ -109,4 +114,12 @@
             android:name="dbArtistWithAudios"
             app:argType="az.zero.db.entities.DBArtistWithAudios" />
     </fragment>
+    <dialog
+        android:id="@+id/sortAudioBottomSheetFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.sort.audio.SortAudioBottomSheetFragment"
+        android:label="SortAudioBottomSheetFragment" />
+    <dialog
+        android:id="@+id/sortAlbumBottomSheetFragment"
+        android:name="az.zero.azaudioplayer.ui.screens.sort.album.SortAlbumBottomSheetFragment"
+        android:label="SortAlbumBottomSheetFragment" />
 </navigation>
