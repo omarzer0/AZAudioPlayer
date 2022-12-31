@@ -297,6 +297,8 @@ class AudioRepository @Inject constructor(
         }
     }
 
+    suspend fun deleteAudioById(data: String) = audioDao.deleteAudioById(data)
+
     init {
         audioDataSource.setDestinationAndGraphIds(pendingIntent())
 

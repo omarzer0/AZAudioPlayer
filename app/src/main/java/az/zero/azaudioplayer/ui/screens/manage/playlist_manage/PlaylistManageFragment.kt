@@ -95,6 +95,9 @@ fun ManagePlaylistsScreen(
     onDismissDialog: () -> Unit,
     onDeleteConfirm: () -> Unit,
 ) {
+
+    val shouldShowActions = selectablePlaylists.isNotEmpty()
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -102,43 +105,63 @@ fun ManagePlaylistsScreen(
             text = stringResource(id = R.string.manage_playlists),
             onBackPressed = onBackPressed,
             actions = {
-                Checkbox(
-                    checked = isAllSelected,
-                    onCheckedChange = { onSelectAllPressed(isAllSelected) },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = SelectedColor,
-                        checkmarkColor = Color.White
-                    ),
-                )
+                if (shouldShowActions) {
+                    Checkbox(
+                        checked = isAllSelected,
+                        onCheckedChange = { onSelectAllPressed(isAllSelected) },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = SelectedColor,
+                            checkmarkColor = Color.White
+                        ),
+                    )
+                }
             }
         )
 
-        CustomPlaylistDialog(
-            openDialog = isDeleteDialogShown,
-            onDismiss = onDismissDialog,
-            onConfirmClick = onDeleteConfirm
-        )
+        if (shouldShowActions) {
+            CustomPlaylistDialog(
+                openDialog = isDeleteDialogShown,
+                onDismiss = onDismissDialog,
+                onConfirmClick = onDeleteConfirm
+            )
 
-        LazyColumn(
-            modifier = Modifier.weight(1f)
-        ) {
-            items(selectablePlaylists, key = { it.playlist.name }) {
-                SelectablePlaylistItem(
-                    onPlaylistSelect = { playlistId: String, isSelected: Boolean ->
-                        onPlaylistSelect(playlistId, isSelected)
-                    },
-                    selectablePlaylist = it
-                )
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                items(selectablePlaylists, key = { it.playlist.name }) {
+                    SelectablePlaylistItem(
+                        onPlaylistSelect = { playlistId: String, isSelected: Boolean ->
+                            onPlaylistSelect(playlistId, isSelected)
+                        },
+                        selectablePlaylist = it
+                    )
+                }
             }
+
+            BottomActionBar(
+                onDeleteAllSelected = onDeleteAllSelected,
+                isEnabled = areActionsEnabled
+            )
+        } else {
+            EmptyManageScreen()
         }
-
-        BottomActionBar(
-            onDeleteAllSelected = onDeleteAllSelected,
-            isEnabled = areActionsEnabled
-        )
     }
 }
 
+@Composable
+fun EmptyManageScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(id = R.string.no_playlist_to_show),
+            style = MaterialTheme.typography.h1.copy(
+                color = SecondaryTextColor
+            )
+        )
+    }
+}
 
 @Composable
 fun SelectablePlaylistItem(

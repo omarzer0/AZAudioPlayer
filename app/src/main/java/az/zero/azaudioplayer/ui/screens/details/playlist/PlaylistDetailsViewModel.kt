@@ -18,9 +18,21 @@ class PlaylistDetailsViewModel @Inject constructor(
     private val stateHandler: SavedStateHandle,
 ) : ViewModel() {
     val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
+    val playbackState = audioRepository.playbackState
+
     private val playlistName = stateHandler.get<String>("playlistName") ?: ""
 
     val playlist = audioRepository.getPlaylistById(playlistName)
+
+    fun addOrRemoveFromFavourite(DBAudio: DBAudio) {
+        viewModelScope.launch {
+            audioRepository.addOrRemoveFromFavouritePlayList(DBAudio)
+        }
+    }
+
+    fun playOrPause() {
+        audioRepository.playOrPause()
+    }
 
     fun audioAction(action: AudioActions, newAudioList: List<DBAudio>?) {
         audioRepository.audioAction(

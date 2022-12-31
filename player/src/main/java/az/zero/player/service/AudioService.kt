@@ -51,9 +51,6 @@ class AudioService : MediaBrowserServiceCompat() {
 
     private var currentPlaylistItems: List<DBAudio> = emptyList()
 
-//    private var indexOfCurrentPlayingAudio = 0
-//    private var currentAudioPosition = 0L
-
     override fun onCreate() {
         super.onCreate()
 
@@ -170,31 +167,8 @@ class AudioService : MediaBrowserServiceCompat() {
         }
     }
 
-
-//    private fun preparePlaylist(
-//        itemToPlay: MediaMetadataCompat?,
-//        metadataList: List<MediaMetadataCompat>,
-//        playWhenReady: Boolean,
-//        playbackStartPositionMs: Long = 0L
-//    ) {
-//        val initialWindowIndex = if (itemToPlay == null) 0 else metadataList.indexOf(itemToPlay)
-//        currentPlaylistItems = metadataList.to
-//        exoPlayer.playWhenReady = playWhenReady
-//        exoPlayer.stop(true)
-//        val mediaSource = metadataList.toMediaSource(dataSourceFactory)
-//        exoPlayer.prepare(mediaSource)
-//        exoPlayer.seekTo(initialWindowIndex, playbackStartPositionMs)
-//        Log.e("playPauseOrToggle", "playPauseOrToggle:$playWhenReady")
-//    }
-
     companion object {
         const val BROWSABLE_ROOT = "__ROOT__"
-        private const val NOTIFICATION_ID = 1953
-        const val CHANNEL_ID = "AZ player channel id"
-        const val CHANNEL_NAME = "AZ player audio channel"
-        const val DESCRIPTION = "AZ player Channel"
-        const val NOTIFICATION_LIGHT_COLOR = Color.GREEN
-//        private const val PLAYBACK_CHANNEL_ID = CHANNEL_ID
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
@@ -210,10 +184,6 @@ class AudioService : MediaBrowserServiceCompat() {
             release()
         }
 
-        Log.e("onDestttt", "onDestroy: ")
-        // Cancel coroutines when the service is going away.
-//        serviceScope.cancel()
-        // Free ExoPlayer resources.
         exoPlayer.release()
         isForegroundService = false
         stopForeground(true)

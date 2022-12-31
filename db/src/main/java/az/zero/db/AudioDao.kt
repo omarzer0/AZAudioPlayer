@@ -33,6 +33,8 @@ interface AudioDao {
     @Query("SELECT * FROM DBAudio ORDER BY artist ASC")
     fun getAllAudioSortedByArtistName(): Flow<List<DBAudio>>
 
+    @Query("DELETE FROM DBAudio WHERE data=:audioData")
+    suspend fun deleteAudioById(audioData: String)
 
     fun getAlbumWithAudio(albumSortOrder: AlbumSortBy): Flow<List<DBAlbumWithAudioList>> =
         when (albumSortOrder) {

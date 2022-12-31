@@ -24,7 +24,7 @@ import az.zero.db.entities.DBAudio
 @Composable
 fun BottomPlayer(
     modifier: Modifier = Modifier,
-    audio: DBAudio,
+    currentlyPlayingAudio: DBAudio,
     isPlaying: Boolean,
     enabled: Boolean,
     onBodyClick: () -> Unit,
@@ -51,7 +51,7 @@ fun BottomPlayer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             CustomImage(
-                image = audio.cover,
+                image = currentlyPlayingAudio.cover,
                 modifier = Modifier.size(48.dp),
             )
 
@@ -59,21 +59,21 @@ fun BottomPlayer(
                 modifier = Modifier
                     .weight(0.6f)
                     .padding(start = 16.dp, end = 24.dp),
-                topTextString = audio.title,
-                bottomTextString = audio.artist
+                topTextString = currentlyPlayingAudio.title,
+                bottomTextString = currentlyPlayingAudio.artist
             )
 
             IconButton(
                 enabled = enabled,
                 modifier = Modifier
                     .weight(0.1f)
-                    .mirror(), onClick = { onFavouriteClick(audio.isFavourite) }
+                    .mirror(), onClick = { onFavouriteClick(currentlyPlayingAudio.isFavourite) }
             ) {
                 Icon(
-                    if (audio.isFavourite) Icons.Filled.Favorite
+                    if (currentlyPlayingAudio.isFavourite) Icons.Filled.Favorite
                     else Icons.Outlined.FavoriteBorder,
                     stringResource(id = R.string.add_or_remove_from_favourites),
-                    tint = if (audio.isFavourite) Color.Red else MaterialTheme.colors.onPrimary
+                    tint = if (currentlyPlayingAudio.isFavourite) Color.Red else MaterialTheme.colors.onPrimary
                 )
             }
 

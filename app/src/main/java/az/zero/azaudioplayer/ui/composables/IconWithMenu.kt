@@ -38,15 +38,12 @@ fun IconWithMenu(
                 items.forEach {
                     DropdownMenuItem(
                         onClick = {
+                            onIconClick(it.menuActionType)
                             expanded = false
                         }) {
                         Text(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .clickableSafeClick {
-                                    onIconClick(it.menuActionType)
-                                    expanded = false
-                                },
+                                .fillMaxWidth(),
                             text = stringResource(id = it.stringID), textAlign = TextAlign.Center
                         )
                     }

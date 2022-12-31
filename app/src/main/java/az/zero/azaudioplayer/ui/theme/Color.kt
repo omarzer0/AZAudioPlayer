@@ -14,3 +14,4 @@ val SecondaryTextColor = Color.Gray
 
 //val Black_900 = getColorFromHex("212121")
 val SelectedColor = Color.Red
+val MatchColor = Color.Blue
