@@ -55,7 +55,7 @@ class HomeViewModel @Inject constructor(
 
     fun createANewPlayListIfNotExist(playlistName: String) {
         viewModelScope.launch {
-            val exist = audioRepository.getSinglePlayListById(playlistName) != null
+            val exist = audioRepository.getSinglePlaylistById(playlistName) != null
             _errorFlow.emit(false)
             if (!exist) {
                 audioRepository.addPlayList(DBPlaylist(name = playlistName, emptyList()))

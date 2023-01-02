@@ -73,6 +73,7 @@ fun SettingScreen(
             ),
             textAlign = TextAlign.Start
         )
+        Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn(
             modifier = Modifier.weight(1f)
@@ -96,6 +97,8 @@ fun SettingScreen(
                 )
             }
 
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+
             item {
                 SettingsItem(
                     text = stringResource(id = R.string.open_source_licence),
@@ -111,6 +114,7 @@ fun SettingScreen(
                 color = MaterialTheme.colors.onBackground
             )
         )
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

@@ -79,7 +79,7 @@ class AddAudioToPlaylistViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val playlist = audioRepository.getSinglePlayListById(playlistName) ?: return@launch
+            val playlist = audioRepository.getSinglePlaylistById(playlistName) ?: return@launch
             val currentPlaylistAudioList = playlist.dbAudioList.map { it.data }
             selectedAudioIds.clear()
             selectedAudioIds.addAll(currentPlaylistAudioList)

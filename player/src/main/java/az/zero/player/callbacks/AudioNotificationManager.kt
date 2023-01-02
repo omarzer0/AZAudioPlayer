@@ -18,7 +18,6 @@ class AudioNotificationManager(
 ) {
     private val mediaController = MediaControllerCompat(context, sessionToken)
 
-    // TODO y
     private val notificationManager: PlayerNotificationManager = PlayerNotificationManager.Builder(
         context,
         NOTIFICATION_ID,
@@ -61,7 +60,7 @@ class AudioNotificationManager(
 
         override fun getCurrentLargeIcon(
             player: Player,
-            callback: PlayerNotificationManager.BitmapCallback
+            callback: PlayerNotificationManager.BitmapCallback,
         ): Bitmap? = null
     }
 }

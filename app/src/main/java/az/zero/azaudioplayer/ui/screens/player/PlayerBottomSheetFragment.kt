@@ -1,7 +1,7 @@
 package az.zero.azaudioplayer.ui.screens.player
 
 import android.os.Bundle
-import android.support.v4.media.session.PlaybackStateCompat
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
 import android.util.Log
 import android.view.LayoutInflater
@@ -33,17 +33,17 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.R
 import az.zero.azaudioplayer.core.setCompContent
-import az.zero.player.extensions.EMPTY_AUDIO
 import az.zero.azaudioplayer.ui.composables.CustomImage
 import az.zero.azaudioplayer.ui.composables.TopWithBottomText
 import az.zero.azaudioplayer.ui.composables.clickableSafeClick
+import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
-import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.utils.createTimeLabel
 import az.zero.azaudioplayer.utils.largeIconSize
 import az.zero.azaudioplayer.utils.midIconsSize
 import az.zero.azaudioplayer.utils.smallIconsSize
+import az.zero.player.extensions.EMPTY_AUDIO
 import az.zero.player.extensions.isPlaying
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -76,13 +76,11 @@ fun PlayerScreen(
     navController: NavController,
 ) {
 
-    val currentPlayingAudio = viewModel.currentPlayingAudio.observeAsState()
-    val playingState = viewModel.playbackState.observeAsState()
-    val isPlaying = playingState.value?.isPlaying ?: false
-    val audio = currentPlayingAudio.value ?: EMPTY_AUDIO
+    val audio = viewModel.currentPlayingAudio.observeAsState().value ?: EMPTY_AUDIO
+    val isPlaying = viewModel.playbackState.observeAsState().value?.isPlaying ?: false
     val currentPosition = viewModel.currentPosition.observeAsState()
-    val repeatMode =
-        viewModel.repeatMode.observeAsState().value ?: PlaybackStateCompat.REPEAT_MODE_ALL
+    val repeatMode = viewModel.repeatMode.observeAsState().value ?: REPEAT_MODE_ALL
+    val isShuffleModeNone = viewModel.isShuffleModeNone.observeAsState().value ?: true
 
     Column(
         modifier = Modifier
@@ -145,8 +143,10 @@ fun PlayerScreen(
         CustomActionsRow(
             isFavourite = audio.isFavourite,
             repeatMode = repeatMode,
+            isShuffleModeNone = isShuffleModeNone,
             onFavouriteClick = { viewModel.addOrRemoveFromFavourite(audio) },
-            onChangeRepeatModeClick = { viewModel.changeRepeatMode() }
+            onChangeRepeatModeClick = { viewModel.changeRepeatMode() },
+            onToggleShuffleMode = { viewModel.toggleShuffleMode() }
         )
 
         AudioActionsRow(
@@ -254,8 +254,10 @@ fun CustomActionsRow(
     modifier: Modifier = Modifier,
     isFavourite: Boolean,
     repeatMode: Int,
+    isShuffleModeNone: Boolean,
     onFavouriteClick: () -> Unit,
     onChangeRepeatModeClick: () -> Unit,
+    onToggleShuffleMode: () -> Unit,
 ) {
 
     Row(
@@ -293,9 +295,7 @@ fun CustomActionsRow(
 
         IconButton(
             modifier = Modifier.mirror(),
-            onClick = {
-                onFavouriteClick()
-            }
+            onClick = onFavouriteClick
         ) {
 
             Icon(
@@ -310,11 +310,12 @@ fun CustomActionsRow(
 
         IconButton(
             modifier = Modifier.mirror(),
-            onClick = {}
+            onClick = onToggleShuffleMode
         ) {
 
             Icon(
-                imageVector = Icons.Filled.ListAlt,
+                imageVector = if (isShuffleModeNone) Icons.Filled.Shuffle
+                else Icons.Filled.ShuffleOn,
                 stringResource(id = R.string.more),
                 tint = MaterialTheme.colors.onPrimary,
                 modifier = Modifier.size(smallIconsSize)

@@ -2,6 +2,7 @@ package az.zero.azaudioplayer.ui.screens.player
 
 import android.os.Handler
 import android.os.Looper
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.*
 import az.zero.azaudioplayer.AudioRepository
 import az.zero.player.extensions.currentPlayBackPosition
@@ -20,6 +21,7 @@ class PlayerBottomSheetViewModel @Inject constructor(
     val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
     val playbackState = audioRepository.playbackState.distinctUntilChanged()
     val repeatMode = audioRepository.repeatMode
+    val isShuffleModeNone = audioRepository.isShuffleModeNone
 
     fun seekToPosition(position: Long) {
         audioRepository.seekTo(position)
@@ -70,5 +72,9 @@ class PlayerBottomSheetViewModel @Inject constructor(
         viewModelScope.launch {
             audioRepository.addOrRemoveFromFavouritePlayList(DBAudio)
         }
+    }
+
+    fun toggleShuffleMode(){
+        audioRepository.toggleShuffleMode()
     }
 }

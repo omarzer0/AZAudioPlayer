@@ -10,8 +10,10 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import androidx.navigation.NavDeepLinkBuilder
 import az.zero.azaudioplayer.ui.MainActivity
 import az.zero.azaudioplayer.utils.tryWithHandledCatch
@@ -23,6 +25,7 @@ import az.zero.base.utils.toAudioSortBy
 import az.zero.datastore.DataStoreManager
 import az.zero.datastore.DataStoreManager.Companion.LAST_PLAYED_AUDIO_ID_KEY
 import az.zero.datastore.DataStoreManager.Companion.REPEAT_MODE
+import az.zero.datastore.DataStoreManager.Companion.SHUFFLE_MODE
 import az.zero.db.AudioDao
 import az.zero.db.entities.DBAlbumWithAudioList
 import az.zero.db.entities.DBAudio
@@ -79,7 +82,8 @@ class AudioRepository @Inject constructor(
 
     fun getAllPlayLists() = audioDao.getAllPlayLists()
 
-    fun getAllPlayListsWithoutFavouritePlaylist() = audioDao.getAllPlayListsWithoutFavouritePlaylist()
+    fun getAllPlayListsWithoutFavouritePlaylist() =
+        audioDao.getAllPlayListsWithoutFavouritePlaylist()
 
     private var _nowPlayingAudio = MutableLiveData(EMPTY_AUDIO)
     val nowPlayingDBAudio: LiveData<DBAudio?> = _nowPlayingAudio
@@ -92,6 +96,9 @@ class AudioRepository @Inject constructor(
 
     private val _repeatMode = MutableLiveData(REPEAT_MODE_ALL)
     val repeatMode: LiveData<Int> = _repeatMode
+
+    private val _isShuffleModeNone = MutableLiveData(SHUFFLE_MODE_NONE)
+    val isShuffleModeNone: LiveData<Boolean> = _isShuffleModeNone.map { it == SHUFFLE_MODE_NONE }
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback()
 
@@ -166,6 +173,18 @@ class AudioRepository @Inject constructor(
         transportControls.skipToPrevious()
     }
 
+    fun toggleShuffleMode() {
+        scope.launch {
+            val currentShuffleMode = dataStoreManager.read(SHUFFLE_MODE, SHUFFLE_MODE_NONE)
+            val newShuffleMode = if (currentShuffleMode == SHUFFLE_MODE_NONE) SHUFFLE_MODE_ALL
+            else SHUFFLE_MODE_NONE
+            transportControls.setShuffleMode(newShuffleMode)
+            _isShuffleModeNone.postValue(newShuffleMode)
+            dataStoreManager.saveShuffleMode(newShuffleMode)
+            Log.e("changeRepeatMode", "old: $currentShuffleMode\nnew: $newShuffleMode")
+        }
+    }
+
     fun changeRepeatMode() {
         scope.launch {
             val oldRepeatMode: Int = dataStoreManager.read(REPEAT_MODE, REPEAT_MODE_ALL)
@@ -204,8 +223,6 @@ class AudioRepository @Inject constructor(
 
     suspend fun addOrRemoveFromFavouritePlayList(dbAudio: DBAudio) {
         audioDao.addOrRemoveFromFavouritePlayList(dbAudio)
-//        val audio = audioDao.getAudioById(dbAudio.data) ?: EMPTY_AUDIO
-//        _nowPlayingAudio.postValue(audio)
         getUpdatedCurrentlyPlaying(dbAudio.data)
     }
 
@@ -213,7 +230,7 @@ class AudioRepository @Inject constructor(
 
     suspend fun deletePlayListById(playlistId: String) = audioDao.deletePlaylistById(playlistId)
 
-    suspend fun getSinglePlayListById(playlistId: String) =
+    suspend fun getSinglePlaylistById(playlistId: String) =
         audioDao.getSinglePlaylistById(playlistId)
 
     suspend fun getFavouritePlaylist() = audioDao.getFavouritePlaylist()
@@ -221,7 +238,6 @@ class AudioRepository @Inject constructor(
     suspend fun clearFavList() = audioDao.clearFavList(context)
 
     fun getPlaylistById(playlistId: String) = audioDao.getPlaylistById(playlistId)
-
 
     suspend fun getAllDbAudioSingleListByQuery(query: String): List<DBAudio>? {
         return audioDao.getAllDbAudioSingleListByQuery(query.trim())
@@ -268,8 +284,6 @@ class AudioRepository @Inject constructor(
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             // Current playing song changed
             scope.launch {
-//                val audio = metadata?.id?.let { audioDao.getAudioById(it) } ?: EMPTY_AUDIO
-//                _nowPlayingAudio.postValue(audio)
                 val id = metadata?.id ?: return@launch
                 getUpdatedCurrentlyPlaying(id)
             }
@@ -282,9 +296,6 @@ class AudioRepository @Inject constructor(
 
         override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {
             super.onQueueChanged(queue)
-            SHUFFLE_MODE_GROUP
-            SHUFFLE_MODE_INVALID
-            SHUFFLE_MODE_ALL
         }
     }
 

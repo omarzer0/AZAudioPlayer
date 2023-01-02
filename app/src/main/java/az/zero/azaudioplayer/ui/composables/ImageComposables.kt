@@ -53,6 +53,7 @@ fun CustomImage(
     contentScale: ContentScale = ContentScale.Crop,
 ) {
     val borderColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
+    val bgColor = imageBackgroundColor ?: borderColor
 
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
@@ -73,7 +74,7 @@ fun CustomImage(
                 borderWidth = 0.5.dp
             )
             .clip(cornerShape)
-            .background(imageBackgroundColor ?: borderColor),
+            .background(bgColor),
         alignment = Alignment.Center,
     )
 }

@@ -2,10 +2,7 @@ package az.zero.datastore
 
 import android.content.Context
 import android.util.Log
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import az.zero.base.di.ApplicationScope
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -54,7 +51,6 @@ class DataStoreManager @Inject constructor(
             preferences[stringPreferencesKey(SORT_ALBUM_BY)] ?: ""
         }
 
-
     suspend fun write(key: String, value: String) {
         mDataStore.edit { settings ->
             settings[stringPreferencesKey(key)] = value
@@ -71,6 +67,12 @@ class DataStoreManager @Inject constructor(
         return mDataStore.data.map { settings ->
             settings[stringPreferencesKey(key)] ?: defaultValue
         }.first().toString()
+    }
+
+    suspend fun read(key: String, defaultValue: Boolean): Boolean {
+        return mDataStore.data.map { settings ->
+            settings[booleanPreferencesKey(key)] ?: defaultValue
+        }.first()
     }
 
     suspend fun read(key: String, defaultValue: Int): Int {
@@ -104,11 +106,20 @@ class DataStoreManager @Inject constructor(
         }
     }
 
+
+    fun saveShuffleMode(shuffleMode: Int) {
+        scope.launch {
+            write(SHUFFLE_MODE, shuffleMode)
+        }
+    }
+
     companion object {
         const val LAST_PLAYED_AUDIO_ID_KEY = "LAST_PLAYED_AUDIO_ID_KEY"
         const val REPEAT_MODE = "REPEAT_MODE"
+        const val SHUFFLE_MODE = "SHUFFLE_MODE"
         const val SORT_AUDIO_BY = "SORT_AUDIO_BY"
         const val SORT_ALBUM_BY = "SORT_ALBUM_BY"
+        private const val SHUFFLE_NONE = 0
     }
 
     suspend fun clearDataStore() {

@@ -110,7 +110,7 @@ fun AlbumDetailsScreen(
             .background(MaterialTheme.colors.background)
     ) {
         BasicHeaderWithBackBtn(
-            text = dbAlbumWithAudioList.album.name,
+            text = "",
             onBackPressed = onBackIconClick
         )
 

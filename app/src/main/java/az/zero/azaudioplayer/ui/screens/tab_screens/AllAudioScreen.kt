@@ -21,6 +21,7 @@ import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.D
 import az.zero.azaudioplayer.ui.screens.tab_screens.MenuActionTypeForAllScreen.EDIT
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
+import az.zero.azaudioplayer.utils.LONG_TEXT
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 
@@ -133,12 +134,13 @@ fun AudioItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        IconWithMenu(
-            iconVector = Icons.Filled.MoreVert,
-            iconColor = SecondaryTextColor,
-            iconText = stringResource(id = R.string.more),
-            items = menuItemList,
-            onIconClick = onIconClick
-        )
+        //TODO to be add to (ex: edit/delete) audio
+//        IconWithMenu(
+//            iconVector = Icons.Filled.MoreVert,
+//            iconColor = SecondaryTextColor,
+//            iconText = stringResource(id = R.string.more),
+//            items = menuItemList,
+//            onIconClick = onIconClick
+//        )
     }
 }

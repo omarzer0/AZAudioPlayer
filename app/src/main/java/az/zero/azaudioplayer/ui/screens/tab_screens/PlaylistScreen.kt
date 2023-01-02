@@ -42,24 +42,26 @@ fun PlaylistScreen(
 
     val allPlaylist = viewModel.allPlaylists.observeAsState().value ?: emptyList()
     val errorAddingDuplicatePlaylistName by viewModel.errorFlow.collectAsState(initial = false)
+    val context = LocalContext.current
+    val errorString = stringResource(id = R.string.playlist_already_exists)
 
-    if (errorAddingDuplicatePlaylistName) {
-        Toast.makeText(
-            LocalContext.current,
-            stringResource(id = R.string.playlist_already_exists),
-            Toast.LENGTH_SHORT
-        ).show()
+    LaunchedEffect(errorAddingDuplicatePlaylistName) {
+        if (errorAddingDuplicatePlaylistName) {
+            Toast.makeText(
+                context,
+                errorString,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     PlaylistScreen(
         allPlaylist = allPlaylist,
-        errorAddingDuplicatePlaylistName = errorAddingDuplicatePlaylistName,
         onPlayListClick = {
             navController.navigate(
                 HomeFragmentDirections.actionHomeFragmentToPlaylistDetailsFragment(it.name)
             )
         }, onCreateClickNewPlaylist = { playlistName ->
-            // TODO check if name already exists
             viewModel.createANewPlayListIfNotExist(playlistName)
         }
     )
@@ -69,7 +71,6 @@ fun PlaylistScreen(
 @Composable
 fun PlaylistScreen(
     allPlaylist: List<DBPlaylist>,
-    errorAddingDuplicatePlaylistName: Boolean,
     onPlayListClick: (DBPlaylist) -> Unit,
     onCreateClickNewPlaylist: (String) -> Unit,
 ) {
