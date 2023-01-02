@@ -41,25 +41,30 @@ fun PlaylistScreen(
 ) {
 
     val allPlaylist = viewModel.allPlaylists.observeAsState().value ?: emptyList()
-    val errorAddingDuplicatePlaylistName by viewModel.errorFlow.collectAsState(initial = false)
-
-    if (errorAddingDuplicatePlaylistName) {
-        Toast.makeText(
-            LocalContext.current,
-            stringResource(id = R.string.playlist_already_exists),
-            Toast.LENGTH_SHORT
-        ).show()
-    }
+//    val errorAddingDuplicatePlaylistName by viewModel.errorFlow.collectAsState(initial = false)
+//    val context = LocalContext.current
+//    val errorString = stringResource(id = R.string.playlist_already_exists)
+//
+//    LaunchedEffect(errorAddingDuplicatePlaylistName) {
+//        if (errorAddingDuplicatePlaylistName) {
+//            Toast.makeText(
+//                context,
+//                errorString,
+//                Toast.LENGTH_SHORT
+//            ).show()
+//        }
+//    }
 
     PlaylistScreen(
         allPlaylist = allPlaylist,
-        errorAddingDuplicatePlaylistName = errorAddingDuplicatePlaylistName,
         onPlayListClick = {
             navController.navigate(
-                HomeFragmentDirections.actionHomeFragmentToPlaylistDetailsFragment(it.name)
+                HomeFragmentDirections.actionHomeFragmentToPlaylistDetailsFragment(
+                    it.name,
+                    it.id ?: -1
+                )
             )
         }, onCreateClickNewPlaylist = { playlistName ->
-            // TODO check if name already exists
             viewModel.createANewPlayListIfNotExist(playlistName)
         }
     )
@@ -69,7 +74,6 @@ fun PlaylistScreen(
 @Composable
 fun PlaylistScreen(
     allPlaylist: List<DBPlaylist>,
-    errorAddingDuplicatePlaylistName: Boolean,
     onPlayListClick: (DBPlaylist) -> Unit,
     onCreateClickNewPlaylist: (String) -> Unit,
 ) {
@@ -89,7 +93,7 @@ fun PlaylistScreen(
 
         CustomDialog(
             openDialog = openDialog,
-            onOpenDialogChanged = {
+            onDismiss = {
                 openDialog = !openDialog
             },
             onCreateClick = { playlistName ->
@@ -154,7 +158,7 @@ fun PlaylistItem(
 @Composable
 fun CustomDialog(
     openDialog: Boolean,
-    onOpenDialogChanged: () -> Unit,
+    onDismiss: () -> Unit,
     onCreateClick: (playlistName: String) -> Unit,
 ) {
     var text by rememberSaveable { mutableStateOf("") }
@@ -169,12 +173,12 @@ fun CustomDialog(
         AlertDialog(
             onDismissRequest = {
                 text = ""
-                onOpenDialogChanged()
+                onDismiss()
             },
             text = {
                 CustomEditText(
                     text = text,
-                    hint = "PlayListName",
+                    hint = stringResource(id = R.string.play_list_name),
                     modifier = Modifier.fillMaxWidth(),
                     onTextChanged = { text = it }
                 )
@@ -193,29 +197,29 @@ fun CustomDialog(
                                 toast?.cancel()
                                 toast = Toast.makeText(
                                     context,
-                                    "Name Can't be empty",
+                                    context.getString(R.string.name_cannot_be_empty),
                                     Toast.LENGTH_LONG
                                 )
                                 toast?.show()
                             } else {
-                                onOpenDialogChanged()
+                                onDismiss()
                                 onCreateClick(text)
                                 text = ""
                             }
                         }
                     ) {
-                        Text("Create", color = textBtnColor)
+                        Text(stringResource(id = R.string.create), color = textBtnColor)
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
                     TextButton(
                         onClick = {
-                            onOpenDialogChanged()
+                            onDismiss()
                             text = ""
                         }
                     ) {
-                        Text("Cancel", color = textBtnColor)
+                        Text(stringResource(id = R.string.cancel), color = textBtnColor)
                     }
                 }
             }

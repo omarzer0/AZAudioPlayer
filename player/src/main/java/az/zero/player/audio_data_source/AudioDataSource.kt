@@ -15,7 +15,6 @@ class AudioDataSource @Inject constructor() {
     private val _audiosLiveData = MutableLiveData<List<DBAudio>>()
     val audiosLiveData: LiveData<List<DBAudio>> = _audiosLiveData
 
-    // TODO Here define the list of playlist that vm and browse tree observe
     private var state: State = STATE_CREATED
         set(value) {
             if (value == STATE_INITIALIZED || value == STATE_ERROR) {

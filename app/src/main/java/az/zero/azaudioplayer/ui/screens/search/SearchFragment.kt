@@ -38,6 +38,7 @@ import az.zero.azaudioplayer.ui.composables.*
 import az.zero.azaudioplayer.ui.composables.ui_extensions.mirror
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
 import az.zero.azaudioplayer.ui.theme.SelectedColor
+import az.zero.azaudioplayer.utils.LONG_TEXT
 import az.zero.base.utils.AudioActions
 import az.zero.db.entities.DBAudio
 import dagger.hilt.android.AndroidEntryPoint
@@ -179,13 +180,14 @@ fun SearchAudioItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        IconWithMenu(
-            iconVector = Icons.Filled.MoreVert,
-            iconColor = SecondaryTextColor,
-            iconText = stringResource(id = R.string.more),
-            items = menuItemList,
-            onIconClick = onIconClick
-        )
+        //TODO to be add to (ex: edit/delete) audio
+//        IconWithMenu(
+//            iconVector = Icons.Filled.MoreVert,
+//            iconColor = SecondaryTextColor,
+//            iconText = stringResource(id = R.string.more),
+//            items = menuItemList,
+//            onIconClick = onIconClick
+//        )
     }
 }
 

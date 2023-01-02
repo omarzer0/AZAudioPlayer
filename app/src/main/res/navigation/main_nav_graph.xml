@@ -73,6 +73,9 @@
         <action
             android:id="@+id/action_playlistDetailsFragment_to_addAudioToPlaylistFragment"
             app:destination="@id/addAudioToPlaylistFragment" />
+        <argument
+            android:name="playlistId"
+            app:argType="long" />
     </fragment>
     <fragment
         android:id="@+id/addAudioToPlaylistFragment"
@@ -81,6 +84,9 @@
         <argument
             android:name="playlistName"
             app:argType="string" />
+        <argument
+            android:name="playlistId"
+            app:argType="long" />
     </fragment>
     <fragment
         android:id="@+id/scanLocalFragment"

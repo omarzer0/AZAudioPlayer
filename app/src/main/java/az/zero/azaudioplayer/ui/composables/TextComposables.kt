@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import az.zero.azaudioplayer.ui.theme.MatchColor
 import az.zero.azaudioplayer.ui.theme.SecondaryTextColor
+import az.zero.azaudioplayer.ui.theme.SelectedColor
 
 @Composable
 fun TopWithBottomText(
@@ -117,6 +118,6 @@ fun getAnnotatedText(annotatedTextQuery: String, textToUse: String): AnnotatedSt
     return if (annotatedTextQuery.isEmpty()) builder.toAnnotatedString()
     else buildAnnotatedString {
         append(textToUse)
-        addStyle(style = SpanStyle(MatchColor), textStartIndex, textEndIndex)
+        addStyle(style = SpanStyle(SelectedColor), textStartIndex, textEndIndex)
     }
 }

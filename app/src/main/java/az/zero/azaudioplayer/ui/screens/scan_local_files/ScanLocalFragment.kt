@@ -145,8 +145,12 @@ fun ScanAnimation(
 }
 
 @Composable
-fun PulsingAnimation() {
-    Column {
+fun PulsingAnimation(
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
         val animationDuration = 1200
         val infiniteTransition = rememberInfiniteTransition()
 
@@ -175,7 +179,7 @@ fun PulsingAnimation() {
             Icon(
                 modifier = Modifier.size(80.dp),
                 painter = painterResource(id = R.drawable.ic_music),
-                tint = MaterialTheme.colors.background,
+                tint = Color.White,
                 contentDescription = ""
             )
         }

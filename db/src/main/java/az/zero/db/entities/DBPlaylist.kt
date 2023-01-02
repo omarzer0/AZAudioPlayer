@@ -8,10 +8,11 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity
 data class DBPlaylist(
-    @PrimaryKey
     val name: String,
     val dbAudioList: List<DBAudio>,
     val isFavouritePlaylist: Boolean = false,
+    @PrimaryKey(autoGenerate = true)
+    val id:Long? = null,
 ) : Parcelable
 
 

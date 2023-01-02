@@ -1,15 +1,15 @@
 <resources>
-    <string name="app_name">AZAudioPlayer</string>
+    <string name="app_name" translatable="false">AZAudioPlayer</string>
     <string name="search">Search</string>
     <string name="more">More</string>
 
     <string name="audio">Audio</string>
-    <string name="artist">Artist</string>
     <string name="albums">Albums</string>
+    <string name="artists">Artists</string>
     <string name="playlists">Playlists</string>
 
-    <string name="notification_channel_name">AZ player channel</string>
-    <string name="notification_channel_description">Notification for the currently playing audio</string>
+    <string name="notification_channel_name" translatable="false">AZ player channel</string>
+    <string name="notification_channel_description" translatable="false">Notification for the currently playing audio</string>
     <string name="network_error">Please check your Internet connection</string>
     <string name="connection_suspended">Connection suspended. Please try again.</string>
     <string name="failed_to_connect">Failed to connect.</string>
@@ -77,13 +77,16 @@
     <string name="are_you_sure_you_want_to_delete_all_selected">Are you sure you want to delete all selected?</string>
     <string name="are_you_sure_you_want_to_delete_it">Are you sure you want to delete it?</string>
 
-    <string name="copy_rights">Copyright @2022 by Omar AZ</string>
+    <string name="copy_rights" translatable="false">Copyright @2022 by Omar AZ</string>
     <string name="privacy_policies">Privacy Policies</string>
     <string name="open_source_licence">Open source licence</string>
     <string name="about_app">About app</string>
-    <string name="version">Version</string>
+    <string name="version" translatable="false">Version</string>
 
     <string name="add">Add</string>
     <string name="no_playlist_to_show">No playlist to show</string>
+    <string name="name_cannot_be_empty">Name Can\'t be empty</string>
 
+    <string name="play_list_name">Playlist name</string>
+    <string name="create">Create</string>
 </resources>

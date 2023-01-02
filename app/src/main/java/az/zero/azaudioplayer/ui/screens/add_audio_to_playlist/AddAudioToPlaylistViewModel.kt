@@ -17,6 +17,7 @@ class AddAudioToPlaylistViewModel @Inject constructor(
     private val stateHandler: SavedStateHandle
 ) : ViewModel() {
     private val playlistName = stateHandler.get<String>("playlistName") ?: ""
+    private val playlistId = stateHandler.get<Long>("playlistId") ?: 0L
 
     val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
 
@@ -70,7 +71,7 @@ class AddAudioToPlaylistViewModel @Inject constructor(
         Log.e("updatedPlaylist", "newAudioList: $newAudioList")
 
         viewModelScope.launch {
-            val updatedPlaylist = DBPlaylist(playlistName, newAudioList, false)
+            val updatedPlaylist = DBPlaylist(playlistName, newAudioList, false,playlistId)
             Log.e("updatedPlaylist", "updatedPlaylist: ${updatedPlaylist.dbAudioList.size}")
             audioRepository.addPlayList(updatedPlaylist)
         }
@@ -79,7 +80,7 @@ class AddAudioToPlaylistViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val playlist = audioRepository.getSinglePlayListById(playlistName) ?: return@launch
+            val playlist = audioRepository.getSinglePlaylistById(playlistId) ?: return@launch
             val currentPlaylistAudioList = playlist.dbAudioList.map { it.data }
             selectedAudioIds.clear()
             selectedAudioIds.addAll(currentPlaylistAudioList)
