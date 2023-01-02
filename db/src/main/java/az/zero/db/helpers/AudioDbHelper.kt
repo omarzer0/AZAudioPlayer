@@ -6,6 +6,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import az.zero.base.constants.FAVOURITE_PLAY_LIST_ID
 import az.zero.base.di.ApplicationScope
 import az.zero.db.AudioDao
 import az.zero.db.entities.DBAlbum
@@ -25,8 +26,8 @@ class AudioDbHelper @Inject constructor(
     private val dao: AudioDao,
 ) {
 
-     fun searchForNewAudios(
-        onFinish: (suspend() -> Unit)? = null,
+    fun searchForNewAudios(
+        onFinish: (suspend () -> Unit)? = null,
     ) {
         applicationScope.launch {
             val databaseList = dao.getAllDbAudioSingleList()
@@ -62,6 +63,7 @@ class AudioDbHelper @Inject constructor(
         dao.deleteFavouritePlaylist()
         dao.addPlayList(
             DBPlaylist(
+                id = FAVOURITE_PLAY_LIST_ID,
                 name = context.getString(az.zero.base.R.string.favourites),
                 dbAudioList = favouriteList,
                 isFavouritePlaylist = true

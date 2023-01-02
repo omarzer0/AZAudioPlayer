@@ -20,9 +20,10 @@ class PlaylistDetailsViewModel @Inject constructor(
     val currentPlayingAudio = audioRepository.nowPlayingDBAudio.distinctUntilChanged()
     val playbackState = audioRepository.playbackState
 
-    private val playlistName = stateHandler.get<String>("playlistName") ?: ""
+//    private val playlistName = stateHandler.get<String>("playlistName") ?: ""
+    private val playlistId = stateHandler.get<Long>("playlistId") ?: 0L
 
-    val playlist = audioRepository.getPlaylistById(playlistName)
+    val playlist = audioRepository.getPlaylistById(playlistId)
 
     fun addOrRemoveFromFavourite(DBAudio: DBAudio) {
         viewModelScope.launch {
@@ -44,7 +45,7 @@ class PlaylistDetailsViewModel @Inject constructor(
 
     fun deleteCurrentPlayList() {
         viewModelScope.launch {
-            audioRepository.deletePlayListById(playlistName)
+            audioRepository.deletePlayListById(playlistId)
         }
     }
 
@@ -52,6 +53,12 @@ class PlaylistDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             audioRepository.clearFavList()
             audioRepository.getUpdatedCurrentlyPlaying(currentPlayingAudio.value?.data ?: "")
+        }
+    }
+
+    fun onUpdatePlaylistName(playlistName: String, playlistId: Long) {
+        viewModelScope.launch {
+            audioRepository.onUpdatePlaylistName(playlistName,playlistId)
         }
     }
 }

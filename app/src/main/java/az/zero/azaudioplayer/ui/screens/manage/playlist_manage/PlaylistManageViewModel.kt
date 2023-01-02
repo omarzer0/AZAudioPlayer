@@ -89,7 +89,7 @@ class PlaylistManageViewModel @Inject constructor(
             state.value?.selectablePlaylists?.filter {
                 it.isSelected
             }?.forEach {
-                launch { audioRepository.deletePlayListById(it.playlist.name) }
+                launch { audioRepository.deletePlayListById(it.playlist.id ?: -1) }
             }
         }
     }

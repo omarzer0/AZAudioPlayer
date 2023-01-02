@@ -50,19 +50,19 @@ class HomeViewModel @Inject constructor(
         audioRepository.playOrPause()
     }
 
-    private val _errorFlow = MutableSharedFlow<Boolean>()
-    val errorFlow = _errorFlow.asSharedFlow()
+//    private val _errorFlow = MutableSharedFlow<Boolean>()
+//    val errorFlow = _errorFlow.asSharedFlow()
 
     fun createANewPlayListIfNotExist(playlistName: String) {
         viewModelScope.launch {
-            val exist = audioRepository.getSinglePlaylistById(playlistName) != null
-            _errorFlow.emit(false)
-            if (!exist) {
-                audioRepository.addPlayList(DBPlaylist(name = playlistName, emptyList()))
-            } else {
-                _errorFlow.emit(true)
-            }
-
+            audioRepository.addPlayList(DBPlaylist(name = playlistName, emptyList()))
+//            val exist = audioRepository.getSinglePlaylistById(playlistName) != null
+//            _errorFlow.emit(false)
+//            if (!exist) {
+//                audioRepository.addPlayList(DBPlaylist(name = playlistName, emptyList()))
+//            } else {
+//                _errorFlow.emit(true)
+//            }
         }
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -71,9 +73,9 @@ fun PlaylistDetailsScreen(
 
     var isDropDownExpanded by rememberSaveable { mutableStateOf(false) }
 
-    var dialogIsOpen by rememberSaveable {
-        mutableStateOf(false)
-    }
+    var deleteDialogIsOpen by rememberSaveable { mutableStateOf(false) }
+
+    var renameDialogIsOpen by rememberSaveable { mutableStateOf(false) }
 
     val currentlyPlayingAudio = viewModel.currentPlayingAudio.observeAsState().value ?: EMPTY_AUDIO
     val isPlaying = viewModel.playbackState.observeAsState().value?.isPlaying ?: false
@@ -111,7 +113,7 @@ fun PlaylistDetailsScreen(
 
         },
         onBottomTextClick = {
-            navigateToAddAudioScreen(navController = navController, playlistName = playlist.name)
+            navigateToAddAudioScreen(navController = navController, playlist = playlist)
         },
         onPlayListMoreClickActions = { actions ->
             isDropDownExpanded = false
@@ -119,14 +121,15 @@ fun PlaylistDetailsScreen(
                 AddAudio -> {
                     navigateToAddAudioScreen(
                         navController = navController,
-                        playlistName = playlist.name
+                        playlist = playlist
                     )
                 }
                 Delete -> {
-                    dialogIsOpen = true
+                    deleteDialogIsOpen = true
                 }
                 Rename -> {
                     // TODO navigate to change name fragment
+                    renameDialogIsOpen = true
                 }
             }
         }, onFavMoreClickActions = { actions ->
@@ -139,13 +142,23 @@ fun PlaylistDetailsScreen(
         }
     )
 
-    CustomDialog(
-        openDialog = dialogIsOpen,
-        onDismiss = { dialogIsOpen = false },
+    DeleteCustomDialog(
+        openDialog = deleteDialogIsOpen,
+        onDismiss = { deleteDialogIsOpen = false },
         onConfirmClick = {
-            dialogIsOpen = false
+            deleteDialogIsOpen = false
             viewModel.deleteCurrentPlayList()
             navController.navigateUp()
+        }
+    )
+
+    RenameCustomDialog(
+        openDialog = renameDialogIsOpen,
+        onDismiss = {
+            renameDialogIsOpen = !renameDialogIsOpen
+        },
+        onCreateClick = { playlistName ->
+            viewModel.onUpdatePlaylistName(playlistName,playlist.id?:-1)
         }
     )
 }
@@ -428,7 +441,7 @@ fun PlaylistDetailsSubHeader(
 
 
 @Composable
-fun CustomDialog(
+fun DeleteCustomDialog(
     openDialog: Boolean,
     onDismiss: () -> Unit,
     onConfirmClick: () -> Unit,
@@ -472,10 +485,82 @@ fun CustomDialog(
     }
 }
 
-private fun navigateToAddAudioScreen(navController: NavController, playlistName: String) {
+private fun navigateToAddAudioScreen(navController: NavController, playlist: DBPlaylist) {
     navController.navigate(
         PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToAddAudioToPlaylistFragment(
-            playlistName
+            playlist.name,
+            playlist.id ?: -1
         )
     )
+}
+@Composable
+fun RenameCustomDialog(
+    openDialog: Boolean,
+    onDismiss: () -> Unit,
+    onCreateClick: (playlistName: String) -> Unit,
+) {
+    var text by rememberSaveable { mutableStateOf("") }
+
+    val context = LocalContext.current
+    var toast: Toast? by remember { mutableStateOf(null) }
+
+    val textBtnColor =
+        if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.7f) else Color.DarkGray
+
+    if (openDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                text = ""
+                onDismiss()
+            },
+            text = {
+                CustomEditText(
+                    text = text,
+                    hint = stringResource(id = R.string.play_list_name),
+                    modifier = Modifier.fillMaxWidth(),
+                    onTextChanged = { text = it }
+                )
+            },
+            buttons = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = {
+                            if (text.isEmpty()) {
+                                toast?.cancel()
+                                toast = Toast.makeText(
+                                    context,
+                                    context.getString(R.string.name_cannot_be_empty),
+                                    Toast.LENGTH_LONG
+                                )
+                                toast?.show()
+                            } else {
+                                onDismiss()
+                                onCreateClick(text)
+                                text = ""
+                            }
+                        }
+                    ) {
+                        Text(stringResource(id = R.string.rename), color = textBtnColor)
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    TextButton(
+                        onClick = {
+                            onDismiss()
+                            text = ""
+                        }
+                    ) {
+                        Text(stringResource(id = R.string.cancel), color = textBtnColor)
+                    }
+                }
+            }
+        )
+    }
 }

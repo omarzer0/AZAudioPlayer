@@ -33,7 +33,6 @@ import az.zero.azaudioplayer.ui.screens.home.HomeFragmentDirections.*
 import az.zero.azaudioplayer.ui.screens.tab_screens.*
 import az.zero.azaudioplayer.ui.theme.SelectedColor
 import az.zero.azaudioplayer.utils.fakeAudio
-import az.zero.db.entities.DBAudio
 import az.zero.player.extensions.EMPTY_AUDIO
 import az.zero.player.extensions.isPlaying
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -257,8 +256,8 @@ fun HomeBottomPlayer(
 @Composable
 fun getTabsName(): List<String> {
     return listOf(
-        stringResource(id = R.string.audio),
-        stringResource(id = R.string.artist),
+        stringResource(id = R.string.audios),
+        stringResource(id = R.string.artists),
         stringResource(id = R.string.albums),
         stringResource(id = R.string.playlists)
     )

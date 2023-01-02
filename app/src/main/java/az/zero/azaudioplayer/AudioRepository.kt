@@ -228,16 +228,15 @@ class AudioRepository @Inject constructor(
 
     suspend fun addPlayList(dbPlaylist: DBPlaylist) = audioDao.addPlayList(dbPlaylist)
 
-    suspend fun deletePlayListById(playlistId: String) = audioDao.deletePlaylistById(playlistId)
+    suspend fun deletePlayListById(playlistId: Long) = audioDao.deletePlaylistById(playlistId)
 
-    suspend fun getSinglePlaylistById(playlistId: String) =
-        audioDao.getSinglePlaylistById(playlistId)
+    suspend fun getSinglePlaylistById(playlistId: Long) = audioDao.getSinglePlaylistById(playlistId)
 
     suspend fun getFavouritePlaylist() = audioDao.getFavouritePlaylist()
 
     suspend fun clearFavList() = audioDao.clearFavList(context)
 
-    fun getPlaylistById(playlistId: String) = audioDao.getPlaylistById(playlistId)
+    fun getPlaylistById(playlistId: Long) = audioDao.getPlaylistById(playlistId)
 
     suspend fun getAllDbAudioSingleListByQuery(query: String): List<DBAudio>? {
         return audioDao.getAllDbAudioSingleListByQuery(query.trim())
@@ -309,6 +308,10 @@ class AudioRepository @Inject constructor(
     }
 
     suspend fun deleteAudioById(data: String) = audioDao.deleteAudioById(data)
+
+    suspend fun onUpdatePlaylistName(playlistName: String, playlistId: Long) {
+        audioDao.onUpdatePlaylistName(playlistName,playlistId)
+    }
 
     init {
         audioDataSource.setDestinationAndGraphIds(pendingIntent())

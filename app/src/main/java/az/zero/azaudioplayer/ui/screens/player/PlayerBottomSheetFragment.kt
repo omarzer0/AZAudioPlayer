@@ -166,20 +166,20 @@ fun TopBar(onDragDownClick: () -> Unit) {
         contentAlignment = Center,
     ) {
 
-        IconButton(
-            modifier = Modifier
-                .mirror()
-                .align(CenterStart),
-            onClick = {
-
-            }
-        ) {
-            Icon(
-                Icons.Filled.MoreVert,
-                stringResource(id = R.string.more),
-                tint = MaterialTheme.colors.onPrimary
-            )
-        }
+//        IconButton(
+//            modifier = Modifier
+//                .mirror()
+//                .align(CenterStart),
+//            onClick = {
+//
+//            }
+//        ) {
+//            Icon(
+//                Icons.Filled.MoreVert,
+//                stringResource(id = R.string.more),
+//                tint = MaterialTheme.colors.onPrimary
+//            )
+//        }
 
         Box(
             modifier = Modifier
