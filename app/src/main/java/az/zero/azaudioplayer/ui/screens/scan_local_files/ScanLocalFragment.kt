@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,9 +22,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -61,14 +61,18 @@ fun ScanLocalScreen(
     navController: NavController,
 ) {
 
-    val state = viewModel.state.collectAsState(initial = ScanLocalState()).value
+    val state = viewModel.state.collectAsState().value
 
     ScanLocalScreen(
         isRunning = state.scanState == LOADING,
         scanState = state.scanState,
         audiosFound = state.audiosFound,
+        skipRecordingsDirectoryAudios = state.skipRecordingsDirectoryAudios,
+        skipAndroidDirectoryAudios = state.skipAndroidDirectoryAudios,
         onBackPressed = { navController.navigateUp() },
-        onScanAnotherTimeClick = { viewModel.onSearchClick() }
+        onScanAnotherTimeClick = { viewModel.onSearchClick() },
+        onSkipRecordingsDirectoryChange = { viewModel.onSkipRecordingsDirectoryChange(it) },
+        onSkipAndroidDirectoryChange = { viewModel.onSkipAndroidDirectoryChange(it) }
     )
 }
 
@@ -77,8 +81,12 @@ fun ScanLocalScreen(
     isRunning: Boolean,
     scanState: ScanLocalState.ScanState,
     audiosFound: Int,
+    skipRecordingsDirectoryAudios: Boolean,
+    skipAndroidDirectoryAudios: Boolean,
     onBackPressed: () -> Unit,
     onScanAnotherTimeClick: () -> Unit,
+    onSkipRecordingsDirectoryChange: (isChecked: Boolean) -> Unit,
+    onSkipAndroidDirectoryChange: (isChecked: Boolean) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -105,6 +113,22 @@ fun ScanLocalScreen(
 
         ScanAnimation(isRunning = isRunning)
 
+        SwitchWithText(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(id = R.string.skip_files_of_recordings),
+            isChecked = skipRecordingsDirectoryAudios,
+            enabled = !isRunning,
+            onCheckedChange = onSkipRecordingsDirectoryChange
+        )
+
+        SwitchWithText(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(id = R.string.skip_files_of_android_system),
+            isChecked = skipAndroidDirectoryAudios,
+            enabled = !isRunning,
+            onCheckedChange = onSkipAndroidDirectoryChange
+        )
+
         TopWithBottomText(
             topTextString = topText,
             topTextStyle = MaterialTheme.typography.h2.copy(color = if (isSystemInDarkTheme()) Color.White else Color.Black),
@@ -118,7 +142,7 @@ fun ScanLocalScreen(
             modifier = Modifier.width(250.dp),
             contentPadding = PaddingValues(vertical = 12.dp),
             shape = CircleShape,
-            enabled = scanState != LOADING,
+            enabled = !isRunning,
             colors = ButtonDefaults.buttonColors(backgroundColor = SelectedColor),
             onClick = onScanAnotherTimeClick
         ) {
@@ -128,6 +152,43 @@ fun ScanLocalScreen(
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
+    }
+}
+
+@Composable
+fun SwitchWithText(
+    modifier: Modifier = Modifier,
+    text: String,
+    isChecked: Boolean,
+    enabled: Boolean = true,
+    textStyle: TextStyle = MaterialTheme.typography.h2.copy(
+        color = MaterialTheme.colors.onBackground
+    ),
+    onCheckedChange: (isChecked: Boolean) -> Unit,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            modifier = Modifier
+                .weight(1f),
+            text = text, style = textStyle,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Start,
+        )
+
+        Switch(
+            checked = isChecked,
+            enabled = enabled,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = SelectedColor,
+                uncheckedThumbColor = MaterialTheme.colors.onBackground
+            )
+        )
     }
 }
 
@@ -207,38 +268,6 @@ fun CheckMarkAnimation() {
         }
     }
 }
-
-@OptIn(ExperimentalAnimationApi::class)
-private fun expandFading(time: Int) =
-    fadeIn(animationSpec = tween(time * 3)) with
-            fadeOut(animationSpec = tween(time))
-
-@OptIn(ExperimentalAnimationApi::class)
-private fun expandSizing(time: Int) =
-    SizeTransform { initialSize, targetSize ->
-        keyframes {
-            // Expand to target width first
-            IntSize(targetSize.width, initialSize.height) at time
-            // Then expand to target height
-            durationMillis = time * 3
-        }
-    }
-
-@OptIn(ExperimentalAnimationApi::class)
-private fun shrinkSizing(time: Int) =
-    SizeTransform { initialSize, targetSize ->
-        keyframes {
-            // Shrink to target height first
-            IntSize(initialSize.width, targetSize.height) at time
-            // Then shrink to target width
-            durationMillis = time * 3
-        }
-    }
-
-@OptIn(ExperimentalAnimationApi::class)
-fun shrinkFading(time: Int) =
-    fadeIn(animationSpec = tween(time, time * 2)) with
-            fadeOut(animationSpec = tween(time * 3))
 
 @Composable
 fun BasicCircle(

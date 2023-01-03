@@ -9,9 +9,13 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import az.zero.azaudioplayer.AZApplication
 import az.zero.azaudioplayer.R
+import az.zero.base.di.ApplicationScope
+import az.zero.datastore.DataStoreManager
 import az.zero.db.helpers.AudioDbHelper
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @ExperimentalPagerApi
@@ -21,6 +25,13 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var audioDbHelper: AudioDbHelper
+
+    @Inject
+    lateinit var dataStoreManager: DataStoreManager
+
+    @Inject
+    @ApplicationScope
+    lateinit var appScope: CoroutineScope
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +54,15 @@ class MainActivity : AppCompatActivity() {
             }
             if (!azApp.checkedForPermission) {
                 azApp.checkedForPermission = true
-                audioDbHelper.searchForNewAudios()
+                appScope.launch {
+                    val skipRecordings = dataStoreManager.read(DataStoreManager.SKIP_RECORDINGS_FILES, true)
+                    val skipAndroidFiles = dataStoreManager.read(DataStoreManager.SKIP_ANDROID_FILES, true)
+                    audioDbHelper.searchForNewAudios(
+                        skipRecordings = skipRecordings,
+                        skipAndroidFiles = skipAndroidFiles
+                    )
+                }
+
             }
 
         }

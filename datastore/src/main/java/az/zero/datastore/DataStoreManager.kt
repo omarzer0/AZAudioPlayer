@@ -51,6 +51,32 @@ class DataStoreManager @Inject constructor(
             preferences[stringPreferencesKey(SORT_ALBUM_BY)] ?: ""
         }
 
+    val skipRecordingsDirectoryAudios = mDataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                Log.e("DataStoreManager", "Error reading preferences", exception)
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[booleanPreferencesKey(SKIP_RECORDINGS_FILES)] ?: true
+        }
+
+    val skipAndroidDirectoryAudios = mDataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                Log.e("DataStoreManager", "Error reading preferences", exception)
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[booleanPreferencesKey(SKIP_ANDROID_FILES)] ?: true
+        }
+
     suspend fun write(key: String, value: String) {
         mDataStore.edit { settings ->
             settings[stringPreferencesKey(key)] = value
@@ -60,6 +86,12 @@ class DataStoreManager @Inject constructor(
     suspend fun write(key: String, value: Int) {
         mDataStore.edit { settings ->
             settings[intPreferencesKey(key)] = value
+        }
+    }
+
+    suspend fun write(key: String, value: Boolean) {
+        mDataStore.edit { settings ->
+            settings[booleanPreferencesKey(key)] = value
         }
     }
 
@@ -119,7 +151,8 @@ class DataStoreManager @Inject constructor(
         const val SHUFFLE_MODE = "SHUFFLE_MODE"
         const val SORT_AUDIO_BY = "SORT_AUDIO_BY"
         const val SORT_ALBUM_BY = "SORT_ALBUM_BY"
-        private const val SHUFFLE_NONE = 0
+        const val SKIP_RECORDINGS_FILES = "SKIP_RECORDINGS_FILES"
+        const val SKIP_ANDROID_FILES = "SKIP_ANDROID_FILES"
     }
 
     suspend fun clearDataStore() {

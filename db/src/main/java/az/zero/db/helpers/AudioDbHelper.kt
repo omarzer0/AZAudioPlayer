@@ -14,10 +14,7 @@ import az.zero.db.entities.DBArtist
 import az.zero.db.entities.DBAudio
 import az.zero.db.entities.DBPlaylist
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 class AudioDbHelper @Inject constructor(
@@ -25,13 +22,20 @@ class AudioDbHelper @Inject constructor(
     @ApplicationScope private val applicationScope: CoroutineScope,
     private val dao: AudioDao,
 ) {
+    private var scanJob :Job? = null
 
     fun searchForNewAudios(
+        skipRecordings: Boolean = true,
+        skipAndroidFiles: Boolean = true,
         onFinish: (suspend () -> Unit)? = null,
     ) {
-        applicationScope.launch {
+        scanJob?.cancel()
+        scanJob = applicationScope.launch {
             val databaseList = dao.getAllDbAudioSingleList()
-            val localList = getMusic()
+            val localList = getMusic(
+                skipRecordings = skipRecordings,
+                skipAndroidFiles = skipAndroidFiles
+            )
 
             val added = async { computeItemsToAdd(databaseList, localList) }
             // TODO get all new audios and use them instead of localList
@@ -123,7 +127,10 @@ class AudioDbHelper @Inject constructor(
     }
 
     @SuppressLint("Range")
-    private fun getMusic(): List<DBAudio> {
+    private fun getMusic(
+        skipRecordings: Boolean = true,
+        skipAndroidFiles: Boolean = true,
+    ): List<DBAudio> {
         val localList = mutableListOf<DBAudio>()
         val contentResolver: ContentResolver = context.contentResolver
         val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -133,7 +140,17 @@ class AudioDbHelper @Inject constructor(
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 val data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
-//                if (!File(data).exists()) continue
+                if (skipRecordings) {
+                    if (data.lowercase().contains("Recording".lowercase())) continue
+                }
+
+                if (skipAndroidFiles) {
+                    if (data.lowercase().contains("Android/".lowercase())) continue
+                }
+
+//                if (data.lowercase().contains("Recording".lowercase()) || data.lowercase()
+//                        .contains("Android/".lowercase())
+//                ) continue
 
                 val title =
                     getOrUnknown(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)))

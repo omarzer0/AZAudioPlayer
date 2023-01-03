@@ -66,4 +66,6 @@
     <string name="name_cannot_be_empty">الأسم لايمكن ان يكون فارغا</string>
     <string name="create">إضافة</string>
     <string name="play_list_name">اسم قائمة التشغيل</string>
+    <string name="skip_files_of_recordings">تخطي ملفات التسجيل الصوتي</string>
+    <string name="skip_files_of_android_system">تخطي ملفات نظام الأندرويد</string>
 </resources>

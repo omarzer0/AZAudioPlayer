@@ -89,4 +89,7 @@
 
     <string name="play_list_name">Playlist name</string>
     <string name="create">Create</string>
+
+    <string name="skip_files_of_recordings">Skip files of Recordings</string>
+    <string name="skip_files_of_android_system">Skip files of Android system</string>
 </resources>
