@@ -1,19 +1,55 @@
 # AZAudioPlayer
-## Audio player with jetpack compose
+## Jetpack compose audio player app featuring exo player, getting local audio form the device showing all audio files, artists, albums, favourite playlist, customizing new playlists, searching for audio files with artists, albums and audio file names, supporting dark and light modes and suporting both English and Arabic languages.
 
-## Simple preview (The full preview below)
+## Sample preview (The full preview below)
 
 <p>
 <img src="https://github.com/omarzer0/ImagesAndVideos/blob/main/az%20audio%20player/dark/1d.jpg" width="150">
 <img src="https://github.com/omarzer0/ImagesAndVideos/blob/main/az%20audio%20player/dark/5d.jpg" width="150">
-<img src="https://github.com/omarzer0/ImagesAndVideos/blob/main/az%20audio%20player/dark/11d.jpg" width="150">
 <img src="https://github.com/omarzer0/ImagesAndVideos/blob/main/az%20audio%20player/light/1l.jpg" width="150">
 <img src="https://github.com/omarzer0/ImagesAndVideos/blob/main/az%20audio%20player/light/5l.jpg" width="150">
-<img src="https://github.com/omarzer0/ImagesAndVideos/blob/main/az%20audio%20player/light/10l.jpg" width="150">
 </p>
 
+## Features:
+  - Get All local Audio files changes (deletons, additions and updates).
+  - Show all Audio files, artist, albums and favourite playlist.
+  - Search for Audio by atist, album or audio name.
+  - Add, rename and delete custom playlists.
+  - Enable skipping android directory Audio files and recordings.
+  - Sort Audio files by recently changes, artist name or audio name.
+  - Sort Albums ascending or descending.
+  - Handle Audio playing when become noisy (when other audio plays) or when detach headphone.
+  - Show notification with rewind, pause and fast forward and showing audio cover.
+  - Add Audio file to favourite, repeat all or repeat once and shuffle playing audio files order.
+  - Support English and Arabic languages.
+  - Support Dark and Light modes.
+  
+## Tech stack & Open-source libraries
+- Minimum SDK level 21
+- [Kotlin](https://kotlinlang.org/) based, [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) together with [Flow](https://developer.android.com/kotlin/flow) for asynchronous streams and one side viewModel to fragment communication.
 
+- Dagger Hilt for dependency injection.
+- Exo Player: Provides an alternative to Android's MediaPlayer API for playing audio locally and over the Internet.
+- Room: Persistence library that provides an abstraction layer over SQLite database.
+- Datastore: to store key-value pairs or typed objects with protocol buffers.
+- SaveStateHandler to handle process death and pass data between fragments.
+- [Jetpack Compose](https://developer.android.com/jetpack/compose/documentation) for the UI.
+- [Coil Compose](https://coil-kt.github.io/coil): An image loading library for Android backed by Kotlin Coroutines for loading async images for compose.
+- [Holi Colors](https://github.com/PatilSiddhesh/Holi) A wide collection of colors from different palettes for easy access in Compose application.
+- [Accompanist](https://github.com/google/accompanist): A group of libraries that aim to supplement Jetpack Compose with features that are commonly required by developers 
+  - [Compose Pager](https://google.github.io/accompanist/pager/) Provides paging layouts for Jetpack Compose.
+  - [System UI controller](https://google.github.io/accompanist/systemuicontroller/) Provides easy-to-use utilities for updating the System UI bar colors within Jetpack Compose.
+  - [Extended Icons](https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary) Provides full set of Material icons to be used with Compose.
+  
+- JetPack:
+  - Lifecycle - Dispose of observing data when the lifecycle state changes.
+  - Fragments - Pesents a reusable portion of app's UI.
+  - ViewModel - UI related data holder, lifecycle aware.
+  - Navigation Component (Not compose navigation) - Makes it easier to navigate between different screens and pass data in type-safe way
 
+- Architecture:
+  - [MVI Architecture (Model-View-Intent)](https://www.raywenderlich.com/817602-mvi-architecture-for-android-tutorial-getting-started)
+  - Repository pattern
 
 # Preview
 <p>
