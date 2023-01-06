@@ -1,7 +1,8 @@
 # AZAudioPlayer
-## Jetpack compose audio player app featuring exo player, getting local audio form the device showing all audio files, artists, albums, favourite playlist, customizing new playlists, searching for audio files with artists, albums and audio file names, supporting dark and light modes and suporting both English and Arabic languages.
 
-## Sample preview (The full preview below)
+## Jetpack Compose audio player app featuring Exo player, getting local audio from the device showing all audio files, artists, albums, favorite playlists, customizing new playlists, searching for audio files with artists, albums, and audio file names, supporting dark and light modes and supporting both English and Arabic languages.
+
+## Sample preview (The full preview is below)
 
 <p>
 <img src="https://github.com/omarzer0/ImagesAndVideos/blob/main/az%20audio%20player/dark/1d.jpg" width="150">
@@ -11,16 +12,16 @@
 </p>
 
 ## Features:
-  - Get All local Audio files changes (deletons, additions and updates).
-  - Show all Audio files, artist, albums and favourite playlist.
-  - Search for Audio by atist, album or audio name.
+  - Get All local Audio file changes (deletions, additions, and updates).
+  - Show all Audio files, artists, albums, and favorite playlists.
+  - Search for Audio by artist, album, or audio name.
   - Add, rename and delete custom playlists.
   - Enable skipping android directory Audio files and recordings.
-  - Sort Audio files by recently changes, artist name or audio name.
+  - Sort Audio files by recent changes, artist name, or audio name.
   - Sort Albums ascending or descending.
-  - Handle Audio playing when become noisy (when other audio plays) or when detach headphone.
-  - Show notification with rewind, pause and fast forward and showing audio cover.
-  - Add Audio file to favourite, repeat all or repeat once and shuffle playing audio files order.
+  - Handle Audio playing when become noisy (when other audio plays) or when detaching a headphone.
+  - Show notification with rewind, pause, and fast forward and show audio cover.
+  - Add an Audio file to favorite, repeat all or repeat once and shuffle the order of playing audio files.
   - Support English and Arabic languages.
   - Support Dark and Light modes.
   
@@ -39,17 +40,17 @@
 - [Accompanist](https://github.com/google/accompanist): A group of libraries that aim to supplement Jetpack Compose with features that are commonly required by developers 
   - [Compose Pager](https://google.github.io/accompanist/pager/) Provides paging layouts for Jetpack Compose.
   - [System UI controller](https://google.github.io/accompanist/systemuicontroller/) Provides easy-to-use utilities for updating the System UI bar colors within Jetpack Compose.
-  - [Extended Icons](https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary) Provides full set of Material icons to be used with Compose.
+  - [Extended Icons](https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary) Provides a full set of Material icons to be used with Compose.
   
 - JetPack:
   - Lifecycle - Dispose of observing data when the lifecycle state changes.
-  - Fragments - Pesents a reusable portion of app's UI.
-  - ViewModel - UI related data holder, lifecycle aware.
-  - Navigation Component (Not compose navigation) - Makes it easier to navigate between different screens and pass data in type-safe way
+  - Fragments - Present a reusable portion of the app's UI.
+  - ViewModel - UI-related data holder, lifecycle aware.
+  - Navigation Component (Not compose navigation) - Makes it easier to navigate between different screens and pass data in a type-safe way.
 
 - Architecture:
-  - [MVI Architecture (Model-View-Intent)](https://www.raywenderlich.com/817602-mvi-architecture-for-android-tutorial-getting-started)
-  - Repository pattern
+  - [MVI Architecture (Model-View-Intent)](https://www.raywenderlich.com/817602-mvi-architecture-for-android-tutorial-getting-started).
+  - Repository pattern.
 
 # Preview
 <p>
