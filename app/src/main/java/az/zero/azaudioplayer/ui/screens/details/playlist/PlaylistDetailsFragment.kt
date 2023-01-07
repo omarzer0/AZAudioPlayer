@@ -1,6 +1,7 @@
 package az.zero.azaudioplayer.ui.screens.details.playlist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -152,7 +153,11 @@ fun PlaylistDetailsScreen(
         }
     )
 
+    LaunchedEffect(playlist.name){
+        Log.e("PlaylistDetailsScreen", "Name: ${playlist.name}")
+    }
     RenameCustomDialog(
+        initialText = playlist.name,
         openDialog = renameDialogIsOpen,
         onDismiss = {
             renameDialogIsOpen = !renameDialogIsOpen
@@ -191,7 +196,7 @@ fun PlaylistDetailsScreen(
     ) {
 
         BasicHeaderWithBackBtn(
-            text = playlist.name,
+            text = "",
             onBackPressed = onBackIconClick,
             actions = {
                 if (playlist.isFavouritePlaylist) {
@@ -495,11 +500,12 @@ private fun navigateToAddAudioScreen(navController: NavController, playlist: DBP
 }
 @Composable
 fun RenameCustomDialog(
+    initialText:String = "",
     openDialog: Boolean,
     onDismiss: () -> Unit,
     onCreateClick: (playlistName: String) -> Unit,
 ) {
-    var text by rememberSaveable { mutableStateOf("") }
+    var text by remember(openDialog) { mutableStateOf(initialText) }
 
     val context = LocalContext.current
     var toast: Toast? by remember { mutableStateOf(null) }
@@ -531,7 +537,7 @@ fun RenameCustomDialog(
                 ) {
                     TextButton(
                         onClick = {
-                            if (text.isEmpty()) {
+                            if (text.trim().isEmpty()) {
                                 toast?.cancel()
                                 toast = Toast.makeText(
                                     context,
@@ -541,7 +547,7 @@ fun RenameCustomDialog(
                                 toast?.show()
                             } else {
                                 onDismiss()
-                                onCreateClick(text)
+                                onCreateClick(text.trim())
                                 text = ""
                             }
                         }

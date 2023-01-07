@@ -41,19 +41,6 @@ fun PlaylistScreen(
 ) {
 
     val allPlaylist = viewModel.allPlaylists.observeAsState().value ?: emptyList()
-//    val errorAddingDuplicatePlaylistName by viewModel.errorFlow.collectAsState(initial = false)
-//    val context = LocalContext.current
-//    val errorString = stringResource(id = R.string.playlist_already_exists)
-//
-//    LaunchedEffect(errorAddingDuplicatePlaylistName) {
-//        if (errorAddingDuplicatePlaylistName) {
-//            Toast.makeText(
-//                context,
-//                errorString,
-//                Toast.LENGTH_SHORT
-//            ).show()
-//        }
-//    }
 
     PlaylistScreen(
         allPlaylist = allPlaylist,
@@ -193,7 +180,7 @@ fun CustomDialog(
                 ) {
                     TextButton(
                         onClick = {
-                            if (text.isEmpty()) {
+                            if (text.trim().isEmpty()) {
                                 toast?.cancel()
                                 toast = Toast.makeText(
                                     context,
@@ -203,7 +190,7 @@ fun CustomDialog(
                                 toast?.show()
                             } else {
                                 onDismiss()
-                                onCreateClick(text)
+                                onCreateClick(text.trim())
                                 text = ""
                             }
                         }
