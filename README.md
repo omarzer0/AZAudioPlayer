@@ -52,6 +52,9 @@
   - [MVI Architecture (Model-View-Intent)](https://www.raywenderlich.com/817602-mvi-architecture-for-android-tutorial-getting-started).
   - Repository pattern.
 
+## Inspired form Google official sample 
+- [Uamp](https://github.com/android/uamp)
+
 # Preview
 <p>
 <img src="https://github.com/omarzer0/ImagesAndVideos/blob/main/az%20audio%20player/dark/1d.jpg" width="150">
