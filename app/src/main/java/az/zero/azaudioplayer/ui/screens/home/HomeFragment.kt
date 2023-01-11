@@ -197,23 +197,13 @@ fun TabContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.8f),
-            listOfTabNames = tabNames,
+            tabs = tabNames,
             initialTabPosition = initialTabPosition,
             tabHostBackgroundColor = MaterialTheme.colors.background,
             tabSelectorColor = SelectedColor,
             selectedContentColor = SelectedColor,
             unSelectedContentColor = MaterialTheme.colors.onPrimary,
-            onTapChanged = onTapChange,
-            textContent = { text ->
-                Text(
-                    text = text,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Start
-                )
-            }
+            onTabChange = onTapChange,
         ) {
             when (it) {
                 0 -> AllAudioScreen(viewModel)
