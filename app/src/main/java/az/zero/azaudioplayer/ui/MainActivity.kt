@@ -1,6 +1,7 @@
 package az.zero.azaudioplayer.ui
 
 import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -71,10 +72,14 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         activityResultLauncher.launch(
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            )
+            if(Build.VERSION.SDK_INT < 32){
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                )
+            }else{
+                arrayOf(Manifest.permission.READ_MEDIA_AUDIO)
+            }
         )
     }
 
